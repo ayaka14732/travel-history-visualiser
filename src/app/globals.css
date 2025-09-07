@@ -1,26 +1,41 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+:lang(zh-HK) h1,
+:lang(zh-HK) h2,
+:lang(zh-HK) h3,
+:lang(zh-HK) h4,
+:lang(zh-HK) h5,
+:lang(zh-HK) h6 {
+  font-family: "Source Han Serif C", "Source Han Serif K", "Noto Serif CJK KR", "Source Han Serif SC",
+    "Noto Serif CJK SC", "Source Han Serif", "Noto Serif CJK JP", "Source Han Serif TC", "Noto Serif CJK TC",
+    "Noto Serif KR", "Noto Serif SC", "Noto Serif TC", "Jomolhari", "HanaMin", "CharisSILW", serif;
+}
+
+.visualiser-mock-flag::before {
+  content: "🇬🇧";
+  display: inline-block;
+  visibility: hidden;
+}
+
+.visualiser-mock-flag {
+  @apply rounded;
+}
+
+.visualiser-svg-flag {
+  @apply inline-block w-5 rounded-xs;
+}
+
+.visualiser-settings-label {
+  @apply block text-sm font-bold my-3;
 }
