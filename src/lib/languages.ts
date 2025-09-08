@@ -24,6 +24,7 @@ const languages: Language[] = [
       fullDay: "入境及出境當日各計一日",
       halfDay: "入境及出境當日各計半日",
       includeEntry: "入境當日計一日，出境當日不計",
+      includeExit: "出境當日計一日，入境當日不計",
       displayFormat: "顯示格式",
       pieChart: "餅圖",
       table: "表格",
@@ -65,6 +66,7 @@ const languages: Language[] = [
       fullDay: "Entry and exit days count as full day", // TODO: check
       halfDay: "Entry and exit days count as half day", // TODO: check
       includeEntry: "Entry day count as full day, exclude exit day", // TODO: check
+      includeExit: "Exit day count as full day, exclude entry day", // TODO: check
       displayFormat: "Display Format",
       pieChart: "Pie Chart",
       table: "Table",

@@ -21,6 +21,7 @@ export interface Language {
     fullDay: string;
     halfDay: string;
     includeEntry: string;
+    includeExit: string;
     displayFormat: string;
     pieChart: string;
     table: string;

@@ -30,21 +30,26 @@ const COLORS = [
   "#f97316",
 ] as const;
 
+// https://zh.wikipedia.org/zh-hk/%E7%BE%8E%E5%9C%8B%E5%B7%9E%E4%BB%BD%E5%92%8C%E9%A0%98%E5%9C%B0%E5%88%97%E8%A1%A8
 const svgFlags = new Map<string, { url: string; alt: string }>([
   /* CA */ ["加利福尼亞州", { url: "./flags/Flag_of_California.svg", alt: "🏴󠁵󠁳󠁣󠁡󠁿" }],
+  /* FL */ ["佛羅里達州", { url: "./flags/Flag_of_Florida.svg", alt: "🏴󠁵󠁳󠁦󠁬󠁿" }],
+  /* MT */ ["蒙大拿州", { url: "./flags/Flag_of_Montana.svg", alt: "🏴󠁵󠁳󠁭󠁴󠁿" }],
   /* NJ */ ["新澤西州", { url: "./flags/Flag_of_New_Jersey.svg", alt: "🏴󠁵󠁳󠁮󠁪󠁿" }],
   /* NY */ ["紐約州", { url: "./flags/Flag_of_New_York.svg", alt: "🏴󠁵󠁳󠁮󠁹󠁿" }],
   /* PA */ ["賓夕凡尼亞州", { url: "./flags/Flag_of_Pennsylvania.svg", alt: "🏴󠁵󠁳󠁰󠁡󠁿" }],
   /* UT */ ["猶他州", { url: "./flags/Flag_of_Utah.svg", alt: "🏴󠁵󠁳󠁵󠁴󠁿" }],
 ]);
 
+// https://zh.wikipedia.org/zh-hk/%E5%8C%BA%E5%9F%9F%E6%8C%87%E7%A4%BA%E7%AC%A6
 const emojiFlags = new Map<string, string>([
+  /* ae */ ["阿聯酋", "🇦🇪"],
   /* at */ ["奧地利", "🇦🇹"],
-  /* au */ ["澳大利亞", "🇦🇺"],
+  /* au */ ["澳洲", "🇦🇺"],
   /* be */ ["比利時", "🇧🇪"],
   /* ca */ ["加拿大", "🇨🇦"],
   /* ch */ ["瑞士", "🇨🇭"],
-  /* cn */ ["中國內地", "🇨🇳"],
+  /* cn */ ["中國", "🇨🇳"],
   /* cz */ ["捷克", "🇨🇿"],
   /* de */ ["德國", "🇩🇪"],
   /* dk */ ["丹麥", "🇩🇰"],
@@ -58,13 +63,24 @@ const emojiFlags = new Map<string, string>([
   /* hu */ ["匈牙利", "🇭🇺"],
   /* id */ ["印度尼西亞", "🇮🇩"],
   /* ie */ ["愛爾蘭", "🇮🇪"],
+  /* in */ ["印度", "🇮🇳"],
+  /* is */ ["冰島", "🇮🇸"],
   /* it */ ["意大利", "🇮🇹"],
   /* jp */ ["日本", "🇯🇵"],
+  /* kr */ ["韓國", "🇰🇷"],
+  /* ky */ ["開曼群島", "🇰🇾"],
+  /* mc */ ["摩納哥", "🇲🇨"],
   /* mo */ ["澳門", "🇲🇴"],
   /* my */ ["馬來西亞", "🇲🇾"],
   /* nl */ ["荷蘭", "🇳🇱"],
   /* no */ ["挪威", "🇳🇴"],
+  /* np */ ["尼泊爾", "🇳🇵"],
+  /* nr */ ["瑙魯", "🇳🇷"],
+  /* nu */ ["紐埃", "🇳🇺"],
+  /* nz */ ["紐西蘭", "🇳🇿"],
+  /* om */ ["阿曼", "🇴🇲"],
   /* pt */ ["葡萄牙", "🇵🇹"],
+  /* ru */ ["俄羅斯", "🇷🇺"],
   /* se */ ["瑞典", "🇸🇪"],
   /* sg */ ["新加坡", "🇸🇬"],
   /* sk */ ["斯洛伐克", "🇸🇰"],
@@ -74,6 +90,41 @@ const emojiFlags = new Map<string, string>([
   ["英格蘭", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"],
   ["蘇格蘭", "🏴󠁧󠁢󠁳󠁣󠁴󠁿"],
 ]);
+
+const sampleData = `20190219	20190222	日本			
+20190222	20190225	阿聯酋			
+20190225	20190305	申根區域	瑞士	20190225	20190228
+			法國	20190228	20190303
+			摩納哥	20190303	20190305
+20190305	20190315	英國	英格蘭		
+20190315	20190325	美國	紐約州	20190315	20190320
+			佛羅里達州	20190320	20190325
+20190325	20190401	開曼群島			
+20190402	20190410	日本			
+20190410	20190420	中國			
+20190420	20190501	新加坡			
+20190502	20190510	澳洲			
+20190510	20190520	紐西蘭			
+20190521	20190525	日本			
+20190525	20190605	俄羅斯			
+20190605	20190615	申根區域	德國	20190605	20190609
+			奧地利	20190609	20190615
+20190615	20190630	英國	英格蘭	20190615	20190622
+			蘇格蘭	20190622	20190622
+			英格蘭	20190622	20190622
+			蘇格蘭	20190622	20190623
+			英格蘭	20190623	20190630
+20190630	20190715	申根區域	挪威	20190630	20190710
+			冰島	20190710	20190715
+20190715	20190725	加拿大			
+20190725	20190820	美國	加利福尼亞州	20190725	20190805
+			蒙大拿州	20190805	20190820
+20190821	20190901	日本			
+20190901	20190910	韓國			
+20190910	20190920	中國			
+20190921	20191001	阿曼			
+20191001	20191015	印度			
+20191016	20191101	日本			`;
 
 const setDocumentLang = (langCode: string) => {
   if (typeof document !== "undefined") {
@@ -96,17 +147,17 @@ const formatDays = (days: number): string => {
 export default function TravelVisualiser() {
   const [currentLang, setCurrentLang] = useState<Language>(languages[0]);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
-  const [csvInput, setCsvInput] = useState("");
+  const [csvInput, setCsvInput] = useState(sampleData);
   const [period, setPeriod] = useState<"all" | "2years" | "1year" | "180" | "custom">("all");
   const [customFrom, setCustomFrom] = useState(getIsoOneYearAgo());
   const [customTo, setCustomTo] = useState(getIsoToday());
-  const [countingMethod, setCountingMethod] = useState<"full" | "half" | "entry">("full");
-  const [displayFormat, setDisplayFormat] = useState<"pie" | "table">("pie");
+  const [countingMethod, setCountingMethod] = useState<"full" | "half" | "entry" | "exit">("full");
+  const [displayFormat, setDisplayFormat] = useState<"table" | "pie">("table");
   const [sortBy, setSortBy] = useState<"days" | "time">("days");
   const [pieDisplay, setPieDisplay] = useState<"percentage" | "days">("percentage");
   const [breakdown, setBreakdown] = useState<"region" | "details">("region");
   const [error, setError] = useState("");
-  const [jsonModalOpen, setJsonModalOpen] = useState(false);
+  const [inputModalOpen, setInputModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const t = currentLang.translations;
@@ -176,7 +227,9 @@ export default function TravelVisualiser() {
           ? numSpansToCount(spans, "countAs1", "countAs1", lowerCutOff, upperCutOff)
           : countingMethod === "half"
           ? numSpansToCount(spans, "countAs0.5", "countAs0.5", lowerCutOff, upperCutOff)
-          : numSpansToCount(spans, "countAs1", "countAs0", lowerCutOff, upperCutOff);
+          : countingMethod === "entry"
+          ? numSpansToCount(spans, "countAs1", "countAs0", lowerCutOff, upperCutOff)
+          : numSpansToCount(spans, "countAs0", "countAs1", lowerCutOff, upperCutOff);
 
       if (days === 0) continue;
       regionToNumOfDaysMap.set(region, days);
@@ -242,7 +295,7 @@ export default function TravelVisualiser() {
           {/* JSON Input Button */}
           <div className="bg-gray-900 rounded-xl p-6">
             <button
-              onClick={() => setJsonModalOpen(true)}
+              onClick={() => setInputModalOpen(true)}
               className="w-full flex items-center justify-center gap-3 bg-violet-600 hover:bg-violet-700 text-white py-3 px-6 rounded-lg transition-colors">
               <Upload className="w-5 h-5" />
               <span className="font-medium">{t.inputLabel}</span>
@@ -250,13 +303,13 @@ export default function TravelVisualiser() {
             {error && <p className="text-red-400 text-sm mt-5">{error}</p>}
           </div>
 
-          {/* JSON Input Modal */}
-          {jsonModalOpen && (
+          {/* Input Modal */}
+          {inputModalOpen && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
               <div className="bg-gray-900 rounded-xl w-full max-w-4xl h-[90vh] flex flex-col">
                 <div className="flex items-center justify-between p-6 border-b border-gray-700">
                   <h3 className="text-xl font-semibold">{t.inputLabel}</h3>
-                  <button onClick={() => setJsonModalOpen(false)} className="text-gray-400 hover:text-white p-2">
+                  <button onClick={() => setInputModalOpen(false)} className="text-gray-400 hover:text-white p-2">
                     <X className="w-6 h-6" />
                   </button>
                 </div>
@@ -270,12 +323,12 @@ export default function TravelVisualiser() {
                 </div>
                 <div className="p-6 border-t border-gray-700 flex justify-end gap-3">
                   <button
-                    onClick={() => setJsonModalOpen(false)}
+                    onClick={() => setInputModalOpen(false)}
                     className="px-4 py-2 text-gray-300 hover:text-white transition-colors">
                     取消
                   </button>
                   <button
-                    onClick={() => setJsonModalOpen(false)}
+                    onClick={() => setInputModalOpen(false)}
                     className="px-6 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors">
                     確定
                   </button>
@@ -346,6 +399,7 @@ export default function TravelVisualiser() {
                   { value: "full", label: t.fullDay },
                   { value: "half", label: t.halfDay },
                   { value: "entry", label: t.includeEntry },
+                  { value: "exit", label: t.includeExit },
                 ].map(option => (
                   <label key={option.value} className="flex items-center gap-1">
                     <input
@@ -386,8 +440,8 @@ export default function TravelVisualiser() {
               <h4 className="visualiser-settings-label">{t.displayFormat}</h4>
               <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
                 {[
-                  { value: "pie", label: t.pieChart },
                   { value: "table", label: t.table },
+                  { value: "pie", label: t.pieChart },
                 ].map(option => (
                   <label key={option.value} className="inline-flex items-center gap-1">
                     <input
@@ -403,7 +457,7 @@ export default function TravelVisualiser() {
             </div>
 
             {/* Table Sort */}
-            {displayFormat === "table" && (
+            {false /* TODO: implement sortBy */ && displayFormat === "table" && (
               <div>
                 <h4 className="visualiser-settings-label">{t.sortBy}</h4>
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
@@ -429,21 +483,20 @@ export default function TravelVisualiser() {
             {displayFormat === "pie" && (
               <div>
                 <h4 className="visualiser-settings-label">{t.pieDisplay}</h4>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
                   {[
                     { value: "percentage", label: t.showPercentage },
                     { value: "days", label: t.showDays },
                   ].map(option => (
-                    <button
-                      key={option.value}
-                      onClick={() => setPieDisplay(option.value as typeof pieDisplay)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        pieDisplay === option.value
-                          ? "bg-violet-600 text-white"
-                          : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                      }`}>
-                      {option.label}
-                    </button>
+                    <label key={option.value} className="inline-flex items-center gap-1">
+                      <input
+                        type="radio"
+                        value={option.value}
+                        checked={pieDisplay === option.value}
+                        onChange={e => setPieDisplay(e.target.value as typeof pieDisplay)}
+                      />
+                      <span className="text-sm">{option.label}</span>
+                    </label>
                   ))}
                 </div>
               </div>
