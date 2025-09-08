@@ -30,12 +30,12 @@ const sampleData = `20190219	20190222	日本
 20190305	20190315	英國	英格蘭		
 20190315	20190325	美國	紐約州	20190315	20190320
 			佛羅里達州	20190320	20190325
-20190325	20190401	開曼群島			
+20190325	20190401	開曼羣島			
 20190402	20190410	日本			
 20190410	20190420	中國			
 20190420	20190501	新加坡			
 20190502	20190510	澳洲			
-20190510	20190520	紐西蘭			
+20190510	20190520	新西蘭			
 20190521	20190525	日本			
 20190525	20190605	俄羅斯			
 20190605	20190615	申根區域	德國	20190605	20190609
@@ -108,13 +108,15 @@ const TravelVisualiser = () => {
   const [customFrom, setCustomFrom] = useState(getIsoOneYearAgo());
   const [customTo, setCustomTo] = useState(getIsoToday());
   const [countingMethod, setCountingMethod] = useState<"full" | "half" | "entry" | "exit">("full");
-  const [displayFormat, setDisplayFormat] = useState<"table" | "pie">("table");
+  const [displayFormat, setDisplayFormat] = useState<"pie" | "table">("pie");
   const [sortBy, setSortBy] = useState<"days" | "time">("days");
   const [pieDisplay, setPieDisplay] = useState<"percentage" | "days">("percentage");
   const [breakdown, setBreakdown] = useState<"region" | "details">("region");
   const [error, setError] = useState("");
   const [inputModalOpen, setInputModalOpen] = useState(false);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputModalRef = useRef<HTMLDivElement>(null);
 
   const t = currentLang.translations;
 
@@ -123,6 +125,10 @@ const TravelVisualiser = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setLangDropdownOpen(false);
+      }
+
+      if (inputModalRef.current && !inputModalRef.current.contains(event.target as Node)) {
+        setInputModalOpen(false);
       }
     };
 
@@ -157,9 +163,7 @@ const TravelVisualiser = () => {
     for (const record of parsedData) {
       const items = breakdown === "region" ? [record] : record.details || [record];
       for (const detail of items) {
-        if (!regionToDateSpansMap.has(detail.name)) {
-          regionToDateSpansMap.set(detail.name, []);
-        }
+        if (!regionToDateSpansMap.has(detail.name)) regionToDateSpansMap.set(detail.name, []);
         regionToDateSpansMap.get(detail.name)!.push({ start: detail.start, end: detail.end });
       }
     }
@@ -276,9 +280,9 @@ const TravelVisualiser = () => {
           {/* Input Modal */}
           {inputModalOpen && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-gray-900 rounded-xl w-full max-w-4xl h-[90vh] flex flex-col">
+              <div className="bg-gray-900 rounded-xl w-full max-w-4xl h-[90vh] flex flex-col" ref={inputModalRef}>
                 <div className="flex items-center justify-between p-6 border-b border-gray-700">
-                  <h3 className="text-xl font-semibold">{t.inputLabel}</h3>
+                  <h3 className="text-xl font-bold">{t.inputLabel}</h3>
                   <button onClick={() => setInputModalOpen(false)} className="text-gray-400 hover:text-white p-2">
                     <X className="w-6 h-6" />
                   </button>
@@ -362,6 +366,7 @@ const TravelVisualiser = () => {
                 { value: "entry", label: t.includeEntry },
                 { value: "exit", label: t.includeExit },
               ]}
+              wrap={true}
             />
 
             {/* Breakdown */}
@@ -381,8 +386,8 @@ const TravelVisualiser = () => {
               state={displayFormat}
               setState={setDisplayFormat}
               options={[
-                { value: "table", label: t.table },
                 { value: "pie", label: t.pieChart },
+                { value: "table", label: t.table },
               ]}
             />
 
