@@ -6,7 +6,14 @@ import { Calendar, BarChart3, Settings, ChevronDown, Upload, X, Languages } from
 
 import languages from "@/lib/languages";
 import numSpansToCount from "@/lib/numSpansToCount";
-import { dateOfTodayToNum, oneYearAgoToNum, twoYearsAgoToNum } from "@/lib/dateUtils";
+import {
+  dateOfTodayToNum,
+  getIsoOneYearAgo,
+  getIsoToday,
+  isoDateStrToNum,
+  oneYearAgoToNum,
+  twoYearsAgoToNum,
+} from "@/lib/dateUtils";
 import { Language } from "@/lib/types";
 import parseCSVInput from "@/lib/parseCSVInput";
 
@@ -24,11 +31,11 @@ const COLORS = [
 ] as const;
 
 const svgFlags = new Map<string, { url: string; alt: string }>([
-  /* NJ */ ["新澤西州", { url: "/flags/Flag_of_New_Jersey.svg", alt: "🏴󠁵󠁳󠁮󠁪󠁿" }],
-  /* NY */ ["紐約州", { url: "/flags/Flag_of_New_York.svg", alt: "🏴󠁵󠁳󠁮󠁹󠁿" }],
-  /* PA */ ["賓夕凡尼亞州", { url: "/flags/Flag_of_Pennsylvania.svg", alt: "🏴󠁵󠁳󠁰󠁡󠁿" }],
-  /* UT */ ["加利福尼亞州", { url: "/flags/Flag_of_California.svg", alt: "🏴󠁵󠁳󠁣󠁡󠁿" }],
-  /* UT */ ["猶他州", { url: "/flags/Flag_of_Utah.svg", alt: "🏴󠁵󠁳󠁵󠁴󠁿" }],
+  /* CA */ ["加利福尼亞州", { url: "./flags/Flag_of_California.svg", alt: "🏴󠁵󠁳󠁣󠁡󠁿" }],
+  /* NJ */ ["新澤西州", { url: "./flags/Flag_of_New_Jersey.svg", alt: "🏴󠁵󠁳󠁮󠁪󠁿" }],
+  /* NY */ ["紐約州", { url: "./flags/Flag_of_New_York.svg", alt: "🏴󠁵󠁳󠁮󠁹󠁿" }],
+  /* PA */ ["賓夕凡尼亞州", { url: "./flags/Flag_of_Pennsylvania.svg", alt: "🏴󠁵󠁳󠁰󠁡󠁿" }],
+  /* UT */ ["猶他州", { url: "./flags/Flag_of_Utah.svg", alt: "🏴󠁵󠁳󠁵󠁴󠁿" }],
 ]);
 
 const emojiFlags = new Map<string, string>([
@@ -90,9 +97,9 @@ export default function TravelVisualiser() {
   const [currentLang, setCurrentLang] = useState<Language>(languages[0]);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [csvInput, setCsvInput] = useState("");
-  const [period, setPeriod] = useState<"all" | "2years" | "1year" | "180" | "90" | "custom">("all");
-  const [customFrom, setCustomFrom] = useState("");
-  const [customTo, setCustomTo] = useState("");
+  const [period, setPeriod] = useState<"all" | "2years" | "1year" | "180" | "custom">("all");
+  const [customFrom, setCustomFrom] = useState(getIsoOneYearAgo());
+  const [customTo, setCustomTo] = useState(getIsoToday());
   const [countingMethod, setCountingMethod] = useState<"full" | "half" | "entry">("full");
   const [displayFormat, setDisplayFormat] = useState<"pie" | "table">("pie");
   const [sortBy, setSortBy] = useState<"days" | "time">("days");
@@ -160,8 +167,10 @@ export default function TravelVisualiser() {
           ? oneYearAgoToNum()
           : period === "180"
           ? dateOfTodayToNum() - 180
-          : null; // TODO:  period === "custom"
-      const upperCutOff = null; // TODO: period === "custom"
+          : period === "custom"
+          ? isoDateStrToNum(customFrom)
+          : null;
+      const upperCutOff = period === "custom" ? isoDateStrToNum(customTo) : null;
       const days =
         countingMethod === "full"
           ? numSpansToCount(spans, "countAs1", "countAs1", lowerCutOff, upperCutOff)
@@ -184,7 +193,7 @@ export default function TravelVisualiser() {
     result.sort((a, b) => b.days - a.days);
 
     return result;
-  }, [parsedData, countingMethod, breakdown, sortBy, period]);
+  }, [parsedData, countingMethod, breakdown, sortBy, period, customFrom, customTo]);
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -291,7 +300,7 @@ export default function TravelVisualiser() {
                   { value: "2years", label: t.last2years },
                   { value: "1year", label: t.last1year },
                   { value: "180", label: t.last180Days },
-                  // { value: "custom", label: t.customRange }, // TODO: enable custom range
+                  { value: "custom", label: t.customRange }, // TODO: enable custom range
                 ].map(option => (
                   <label key={option.value} className="inline-flex items-center gap-1">
                     <input
@@ -504,6 +513,7 @@ export default function TravelVisualiser() {
                           <tr key={item.name} className="border-b border-gray-700/50">
                             <td className="py-1 pl-4 w-11 text-left align-middle">
                               {svgFlags.has(item.name) ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                   className="visualiser-svg-flag"
                                   src={svgFlags.get(item.name)!.url}
