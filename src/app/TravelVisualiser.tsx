@@ -4,10 +4,11 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Calendar, BarChart3, Settings, ChevronDown, Upload, X, Languages } from "lucide-react";
 
-import { languages, Language } from "@/lib/language";
-import csvInputToJson from "@/lib/csvInputToJson";
+import languages from "@/lib/languages";
 import numSpansToCount from "@/lib/numSpansToCount";
 import { dateOfTodayToNum, oneYearAgoToNum, twoYearsAgoToNum } from "@/lib/dateUtils";
+import { Language } from "@/lib/types";
+import parseCSVInput from "@/lib/parseCSVInput";
 
 const COLORS = [
   "#8b5cf6",
@@ -23,44 +24,46 @@ const COLORS = [
 ] as const;
 
 const svgFlags = new Map<string, { url: string; alt: string }>([
-  ["加利福尼亞州", { url: "/flags/Flag_of_California.svg", alt: "🏴󠁵󠁳󠁣󠁡󠁿" }],
-  ["新澤西州", { url: "/flags/Flag_of_New_Jersey.svg", alt: "🏴󠁵󠁳󠁮󠁪󠁿" }],
-  ["紐約州", { url: "/flags/Flag_of_New_York.svg", alt: "🏴󠁵󠁳󠁮󠁹󠁿" }],
+  /* NJ */ ["新澤西州", { url: "/flags/Flag_of_New_Jersey.svg", alt: "🏴󠁵󠁳󠁮󠁪󠁿" }],
+  /* NY */ ["紐約州", { url: "/flags/Flag_of_New_York.svg", alt: "🏴󠁵󠁳󠁮󠁹󠁿" }],
+  /* PA */ ["賓夕凡尼亞州", { url: "/flags/Flag_of_Pennsylvania.svg", alt: "🏴󠁵󠁳󠁰󠁡󠁿" }],
+  /* UT */ ["加利福尼亞州", { url: "/flags/Flag_of_California.svg", alt: "🏴󠁵󠁳󠁣󠁡󠁿" }],
+  /* UT */ ["猶他州", { url: "/flags/Flag_of_Utah.svg", alt: "🏴󠁵󠁳󠁵󠁴󠁿" }],
 ]);
 
 const emojiFlags = new Map<string, string>([
-  ["中國內地", "🇨🇳"],
-  ["新加坡", "🇸🇬"],
-  ["英國", "🇬🇧"],
-  ["美國", "🇺🇸"],
-  ["加拿大", "🇨🇦"],
-  ["泰國", "🇹🇭"],
-  ["法國", "🇫🇷"],
-  ["德國", "🇩🇪"],
-  ["澳大利亞", "🇦🇺"],
-  ["意大利", "🇮🇹"],
-  ["日本", "🇯🇵"],
-  ["香港", "🇭🇰"],
-  ["挪威", "🇳🇴"],
-  ["奧地利", "🇦🇹"],
-  ["匈牙利", "🇭🇺"],
-  ["法羅羣島", "🇫🇴"],
-  ["瑞典", "🇸🇪"],
-  ["西班牙", "🇪🇸"],
-  ["芬蘭", "🇫🇮"],
-  ["斯洛伐克", "🇸🇰"],
-  ["澳門", "🇲🇴"],
-  ["印度尼西亞", "🇮🇩"],
-  ["希臘", "🇬🇷"],
-  ["梵蒂岡", "🇻🇦"],
-  ["荷蘭", "🇳🇱"],
-  ["愛爾蘭", "🇮🇪"],
-  ["葡萄牙", "🇵🇹"],
-  ["馬來西亞", "🇲🇾"],
-  ["捷克", "🇨🇿"],
-  ["瑞士", "🇨🇭"],
-  ["比利時", "🇧🇪"],
-  ["丹麥", "🇩🇰"],
+  /* at */ ["奧地利", "🇦🇹"],
+  /* au */ ["澳大利亞", "🇦🇺"],
+  /* be */ ["比利時", "🇧🇪"],
+  /* ca */ ["加拿大", "🇨🇦"],
+  /* ch */ ["瑞士", "🇨🇭"],
+  /* cn */ ["中國內地", "🇨🇳"],
+  /* cz */ ["捷克", "🇨🇿"],
+  /* de */ ["德國", "🇩🇪"],
+  /* dk */ ["丹麥", "🇩🇰"],
+  /* es */ ["西班牙", "🇪🇸"],
+  /* fi */ ["芬蘭", "🇫🇮"],
+  /* fo */ ["法羅羣島", "🇫🇴"],
+  /* fr */ ["法國", "🇫🇷"],
+  /* gb */ ["英國", "🇬🇧"],
+  /* gr */ ["希臘", "🇬🇷"],
+  /* hk */ ["香港", "🇭🇰"],
+  /* hu */ ["匈牙利", "🇭🇺"],
+  /* id */ ["印度尼西亞", "🇮🇩"],
+  /* ie */ ["愛爾蘭", "🇮🇪"],
+  /* it */ ["意大利", "🇮🇹"],
+  /* jp */ ["日本", "🇯🇵"],
+  /* mo */ ["澳門", "🇲🇴"],
+  /* my */ ["馬來西亞", "🇲🇾"],
+  /* nl */ ["荷蘭", "🇳🇱"],
+  /* no */ ["挪威", "🇳🇴"],
+  /* pt */ ["葡萄牙", "🇵🇹"],
+  /* se */ ["瑞典", "🇸🇪"],
+  /* sg */ ["新加坡", "🇸🇬"],
+  /* sk */ ["斯洛伐克", "🇸🇰"],
+  /* th */ ["泰國", "🇹🇭"],
+  /* us */ ["美國", "🇺🇸"],
+  /* va */ ["梵蒂岡", "🇻🇦"],
   ["英格蘭", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"],
   ["蘇格蘭", "🏴󠁧󠁢󠁳󠁣󠁴󠁿"],
 ]);
@@ -116,8 +119,16 @@ export default function TravelVisualiser() {
   }, []);
 
   const parsedData = useMemo(() => {
-    return csvInputToJson(csvInput);
-  }, [csvInput, t.invalidJson]);
+    let result;
+    try {
+      result = parseCSVInput(csvInput);
+    } catch (e) {
+      setError("Error: " + ((e as Error).message || t.invalidCsv));
+      return [];
+    }
+    setError("");
+    return result;
+  }, [csvInput, t.invalidCsv]);
 
   const processedData = useMemo(() => {
     if (parsedData.length === 0) return [];
@@ -227,7 +238,7 @@ export default function TravelVisualiser() {
               <Upload className="w-5 h-5" />
               <span className="font-medium">{t.inputLabel}</span>
             </button>
-            {error && <p className="text-red-400 text-sm mt-3">{error}</p>}
+            {error && <p className="text-red-400 text-sm mt-5">{error}</p>}
           </div>
 
           {/* JSON Input Modal */}
@@ -437,7 +448,7 @@ export default function TravelVisualiser() {
             {processedData.length > 0 ? (
               <>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold">{displayFormat === "pie" ? t.pieChart : t.table}</h2>
+                  <h2 className="text-xl font-bold">{displayFormat === "pie" ? t.pieChart : t.table}</h2>
                   {/* <div className="text-sm text-gray-400">
                     {t.totalDays}: {formatDays(totalDays)} 天
                   </div> */}

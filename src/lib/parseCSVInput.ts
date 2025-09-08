@@ -1,7 +1,7 @@
-import TravelRecord from "./TravelRecord";
 import { dateStrToNum } from "./dateUtils";
+import { TravelRecord } from "./types";
 
-const csvInputToJson = (data: string): TravelRecord[] => {
+const parseCSVInput = (data: string): TravelRecord[] => {
   const rows = data.split("\n").map(r => r.split(/\t/).map(c => c.trim()));
   const trips: TravelRecord[] = [];
   let currentTrip: TravelRecord | null = null;
@@ -9,7 +9,11 @@ const csvInputToJson = (data: string): TravelRecord[] => {
   for (const row of rows) {
     const [start, end, name, subName, subStart, subEnd] = row;
 
-    if (start && end && name) {
+    if (start) {
+      if (!end || !name) {
+        throw new Error("Invalid data format");
+      }
+
       // new top-level trip
       if (subName) {
         // parent with first detail inline
@@ -46,4 +50,4 @@ const csvInputToJson = (data: string): TravelRecord[] => {
   return trips;
 };
 
-export default csvInputToJson;
+export default parseCSVInput;

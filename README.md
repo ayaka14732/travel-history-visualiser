@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Travel History Visualiser
 
-## Getting Started
+**Travel History Visualiser** is a web-based tool for analysing and visualising personal travel records. It accepts CSV-style input of visit periods and outputs aggregated stay durations per region, shown as either a chart or table.
 
-First, run the development server:
+The tool is designed to handle nuanced rules around how travel days are counted. This includes configurable inclusion of entry and exit days, partial-day weighting, and the correct handling of overlapping or adjacent spans. These rules are essential in contexts like stay limit compliance and tax residency determination.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Users can input travel history in a CSV-like format, then choose how to interpret stay durations based on various counting methods. Data can be displayed as a pie chart or table, sorted and broken down by region or individual trip.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Flags, language localisation, and UI themes enhance readability, but the primary focus is correctness and flexibility in stay duration calculation.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Use Cases
 
-## Learn More
+This tool is useful for frequent travellers who need to:
 
-To learn more about Next.js, take a look at the following resources:
+* Track time spent in different regions for legal, administrative, or personal purposes
+* Check compliance with rules limiting time spent abroad or in a specific location
+* Calculate residence days for **tax reporting**, especially for determining tax residency status
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+All calculations are done locally in the browser. No data is stored or transmitted.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Q\&A
 
-## Deploy on Vercel
+**What makes this tool different?**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+It focuses on the **precise counting of days**, which varies by jurisdiction. Users can configure how start and end dates are interpreted, which is essential for accurate reporting.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Can it be used for official purposes?**
+
+It can assist in preparation, but users should verify results against official requirements.
+
+**Is my data safe?**
+
+Yes. Everything runs client-side. No travel records leave your device.
+
+**Where can I use it?**
+
+The tool is available at **[ayaka14732.github.io/travel-history-visualiser](https://ayaka14732.github.io/travel-history-visualiser)**. It is open source and maintained on GitHub.
