@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Calendar, BarChart3, Settings, ChevronDown, Upload, X, Languages } from "lucide-react";
+import { Calendar, BarChart3, Settings, ChevronDown, Upload, X, Languages, Github as GitHub } from "lucide-react";
 
 import languages from "@/lib/languages";
 import numSpansToCount from "@/lib/numSpansToCount";
@@ -170,41 +170,51 @@ const TravelVisualiser = () => {
   return (
     <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-wrap gap-y-6 justify-between items-center mb-6">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <BarChart3 className="w-8 h-8 text-violet-400" />
           {t.title}
         </h1>
-        <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-            className="flex items-center gap-2 bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm hover:bg-gray-700 transition-colors">
-            <Languages className="w-5 h-5 text-gray-400" />
-            <span>{currentLang.name}</span>
-            <ChevronDown
-              className={`w-4 h-4 text-gray-400 transition-transform ${langDropdownOpen ? "rotate-180" : ""}`}
-            />
-          </button>
+        <div className="flex items-center">
+          {/* Language Selector */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+              className="flex items-center gap-2 bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm hover:bg-gray-700 transition-colors">
+              <Languages className="w-5 h-5 text-gray-400" />
+              <span>{currentLang.name}</span>
+              <ChevronDown
+                className={`w-4 h-4 text-gray-400 transition-transform ${langDropdownOpen ? "rotate-180" : ""}`}
+              />
+            </button>
 
-          {langDropdownOpen && (
-            <div className="absolute right-0 mt-2 bg-gray-900 border border-gray-600 rounded-lg shadow-xl z-50 min-w-32">
-              {languages.map(lang => (
-                <button
-                  key={lang.code}
-                  onClick={() => {
-                    setCurrentLang(lang);
-                    setDocumentLang(lang.code);
-                    setLangDropdownOpen(false);
-                  }}
-                  className={`flex items-center gap-3 w-full px-4 py-2 text-sm text-left hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg transition-colors ${
-                    currentLang.code === lang.code ? "bg-gray-700" : ""
-                  }`}>
-                  <span className="text-xl">{lang.flag}</span>
-                  <span>{lang.name}</span>
-                </button>
-              ))}
-            </div>
-          )}
+            {langDropdownOpen && (
+              <div className="absolute right-0 mt-2 bg-gray-900 border border-gray-600 rounded-lg shadow-xl z-50 min-w-32">
+                {languages.map(lang => (
+                  <button
+                    key={lang.code}
+                    onClick={() => {
+                      setCurrentLang(lang);
+                      setDocumentLang(lang.code);
+                      setLangDropdownOpen(false);
+                    }}
+                    className={`flex items-center gap-3 w-full px-4 py-2 text-sm text-left hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg transition-colors ${
+                      currentLang.code === lang.code ? "bg-gray-700" : ""
+                    }`}>
+                    <span className="text-xl">{lang.flag}</span>
+                    <span>{lang.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* GitHub Link */}
+          <div className="ml-4 text-gray-400 hover:text-white transition-colors cursor-pointer px-1">
+            <a href="https://github.com/ayaka14732/travel-history-visualiser" target="_blank">
+              <GitHub />
+            </a>
+          </div>
         </div>
       </div>
 
