@@ -1,8 +1,9 @@
 import { JSX } from "react";
 
-import { Language, Result } from "@/lib/types";
-import { colourFlags, emojiFlags, svgFlags } from "@/lib/flags";
+import { Language, ProcessedData } from "@/lib/types";
+import { emojiFlags, svgFlags } from "@/lib/flags";
 import { formatDays } from "@/lib/dateUtils";
+import { colours } from "@/lib/colours";
 
 const renderFlag = (name: string, index: number): JSX.Element => {
   const svg = svgFlags.get(name);
@@ -19,12 +20,12 @@ const renderFlag = (name: string, index: number): JSX.Element => {
     return <span>{emoji}</span>;
   }
 
-  return <span className="visualiser-mock-flag" style={{ backgroundColor: colourFlags[index % colourFlags.length] }} />;
+  return <span className="visualiser-mock-flag" style={{ backgroundColor: colours[index % colours.length] }} />;
 };
 
 type TableDisplayProps = {
   currentLang: Language;
-  processedData: Result[];
+  processedData: ProcessedData[];
 };
 
 const TableDisplay = ({ currentLang, processedData }: TableDisplayProps) => {

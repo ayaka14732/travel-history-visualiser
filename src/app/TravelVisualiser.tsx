@@ -15,9 +15,9 @@ import {
   oneYearAgoToNum,
   twoYearsAgoToNum,
 } from "@/lib/dateUtils";
-import { Language, Result } from "@/lib/types";
+import { Language, ProcessedData } from "@/lib/types";
 import parseCSVInput from "@/lib/parseCSVInput";
-import { colourFlags } from "@/lib/flags";
+import { colours } from "@/lib/colours";
 
 import RadioSelect from "@/components/RadioSelect";
 import TableDisplay from "@/components/TableDisplay";
@@ -61,6 +61,43 @@ const setDocumentLang = (langCode: string) => {
   if (typeof document !== "undefined") {
     document.documentElement.lang = langCode;
   }
+};
+
+/**
+ * Merges entries in a ProcessedData array where the `percentage` is less than 1%.
+ * All such entries are combined into a single entry with the name set to "Other".
+ * The `days` values of the merged entries are summed.
+ * The merged entry is appended to the resulting array, which retains all entries
+ * with `percentage >= 1%` unmodified.
+ *
+ * @param data - An array of ProcessedData objects to be merged.
+ * @returns A new array of ProcessedData with low-percentage entries merged into "Other".
+ */
+const mergeLowPercentageData = (data: ProcessedData[], otherName: string): ProcessedData[] => {
+  if (data.length === 0) return [];
+
+  const result: ProcessedData[] = [];
+  let otherDays = 0;
+  let otherPercentage = 0;
+
+  for (const entry of data) {
+    if (entry.percentage < 2) {
+      otherDays += entry.days;
+      otherPercentage += entry.percentage;
+    } else {
+      result.push(entry);
+    }
+  }
+
+  if (otherDays > 0) {
+    result.push({
+      name: otherName,
+      days: otherDays,
+      percentage: otherPercentage,
+    });
+  }
+
+  return result;
 };
 
 const TravelVisualiser = () => {
@@ -156,7 +193,7 @@ const TravelVisualiser = () => {
 
     const totalDays = Array.from(regionToNumOfDaysMap.values()).reduce((sum, days) => sum + days, 0);
 
-    const result: Result[] = Array.from(regionToNumOfDaysMap.entries()).map(([name, days]) => ({
+    const result: ProcessedData[] = Array.from(regionToNumOfDaysMap.entries()).map(([name, days]) => ({
       name,
       days,
       percentage: totalDays > 0 ? (days / totalDays) * 100 : 0,
@@ -166,6 +203,10 @@ const TravelVisualiser = () => {
 
     return result;
   }, [parsedData, countingMethod, breakdown, sortBy, period, customFrom, customTo]);
+
+  const mergedProcessedData = useMemo(() => {
+    return mergeLowPercentageData(processedData, t.other);
+  }, [processedData, t.other]);
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -274,20 +315,18 @@ const TravelVisualiser = () => {
             </h3>
 
             {/* Period */}
-            <div>
-              <h4 className="visualiser-settings-label">{t.period}</h4>
-              <RadioSelect
-                state={period}
-                setState={setPeriod}
-                options={[
-                  { value: "all", label: t.allTime },
-                  { value: "2years", label: t.last2years },
-                  { value: "1year", label: t.last1year },
-                  { value: "180", label: t.last180Days },
-                  { value: "custom", label: t.customRange }, // TODO: enable custom range
-                ]}
-              />
-            </div>
+            <h4 className="visualiser-settings-label">{t.period}</h4>
+            <RadioSelect
+              state={period}
+              setState={setPeriod}
+              options={[
+                { value: "all", label: t.allTime },
+                { value: "2years", label: t.last2years },
+                { value: "1year", label: t.last1year },
+                { value: "180", label: t.last180Days },
+                { value: "custom", label: t.customRange }, // TODO: enable custom range
+              ]}
+            />
 
             {period === "custom" && (
               <div className="grid grid-cols-2 gap-3">
@@ -313,45 +352,39 @@ const TravelVisualiser = () => {
             )}
 
             {/* Counting Method */}
-            <div>
-              <h4 className="visualiser-settings-label">{t.countingMethod}</h4>
-              <RadioSelect
-                state={countingMethod}
-                setState={setCountingMethod}
-                options={[
-                  { value: "full", label: t.fullDay },
-                  { value: "half", label: t.halfDay },
-                  { value: "entry", label: t.includeEntry },
-                  { value: "exit", label: t.includeExit },
-                ]}
-              />
-            </div>
+            <h4 className="visualiser-settings-label">{t.countingMethod}</h4>
+            <RadioSelect
+              state={countingMethod}
+              setState={setCountingMethod}
+              options={[
+                { value: "full", label: t.fullDay },
+                { value: "half", label: t.halfDay },
+                { value: "entry", label: t.includeEntry },
+                { value: "exit", label: t.includeExit },
+              ]}
+            />
 
             {/* Breakdown */}
-            <div>
-              <h4 className="visualiser-settings-label">{t.breakdown}</h4>
-              <RadioSelect
-                state={breakdown}
-                setState={setBreakdown}
-                options={[
-                  { value: "region", label: t.byRegion },
-                  { value: "details", label: t.byDetails },
-                ]}
-              />
-            </div>
+            <h4 className="visualiser-settings-label">{t.breakdown}</h4>
+            <RadioSelect
+              state={breakdown}
+              setState={setBreakdown}
+              options={[
+                { value: "region", label: t.byRegion },
+                { value: "details", label: t.byDetails },
+              ]}
+            />
 
             {/* Display Format */}
-            <div>
-              <h4 className="visualiser-settings-label">{t.displayFormat}</h4>
-              <RadioSelect
-                state={displayFormat}
-                setState={setDisplayFormat}
-                options={[
-                  { value: "table", label: t.table },
-                  { value: "pie", label: t.pieChart },
-                ]}
-              />
-            </div>
+            <h4 className="visualiser-settings-label">{t.displayFormat}</h4>
+            <RadioSelect
+              state={displayFormat}
+              setState={setDisplayFormat}
+              options={[
+                { value: "table", label: t.table },
+                { value: "pie", label: t.pieChart },
+              ]}
+            />
 
             {/* Table Sort */}
             {false /* TODO: implement sortBy */ && displayFormat === "table" && (
@@ -370,7 +403,7 @@ const TravelVisualiser = () => {
 
             {/* Pie Display */}
             {displayFormat === "pie" && (
-              <div>
+              <>
                 <h4 className="visualiser-settings-label">{t.pieDisplay}</h4>
                 <RadioSelect
                   state={pieDisplay}
@@ -380,7 +413,7 @@ const TravelVisualiser = () => {
                     { value: "days", label: t.showDays },
                   ]}
                 />
-              </div>
+              </>
             )}
           </div>
         </div>
@@ -390,19 +423,14 @@ const TravelVisualiser = () => {
           <div className="bg-gray-900 rounded-xl p-6">
             {processedData.length > 0 ? (
               <>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold">{displayFormat === "pie" ? t.pieChart : t.table}</h2>
-                  {/* <div className="text-sm text-gray-400">
-                    {t.totalDays}: {formatDays(totalDays)} 天
-                  </div> */}
-                </div>
+                <h2 className="text-xl font-bold mb-6">{displayFormat === "pie" ? t.pieChart : t.table}</h2>
 
                 {displayFormat === "pie" ? (
                   <div className="h-96">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={processedData}
+                          data={mergedProcessedData}
                           isAnimationActive={false}
                           cx="50%"
                           cy="50%"
@@ -414,8 +442,8 @@ const TravelVisualiser = () => {
                                 ? `${name}: ${percentage.toFixed(1)}%`
                                 : `${name}: ${formatDays(value!)} 天` // TODO: should not be nullable
                           }>
-                          {processedData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={colourFlags[index % colourFlags.length]} />
+                          {mergedProcessedData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={colours[index % colours.length]} />
                           ))}
                         </Pie>
                         <Tooltip

@@ -41,6 +41,7 @@ const languages: Language[] = [
       totalDays: "總天數",
       percentage: "佔比",
       invalidCsv: "CSV 格式錯誤，請檢查輸入",
+      other: "其他",
     },
   },
   {
@@ -83,6 +84,7 @@ const languages: Language[] = [
       totalDays: "Total Days",
       percentage: "Percentage",
       invalidCsv: "Invalid CSV format, please check your input",
+      other: "Other",
     },
   },
 ];

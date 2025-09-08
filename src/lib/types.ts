@@ -38,6 +38,7 @@ export interface Language {
     totalDays: string;
     percentage: string;
     invalidCsv: string;
+    other: string;
   };
 }
 
@@ -53,7 +54,7 @@ export interface TravelRecord {
       }[];
 }
 
-export interface Result {
+export interface ProcessedData {
   name: string;
   days: number;
   percentage: number;
