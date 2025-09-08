@@ -52,3 +52,9 @@ export interface TravelRecord {
         name: string;
       }[];
 }
+
+export interface Result {
+  name: string;
+  days: number;
+  percentage: number;
+}

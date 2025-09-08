@@ -88,3 +88,9 @@ export const isoDateStrToNum = (dateStr: string): number => {
   const msPerDay = 24 * 60 * 60 * 1000;
   return Math.floor((targetUTC - epochUTC) / msPerDay);
 };
+
+// 將天數數字格式化為字串
+// 整數時不顯示小數點，非整數時顯示一位小數
+export const formatDays = (days: number): string => {
+  return Number.isInteger(days) ? days.toString() : days.toFixed(1);
+};

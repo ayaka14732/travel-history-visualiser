@@ -8,88 +8,19 @@ import languages from "@/lib/languages";
 import numSpansToCount from "@/lib/numSpansToCount";
 import {
   dateOfTodayToNum,
+  formatDays,
   getIsoOneYearAgo,
   getIsoToday,
   isoDateStrToNum,
   oneYearAgoToNum,
   twoYearsAgoToNum,
 } from "@/lib/dateUtils";
-import { Language } from "@/lib/types";
+import { Language, Result } from "@/lib/types";
 import parseCSVInput from "@/lib/parseCSVInput";
+import { colourFlags } from "@/lib/flags";
 
-const COLORS = [
-  "#8b5cf6",
-  "#06b6d4",
-  "#10b981",
-  "#f59e0b",
-  "#ef4444",
-  "#ec4899",
-  "#8b5cf6",
-  "#6366f1",
-  "#84cc16",
-  "#f97316",
-] as const;
-
-// https://zh.wikipedia.org/zh-hk/%E7%BE%8E%E5%9C%8B%E5%B7%9E%E4%BB%BD%E5%92%8C%E9%A0%98%E5%9C%B0%E5%88%97%E8%A1%A8
-const svgFlags = new Map<string, { url: string; alt: string }>([
-  /* CA */ ["加利福尼亞州", { url: "./flags/Flag_of_California.svg", alt: "🏴󠁵󠁳󠁣󠁡󠁿" }],
-  /* FL */ ["佛羅里達州", { url: "./flags/Flag_of_Florida.svg", alt: "🏴󠁵󠁳󠁦󠁬󠁿" }],
-  /* MT */ ["蒙大拿州", { url: "./flags/Flag_of_Montana.svg", alt: "🏴󠁵󠁳󠁭󠁴󠁿" }],
-  /* NJ */ ["新澤西州", { url: "./flags/Flag_of_New_Jersey.svg", alt: "🏴󠁵󠁳󠁮󠁪󠁿" }],
-  /* NY */ ["紐約州", { url: "./flags/Flag_of_New_York.svg", alt: "🏴󠁵󠁳󠁮󠁹󠁿" }],
-  /* PA */ ["賓夕凡尼亞州", { url: "./flags/Flag_of_Pennsylvania.svg", alt: "🏴󠁵󠁳󠁰󠁡󠁿" }],
-  /* UT */ ["猶他州", { url: "./flags/Flag_of_Utah.svg", alt: "🏴󠁵󠁳󠁵󠁴󠁿" }],
-]);
-
-// https://zh.wikipedia.org/zh-hk/%E5%8C%BA%E5%9F%9F%E6%8C%87%E7%A4%BA%E7%AC%A6
-const emojiFlags = new Map<string, string>([
-  /* ae */ ["阿聯酋", "🇦🇪"],
-  /* at */ ["奧地利", "🇦🇹"],
-  /* au */ ["澳洲", "🇦🇺"],
-  /* be */ ["比利時", "🇧🇪"],
-  /* ca */ ["加拿大", "🇨🇦"],
-  /* ch */ ["瑞士", "🇨🇭"],
-  /* cn */ ["中國", "🇨🇳"],
-  /* cz */ ["捷克", "🇨🇿"],
-  /* de */ ["德國", "🇩🇪"],
-  /* dk */ ["丹麥", "🇩🇰"],
-  /* es */ ["西班牙", "🇪🇸"],
-  /* fi */ ["芬蘭", "🇫🇮"],
-  /* fo */ ["法羅羣島", "🇫🇴"],
-  /* fr */ ["法國", "🇫🇷"],
-  /* gb */ ["英國", "🇬🇧"],
-  /* gr */ ["希臘", "🇬🇷"],
-  /* hk */ ["香港", "🇭🇰"],
-  /* hu */ ["匈牙利", "🇭🇺"],
-  /* id */ ["印度尼西亞", "🇮🇩"],
-  /* ie */ ["愛爾蘭", "🇮🇪"],
-  /* in */ ["印度", "🇮🇳"],
-  /* is */ ["冰島", "🇮🇸"],
-  /* it */ ["意大利", "🇮🇹"],
-  /* jp */ ["日本", "🇯🇵"],
-  /* kr */ ["韓國", "🇰🇷"],
-  /* ky */ ["開曼群島", "🇰🇾"],
-  /* mc */ ["摩納哥", "🇲🇨"],
-  /* mo */ ["澳門", "🇲🇴"],
-  /* my */ ["馬來西亞", "🇲🇾"],
-  /* nl */ ["荷蘭", "🇳🇱"],
-  /* no */ ["挪威", "🇳🇴"],
-  /* np */ ["尼泊爾", "🇳🇵"],
-  /* nr */ ["瑙魯", "🇳🇷"],
-  /* nu */ ["紐埃", "🇳🇺"],
-  /* nz */ ["紐西蘭", "🇳🇿"],
-  /* om */ ["阿曼", "🇴🇲"],
-  /* pt */ ["葡萄牙", "🇵🇹"],
-  /* ru */ ["俄羅斯", "🇷🇺"],
-  /* se */ ["瑞典", "🇸🇪"],
-  /* sg */ ["新加坡", "🇸🇬"],
-  /* sk */ ["斯洛伐克", "🇸🇰"],
-  /* th */ ["泰國", "🇹🇭"],
-  /* us */ ["美國", "🇺🇸"],
-  /* va */ ["梵蒂岡", "🇻🇦"],
-  ["英格蘭", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"],
-  ["蘇格蘭", "🏴󠁧󠁢󠁳󠁣󠁴󠁿"],
-]);
+import RadioSelect from "@/components/RadioSelect";
+import TableDisplay from "@/components/TableDisplay";
 
 const sampleData = `20190219	20190222	日本			
 20190222	20190225	阿聯酋			
@@ -132,19 +63,7 @@ const setDocumentLang = (langCode: string) => {
   }
 };
 
-interface Result {
-  name: string;
-  days: number;
-  percentage: number;
-}
-
-// 將天數數字格式化為字串
-// 整數時不顯示小數點，非整數時顯示一位小數
-const formatDays = (days: number): string => {
-  return Number.isInteger(days) ? days.toString() : days.toFixed(1);
-};
-
-export default function TravelVisualiser() {
+const TravelVisualiser = () => {
   const [currentLang, setCurrentLang] = useState<Language>(languages[0]);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [csvInput, setCsvInput] = useState(sampleData);
@@ -347,25 +266,17 @@ export default function TravelVisualiser() {
             {/* Period */}
             <div>
               <h4 className="visualiser-settings-label">{t.period}</h4>
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-                {[
+              <RadioSelect
+                state={period}
+                setState={setPeriod}
+                options={[
                   { value: "all", label: t.allTime },
                   { value: "2years", label: t.last2years },
                   { value: "1year", label: t.last1year },
                   { value: "180", label: t.last180Days },
                   { value: "custom", label: t.customRange }, // TODO: enable custom range
-                ].map(option => (
-                  <label key={option.value} className="inline-flex items-center gap-1">
-                    <input
-                      type="radio"
-                      value={option.value}
-                      checked={period === option.value}
-                      onChange={e => setPeriod(e.target.value as typeof period)}
-                    />
-                    <span className="text-sm">{option.label}</span>
-                  </label>
-                ))}
-              </div>
+                ]}
+              />
             </div>
 
             {period === "custom" && (
@@ -394,88 +305,56 @@ export default function TravelVisualiser() {
             {/* Counting Method */}
             <div>
               <h4 className="visualiser-settings-label">{t.countingMethod}</h4>
-              <div className="space-y-2">
-                {[
+              <RadioSelect
+                state={countingMethod}
+                setState={setCountingMethod}
+                options={[
                   { value: "full", label: t.fullDay },
                   { value: "half", label: t.halfDay },
                   { value: "entry", label: t.includeEntry },
                   { value: "exit", label: t.includeExit },
-                ].map(option => (
-                  <label key={option.value} className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      value={option.value}
-                      checked={countingMethod === option.value}
-                      onChange={e => setCountingMethod(e.target.value as typeof countingMethod)}
-                    />
-                    <span className="text-sm">{option.label}</span>
-                  </label>
-                ))}
-              </div>
+                ]}
+              />
             </div>
 
             {/* Breakdown */}
             <div>
               <h4 className="visualiser-settings-label">{t.breakdown}</h4>
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-                {[
+              <RadioSelect
+                state={breakdown}
+                setState={setBreakdown}
+                options={[
                   { value: "region", label: t.byRegion },
                   { value: "details", label: t.byDetails },
-                ].map(option => (
-                  <label key={option.value} className="inline-flex items-center gap-1">
-                    <input
-                      type="radio"
-                      value={option.value}
-                      checked={breakdown === option.value}
-                      onChange={e => setBreakdown(e.target.value as typeof breakdown)}
-                    />
-                    <span className="text-sm">{option.label}</span>
-                  </label>
-                ))}
-              </div>
+                ]}
+              />
             </div>
 
             {/* Display Format */}
             <div>
               <h4 className="visualiser-settings-label">{t.displayFormat}</h4>
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-                {[
+              <RadioSelect
+                state={displayFormat}
+                setState={setDisplayFormat}
+                options={[
                   { value: "table", label: t.table },
                   { value: "pie", label: t.pieChart },
-                ].map(option => (
-                  <label key={option.value} className="inline-flex items-center gap-1">
-                    <input
-                      type="radio"
-                      value={option.value}
-                      checked={displayFormat === option.value}
-                      onChange={e => setDisplayFormat(e.target.value as typeof displayFormat)}
-                    />
-                    <span className="text-sm">{option.label}</span>
-                  </label>
-                ))}
-              </div>
+                ]}
+              />
             </div>
 
             {/* Table Sort */}
             {false /* TODO: implement sortBy */ && displayFormat === "table" && (
               <div>
                 <h4 className="visualiser-settings-label">{t.sortBy}</h4>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-                  {[
+                <RadioSelect
+                  state={sortBy}
+                  setState={setSortBy}
+                  options={[
                     { value: "days", label: t.byDays },
                     { value: "time", label: t.byTime },
-                  ].map(option => (
-                    <label key={option.value} className="inline-flex items-center gap-1">
-                      <input
-                        type="radio"
-                        value={option.value}
-                        checked={sortBy === option.value}
-                        onChange={e => setSortBy(e.target.value as typeof sortBy)}
-                      />
-                      <span className="text-sm">{option.label}</span>
-                    </label>
-                  ))}
-                </div>
+                  ]}
+                />
               </div>
             )}
 
@@ -483,22 +362,14 @@ export default function TravelVisualiser() {
             {displayFormat === "pie" && (
               <div>
                 <h4 className="visualiser-settings-label">{t.pieDisplay}</h4>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-                  {[
+                <RadioSelect
+                  state={pieDisplay}
+                  setState={setPieDisplay}
+                  options={[
                     { value: "percentage", label: t.showPercentage },
                     { value: "days", label: t.showDays },
-                  ].map(option => (
-                    <label key={option.value} className="inline-flex items-center gap-1">
-                      <input
-                        type="radio"
-                        value={option.value}
-                        checked={pieDisplay === option.value}
-                        onChange={e => setPieDisplay(e.target.value as typeof pieDisplay)}
-                      />
-                      <span className="text-sm">{option.label}</span>
-                    </label>
-                  ))}
-                </div>
+                  ]}
+                />
               </div>
             )}
           </div>
@@ -534,7 +405,7 @@ export default function TravelVisualiser() {
                                 : `${name}: ${formatDays(value!)} 天` // TODO: should not be nullable
                           }>
                           {processedData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            <Cell key={`cell-${index}`} fill={colourFlags[index % colourFlags.length]} />
                           ))}
                         </Pie>
                         <Tooltip
@@ -551,43 +422,7 @@ export default function TravelVisualiser() {
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-700">
-                          <th colSpan={2} className="text-left py-1 px-4 font-medium text-gray-300">
-                            {t.location}
-                          </th>
-                          <th className="text-right py-1 px-4 font-medium text-gray-300">{t.totalDays}</th>
-                          <th className="text-right py-1 px-4 font-medium text-gray-300">{t.percentage}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {processedData.map((item, index) => (
-                          <tr key={item.name} className="border-b border-gray-700/50">
-                            <td className="py-1 pl-4 w-11 text-left align-middle">
-                              {svgFlags.has(item.name) ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  className="visualiser-svg-flag"
-                                  src={svgFlags.get(item.name)!.url}
-                                  alt={svgFlags.get(item.name)!.alt}
-                                />
-                              ) : // <span className="visualiser-mock-flag california"></span>
-                              emojiFlags.has(item.name) ? (
-                                <span>{emojiFlags.get(item.name)}</span>
-                              ) : (
-                                <span
-                                  className="visualiser-mock-flag"
-                                  style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
-                              )}
-                            </td>
-                            <td className="py-1 pr-4 flex items-center gap-3">{item.name}</td>
-                            <td className="py-1 px-4 text-right">{formatDays(item.days)}</td>
-                            <td className="py-1 px-4 text-right">{item.percentage.toFixed(1)}%</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <TableDisplay currentLang={currentLang} processedData={processedData} />
                   </div>
                 )}
               </>
@@ -602,4 +437,6 @@ export default function TravelVisualiser() {
       </div>
     </div>
   );
-}
+};
+
+export default TravelVisualiser;
