@@ -1,20 +1,11 @@
 import { JSX } from "react";
 
 import { Language, ProcessedData } from "@/lib/types";
-import { emojiFlags, svgFlags } from "@/lib/flags";
+import { emojiFlags } from "@/lib/flags";
 import { formatDays } from "@/lib/dateUtils";
 import { colours } from "@/lib/colours";
 
 const renderFlag = (name: string, index: number): JSX.Element => {
-  const svg = svgFlags.get(name);
-  if (svg) {
-    const { url, alt } = svg;
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img className="visualiser-svg-flag" src={url} alt={alt} />
-    );
-  }
-
   const emoji = emojiFlags.get(name);
   if (emoji) {
     return <span>{emoji}</span>;

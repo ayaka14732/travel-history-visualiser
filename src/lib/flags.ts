@@ -1,14 +1,3 @@
-// https://zh.wikipedia.org/zh-hk/%E7%BE%8E%E5%9C%8B%E5%B7%9E%E4%BB%BD%E5%92%8C%E9%A0%98%E5%9C%B0%E5%88%97%E8%A1%A8
-export const svgFlags = new Map<string, { url: string; alt: string }>([
-  /* CA */ ["加利福尼亞州", { url: "./flags/Flag_of_California.svg", alt: "🏴󠁵󠁳󠁣󠁡󠁿" }],
-  /* FL */ ["佛羅里達州", { url: "./flags/Flag_of_Florida.svg", alt: "🏴󠁵󠁳󠁦󠁬󠁿" }],
-  /* MT */ ["蒙大拿州", { url: "./flags/Flag_of_Montana.svg", alt: "🏴󠁵󠁳󠁭󠁴󠁿" }],
-  /* NJ */ ["新澤西州", { url: "./flags/Flag_of_New_Jersey.svg", alt: "🏴󠁵󠁳󠁮󠁪󠁿" }],
-  /* NY */ ["紐約州", { url: "./flags/Flag_of_New_York.svg", alt: "🏴󠁵󠁳󠁮󠁹󠁿" }],
-  /* PA */ ["賓夕凡尼亞州", { url: "./flags/Flag_of_Pennsylvania.svg", alt: "🏴󠁵󠁳󠁰󠁡󠁿" }],
-  /* UT */ ["猶他州", { url: "./flags/Flag_of_Utah.svg", alt: "🏴󠁵󠁳󠁵󠁴󠁿" }],
-]);
-
 // Taken from https://zh.wikipedia.org/zh-hk/%E5%8C%BA%E5%9F%9F%E6%8C%87%E7%A4%BA%E7%AC%A6,
 // with orthographic and translation modifications
 export const emojiFlags = new Map<string, string>([
