@@ -68,6 +68,8 @@ const zhTW: Translation = {
   helpCloseBtn: "關閉",
   helpIntro: "每一筆記錄由若干行組成，每行以",
   helpTabNote: "Tab（⇥）",
+  helpIntroCont: "分隔為 6 個欄位。共有三種格式：",
+  helpEmptyCell: "空",
 
   helpType1Title: "格式一：多行群組（大地點 + 多個小地點）",
   helpType1Desc: "第一行包含整段旅程的開始／結束日期、大地點名稱，以及第一個小地點的資訊。後續行以三個空欄開頭，依序列出其餘小地點。",

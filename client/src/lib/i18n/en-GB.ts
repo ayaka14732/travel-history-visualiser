@@ -68,6 +68,8 @@ const enGB: Translation = {
   helpCloseBtn: "Close",
   helpIntro: "Each record consists of one or more lines, with fields separated by",
   helpTabNote: "Tab (\u21e5)",
+  helpIntroCont: " to separate 6 fields per line. Three formats are supported:",
+  helpEmptyCell: "Empty",
 
   helpType1Title: "Format 1: Multi-line group (region + sub-locations)",
   helpType1Desc: "The first line contains the overall start/end dates, the region name, and the first sub-location. Subsequent lines begin with three empty fields and list additional sub-locations.",

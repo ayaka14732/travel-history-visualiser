@@ -3,7 +3,7 @@
  * Add new locales to the `Locale` union and provide a corresponding translation file.
  */
 
-export type Locale = "zh-TW" | "en-GB";
+export type Locale = "zh-TW" | "en-GB" | "fr-CH";
 
 export interface Translation {
   // ── Meta ──────────────────────────────────────────────────────────────────
@@ -73,6 +73,8 @@ export interface Translation {
   helpCloseBtn: string;
   helpIntro: string;
   helpTabNote: string; // "Tab（⇥）"
+  helpIntroCont: string; // " to separate 6 fields..." / "分隔為 6 個欄位..."
+  helpEmptyCell: string; // "空" / "Empty" / "vide"
 
   helpType1Title: string;
   helpType1Desc: string;

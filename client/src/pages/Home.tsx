@@ -139,9 +139,8 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
         <div className="px-5 py-4 space-y-5 text-[12px] text-[#222] leading-relaxed">
           <p>
             {t.helpIntro}{" "}
-            <strong>{t.helpTabNote}</strong>{" "}
-            {/* trailing punctuation handled per locale via helpIntro */}
-            {t.helpIntro.endsWith("by") ? " to separate 6 fields per line. Three formats are supported:" : "分隔為 6 個欄位。共有三種格式："}
+            <strong>{t.helpTabNote}</strong>
+            {t.helpIntroCont}
           </p>
 
           {/* Type 1 */}
@@ -152,8 +151,8 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
             note={t.helpType1Note}
             rows={[
               { cols: ["20240629", "20240630", "申根區域", "瑞士", "20240629", "20240629"], highlight: [0,1,2,3] },
-              { cols: ["[空/Empty]", "[空/Empty]", "[空/Empty]", "法國", "20240629", "20240629"], highlight: [3] },
-              { cols: ["[空/Empty]", "[空/Empty]", "[空/Empty]", "瑞士", "20240629", "20240630"], highlight: [3] },
+              { cols: [`[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, "法國", "20240629", "20240629"], highlight: [3] },
+              { cols: [`[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, "瑞士", "20240629", "20240630"], highlight: [3] },
             ]}
           />
 
@@ -164,7 +163,7 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
             colHeader={t.helpType2ColHeader}
             note={t.helpType2Note}
             rows={[
-              { cols: ["20240630", "20240705", "英國", "英格蘭", "[空/Empty]", "[空/Empty]"], highlight: [0,1,2,3] },
+              { cols: ["20240630", "20240705", "英國", "英格蘭", `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`], highlight: [0,1,2,3] },
             ]}
           />
 
@@ -175,7 +174,7 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
             colHeader={t.helpType3ColHeader}
             note={t.helpType3Note}
             rows={[
-              { cols: ["20240718", "20240721", "中國", "[空/Empty]", "[空/Empty]", "[空/Empty]"], highlight: [0,1,2] },
+              { cols: ["20240718", "20240721", "中國", `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`], highlight: [0,1,2] },
             ]}
           />
 

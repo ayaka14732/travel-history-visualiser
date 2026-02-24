@@ -10,13 +10,15 @@
 import type { Locale, Translation } from "./types";
 import zhTW from "./zh-TW";
 import enGB from "./en-GB";
+import frCH from "./fr-CH";
 
 // ── Registry ─────────────────────────────────────────────────────────────────
 export const LOCALES: Record<Locale, Translation> = {
   "zh-TW": zhTW,
   "en-GB": enGB,
+  "fr-CH": frCH,
 };
 
-export const LOCALE_ORDER: Locale[] = ["zh-TW", "en-GB"];
+export const LOCALE_ORDER: Locale[] = ["zh-TW", "en-GB", "fr-CH"];
 
 export type { Locale, Translation };
