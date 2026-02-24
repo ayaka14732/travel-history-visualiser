@@ -9,7 +9,7 @@
  * - i18n: all UI strings via useLocale() hook
  */
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import {
   parseTravelData,
   computeStats,
@@ -384,6 +384,36 @@ function CalendarPopup({ result, viewStart, viewEnd, isDetailed, onClose }: Cale
 }
 
 // ---------------------------------------------------------------------------
+// useLongPress: fires callback immediately on press, then repeatedly after delay
+// ---------------------------------------------------------------------------
+function useLongPress(callback: () => void, { delay = 400, interval = 80 } = {}) {
+  const cbRef = useRef(callback);
+  useEffect(() => { cbRef.current = callback; });
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const start = useCallback(() => {
+    cbRef.current(); // fire immediately
+    timerRef.current = setTimeout(() => {
+      intervalRef.current = setInterval(() => cbRef.current(), interval);
+    }, delay);
+  }, [delay, interval]);
+
+  const stop = useCallback(() => {
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+  }, []);
+
+  return {
+    onMouseDown: start,
+    onMouseUp: stop,
+    onMouseLeave: stop,
+    onTouchStart: (e: React.TouchEvent) => { e.preventDefault(); start(); },
+    onTouchEnd: stop,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Date stepper: input + − / + buttons
 // ---------------------------------------------------------------------------
 interface DateStepperProps {
@@ -407,13 +437,17 @@ function DateStepper({ label, value, min, max, onChange }: DateStepperProps) {
     onChange(toInputDate(nd));
   };
 
+  const prevPress = useLongPress(() => step(-1));
+  const nextPress = useLongPress(() => step(1));
+
   return (
     <div>
       <label className="block text-[10px] text-[#666] mb-0.5">{label}</label>
       <div className="flex">
         <button
-          onClick={() => step(-1)}
-          className="w-7 flex-shrink-0 border border-r-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
+          {...prevPress}
+          onClick={undefined}
+          className="w-7 flex-shrink-0 border border-r-0 border-border bg-[#f5f5f5] hover:bg-[#eee] active:bg-[#e0e0e0] text-[#444] text-[13px] font-semibold flex items-center justify-center select-none"
           title={t.prevDayTitle}
         >
           −
@@ -428,8 +462,9 @@ function DateStepper({ label, value, min, max, onChange }: DateStepperProps) {
           onChange={(e) => onChange(e.target.value)}
         />
         <button
-          onClick={() => step(1)}
-          className="w-7 flex-shrink-0 border border-l-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
+          {...nextPress}
+          onClick={undefined}
+          className="w-7 flex-shrink-0 border border-l-0 border-border bg-[#f5f5f5] hover:bg-[#eee] active:bg-[#e0e0e0] text-[#444] text-[13px] font-semibold flex items-center justify-center select-none"
           title={t.nextDayTitle}
         >
           +
@@ -449,13 +484,17 @@ interface DurationStepperProps {
 }
 
 function DurationStepper({ label, value, onChange }: DurationStepperProps) {
+  const prevPress = useLongPress(() => onChange(Math.max(1, value - 1)));
+  const nextPress = useLongPress(() => onChange(Math.min(3650, value + 1)));
+
   return (
     <div>
       <label className="block text-[10px] text-[#666] mb-0.5">{label}</label>
       <div className="flex">
         <button
-          onClick={() => onChange(Math.max(1, value - 1))}
-          className="w-7 flex-shrink-0 border border-r-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
+          {...prevPress}
+          onClick={undefined}
+          className="w-7 flex-shrink-0 border border-r-0 border-border bg-[#f5f5f5] hover:bg-[#eee] active:bg-[#e0e0e0] text-[#444] text-[13px] font-semibold flex items-center justify-center select-none"
         >
           −
         </button>
@@ -469,8 +508,9 @@ function DurationStepper({ label, value, onChange }: DurationStepperProps) {
           onChange={(e) => onChange(Math.max(1, parseInt(e.target.value) || 180))}
         />
         <button
-          onClick={() => onChange(Math.min(3650, value + 1))}
-          className="w-7 flex-shrink-0 border border-l-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
+          {...nextPress}
+          onClick={undefined}
+          className="w-7 flex-shrink-0 border border-l-0 border-border bg-[#f5f5f5] hover:bg-[#eee] active:bg-[#e0e0e0] text-[#444] text-[13px] font-semibold flex items-center justify-center select-none"
         >
           +
         </button>
