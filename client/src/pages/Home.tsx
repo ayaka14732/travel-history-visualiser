@@ -1,6 +1,6 @@
 /**
  * Travel History Visualiser — Main Page
- * Design: Swiss SBB/CFF/FFS
+ * Design: Swiss SBB/CFF/FFS (without branding label)
  * - Left sidebar: data input + controls + statistics
  * - Right main: calendar grid
  * - Primary color: #EB0000 (SBB Red)
@@ -24,10 +24,6 @@ import { getLocationColor } from "@/lib/countryColors";
 // Sample data — uses actual tab characters
 // ---------------------------------------------------------------------------
 const SAMPLE_DATA = [
-  "20240221\t20240226\t申根區域\t希臘\t20240221\t20240221",
-  "\t\t\t丹麥\t20240221\t20240224",
-  "\t\t\t瑞典\t20240224\t20240224",
-  "\t\t\t丹麥\t20240224\t20240226",
   "20240629\t20240630\t申根區域\t瑞士\t20240629\t20240629",
   "\t\t\t法國\t20240629\t20240629",
   "\t\t\t瑞士\t20240629\t20240630",
@@ -57,6 +53,207 @@ function fromInputDate(s: string): Date | null {
   const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
   if (isNaN(d.getTime())) return null;
   return d;
+}
+
+// ---------------------------------------------------------------------------
+// Format Help Popup
+// ---------------------------------------------------------------------------
+function FormatHelpPopup({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        className="bg-white border border-border w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col"
+        style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-[#EB0000]">
+          <h2 className="text-[14px] font-bold text-white">記錄格式說明</h2>
+          <button
+            onClick={onClose}
+            className="text-white/80 hover:text-white text-[18px] leading-none font-light"
+            aria-label="關閉"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="px-5 py-4 space-y-5 text-[12px] text-[#222] leading-relaxed">
+
+          {/* Overview */}
+          <p>
+            每一筆記錄由若干行組成，每行以 <strong>Tab（⇥）</strong> 分隔為 6 個欄位。
+            共有三種格式：
+          </p>
+
+          {/* Type 1 */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-1 h-4 bg-[#EB0000]" />
+              <span className="font-semibold text-[13px]">格式一：多行群組（大地點 + 多個小地點）</span>
+            </div>
+            <p className="mb-2 text-[#555]">
+              第一行包含整段旅程的開始／結束日期、大地點名稱，以及第一個小地點的資訊。
+              後續行以三個空欄開頭，依序列出其餘小地點。
+            </p>
+            <div
+              className="bg-[#fafafa] border border-border p-3 text-[11px] leading-[1.8] overflow-x-auto"
+              style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+            >
+              <div className="text-[#888] mb-1">欄位：[群組開始] [群組結束] [大地點] [小地點] [小地點開始] [小地點結束]</div>
+              <div><span className="text-[#EB0000]">20240629</span>  <span className="text-[#EB0000]">20240630</span>  <span className="text-blue-700">申根區域</span>  <span className="text-green-700">瑞士</span>  20240629  20240629</div>
+              <div className="text-[#aaa]">[空]  [空]  [空]  <span className="text-green-700">法國</span>  20240629  20240629</div>
+              <div className="text-[#aaa]">[空]  [空]  [空]  <span className="text-green-700">瑞士</span>  20240629  20240630</div>
+            </div>
+            <p className="mt-2 text-[#555]">
+              以上表示 2024-06-29 至 2024-06-30 在「申根區域」（大地點）；
+              小地點方面，06-29 在瑞士和法國，06-29 至 06-30 在瑞士。
+            </p>
+          </div>
+
+          {/* Type 2 */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-1 h-4 bg-[#EB0000]" />
+              <span className="font-semibold text-[13px]">格式二：單行，有大地點和小地點</span>
+            </div>
+            <p className="mb-2 text-[#555]">
+              只有一行，第 4 欄填寫小地點，第 5、6 欄留空。
+              小地點的日期範圍與大地點相同。
+            </p>
+            <div
+              className="bg-[#fafafa] border border-border p-3 text-[11px] leading-[1.8] overflow-x-auto"
+              style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+            >
+              <div className="text-[#888] mb-1">欄位：[開始] [結束] [大地點] [小地點] [空] [空]</div>
+              <div><span className="text-[#EB0000]">20240630</span>  <span className="text-[#EB0000]">20240705</span>  <span className="text-blue-700">英國</span>  <span className="text-green-700">英格蘭</span>  [空]  [空]</div>
+            </div>
+            <p className="mt-2 text-[#555]">
+              表示 2024-06-30 至 2024-07-05 在「英國」（大地點），小地點為「英格蘭」，日期同上。
+            </p>
+          </div>
+
+          {/* Type 3 */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-1 h-4 bg-[#EB0000]" />
+              <span className="font-semibold text-[13px]">格式三：單行，只有大地點</span>
+            </div>
+            <p className="mb-2 text-[#555]">
+              只有一行，第 4、5、6 欄均留空。小地點自動與大地點相同。
+            </p>
+            <div
+              className="bg-[#fafafa] border border-border p-3 text-[11px] leading-[1.8] overflow-x-auto"
+              style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+            >
+              <div className="text-[#888] mb-1">欄位：[開始] [結束] [大地點] [空] [空] [空]</div>
+              <div><span className="text-[#EB0000]">20240718</span>  <span className="text-[#EB0000]">20240721</span>  <span className="text-blue-700">中國</span>  [空]  [空]  [空]</div>
+            </div>
+            <p className="mt-2 text-[#555]">
+              表示 2024-07-18 至 2024-07-21 在「中國」，大小地點均為「中國」。
+            </p>
+          </div>
+
+          {/* Notes */}
+          <div className="border-t border-border pt-4">
+            <div className="font-semibold text-[13px] mb-2">注意事項</div>
+            <ul className="space-y-1 text-[#555] list-none">
+              <li className="flex gap-2"><span className="text-[#EB0000] font-bold">·</span><span>日期格式為 <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>YYYYMMDD</span>（8 位數字，無分隔符）。</span></li>
+              <li className="flex gap-2"><span className="text-[#EB0000] font-bold">·</span><span>欄位之間以單個 <strong>Tab</strong> 分隔，不是空格。</span></li>
+              <li className="flex gap-2"><span className="text-[#EB0000] font-bold">·</span><span>同一天若出現在多條小地點記錄中（如 20240224 丹麥），該天只計算一次。</span></li>
+              <li className="flex gap-2"><span className="text-[#EB0000] font-bold">·</span><span>「詳細模式」使用小地點；「概覽模式」使用大地點。</span></li>
+              <li className="flex gap-2"><span className="text-[#EB0000] font-bold">·</span><span>多筆記錄之間可以有空行，程式會自動忽略。</span></li>
+            </ul>
+          </div>
+
+          {/* Full example */}
+          <div className="border-t border-border pt-4">
+            <div className="font-semibold text-[13px] mb-2">完整範例</div>
+            <div
+              className="bg-[#fafafa] border border-border p-3 text-[11px] leading-[1.8] overflow-x-auto whitespace-pre"
+              style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+            >
+{`20240629\t20240630\t申根區域\t瑞士\t20240629\t20240629
+\t\t\t法國\t20240629\t20240629
+\t\t\t瑞士\t20240629\t20240630
+20240630\t20240705\t英國\t英格蘭\t\t
+20240705\t20240708\t申根區域\t法國\t\t
+20240708\t20240717\t英國\t英格蘭\t\t
+20240718\t20240721\t中國\t\t\t`}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-3 border-t border-border flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-1.5 bg-[#EB0000] text-white text-[12px] font-semibold hover:bg-[#c00000]"
+          >
+            關閉
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Date stepper: input + − / + buttons
+// ---------------------------------------------------------------------------
+interface DateStepperProps {
+  label: string;
+  value: string;
+  min: string;
+  max: string;
+  onChange: (v: string) => void;
+}
+
+function DateStepper({ label, value, min, max, onChange }: DateStepperProps) {
+  const step = (delta: number) => {
+    const d = fromInputDate(value);
+    if (!d) return;
+    const nd = addDays(d, delta);
+    const minD = fromInputDate(min);
+    const maxD = fromInputDate(max);
+    if (minD && nd < minD) return;
+    if (maxD && nd > maxD) return;
+    onChange(toInputDate(nd));
+  };
+
+  return (
+    <div>
+      <label className="block text-[10px] text-[#666] mb-0.5">{label}</label>
+      <div className="flex">
+        <button
+          onClick={() => step(-1)}
+          className="w-7 flex-shrink-0 border border-r-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
+          title="前一天"
+        >
+          −
+        </button>
+        <input
+          type="date"
+          className="flex-1 min-w-0 text-[11px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
+          style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+          value={value}
+          min={min}
+          max={max}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <button
+          onClick={() => step(1)}
+          className="w-7 flex-shrink-0 border border-l-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
+          title="後一天"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -102,7 +299,6 @@ function DayCell({ date, locations, isToday, isWeekend, isFirstOfMonth }: DayCel
         isToday ? "outline outline-1 outline-[#EB0000] outline-offset-[-1px]" : "",
       ].join(" ")}
     >
-      {/* Month label on first of month */}
       {isFirstOfMonth && (
         <span
           className="text-[9px] text-[#EB0000] font-semibold leading-none mb-0.5 uppercase tracking-wide"
@@ -147,7 +343,7 @@ function DayCell({ date, locations, isToday, isWeekend, isFirstOfMonth }: DayCel
 }
 
 // ---------------------------------------------------------------------------
-// Calendar grid — 7 columns (Sun–Sat)
+// Calendar grid
 // ---------------------------------------------------------------------------
 interface CalendarGridProps {
   result: TravelParseResult;
@@ -172,14 +368,12 @@ function CalendarGrid({ result, viewStart, viewEnd }: CalendarGridProps) {
     days.push({ date, locations });
   }
 
-  // Pad start to Sunday
   const startDow = viewStart.getDay();
   const paddedDays: Array<{ date: Date | null; locations: string[] }> = [
     ...Array.from({ length: startDow }, () => ({ date: null as Date | null, locations: [] as string[] })),
     ...days,
   ];
 
-  // Pad end to Saturday
   const remainder = paddedDays.length % 7;
   if (remainder !== 0) {
     for (let i = 0; i < 7 - remainder; i++) {
@@ -187,7 +381,6 @@ function CalendarGrid({ result, viewStart, viewEnd }: CalendarGridProps) {
     }
   }
 
-  // Split into weeks
   const weeks: typeof paddedDays[] = [];
   for (let i = 0; i < paddedDays.length; i += 7) {
     weeks.push(paddedDays.slice(i, i + 7));
@@ -195,7 +388,6 @@ function CalendarGrid({ result, viewStart, viewEnd }: CalendarGridProps) {
 
   return (
     <div className="w-full">
-      {/* Header row */}
       <div className="grid grid-cols-7 border-t border-l border-border sticky top-0 z-10 bg-white">
         {WEEKDAYS_ZH.map((d, i) => (
           <div
@@ -210,7 +402,6 @@ function CalendarGrid({ result, viewStart, viewEnd }: CalendarGridProps) {
           </div>
         ))}
       </div>
-      {/* Weeks */}
       {weeks.map((week, wi) => (
         <div key={wi} className="grid grid-cols-7 border-l border-border">
           {week.map((cell, di) => {
@@ -287,7 +478,6 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
           </div>
         ))}
       </div>
-      {/* Bar chart + table */}
       <div className="space-y-0">
         {stats.map((s) => {
           const color = getLocationColor(s.location);
@@ -313,7 +503,6 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
                   {s.days}天
                 </span>
               </div>
-              {/* Bar */}
               <div className="h-[3px] bg-[#f0f0f0] w-full">
                 <div
                   className="h-full"
@@ -336,6 +525,7 @@ export default function Home() {
   const [isDetailed, setIsDetailed] = useState(true);
   const [parseResult, setParseResult] = useState<TravelParseResult | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Custom view range
   const [customStartStr, setCustomStartStr] = useState("");
@@ -343,7 +533,6 @@ export default function Home() {
   const [durationDays, setDurationDays] = useState(180);
   const [useDuration, setUseDuration] = useState(false);
 
-  // Parse on demand
   const handleParse = useCallback(() => {
     try {
       const result = parseTravelData(dataText, isDetailed);
@@ -357,7 +546,6 @@ export default function Home() {
     }
   }, [dataText, isDetailed]);
 
-  // Compute view range
   const { viewStart, viewEnd, rangeError } = useMemo(() => {
     if (!parseResult) return { viewStart: new Date(), viewEnd: new Date(), rangeError: null };
 
@@ -404,30 +592,35 @@ export default function Home() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
+      {/* Format help popup */}
+      {showHelp && <FormatHelpPopup onClose={() => setShowHelp(false)} />}
+
       {/* ── Left Sidebar ── */}
       <aside className="w-[296px] flex-shrink-0 border-r border-border flex flex-col overflow-hidden">
-        {/* Header */}
+        {/* Header — no SBB branding */}
         <div className="px-3 py-2 border-b border-[#c00000] bg-[#EB0000]">
-          <div
-            className="text-[10px] text-white/60 uppercase tracking-widest leading-none"
-            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-          >
-            SBB · CFF · FFS
-          </div>
-          <h1 className="text-[15px] font-bold text-white leading-tight mt-1">
-            Travel History<br />Visualiser
+          <h1 className="text-[15px] font-bold text-white leading-tight">
+            Travel History Visualiser
           </h1>
         </div>
 
         <div className="flex-1 overflow-y-auto">
           {/* Data input */}
           <div className="px-3 py-2 border-b border-border">
-            <label
-              className="block text-[10px] text-[#888] uppercase tracking-widest mb-1"
-              style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-            >
-              旅行記錄資料
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label
+                className="text-[10px] text-[#888] uppercase tracking-widest"
+                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+              >
+                旅行記錄資料
+              </label>
+              <button
+                onClick={() => setShowHelp(true)}
+                className="text-[10px] text-[#EB0000] hover:underline font-medium"
+              >
+                格式說明 ?
+              </button>
+            </div>
             <textarea
               className="w-full text-[11px] bg-[#fafafa] border border-border p-1.5 resize-none focus:outline-none focus:border-[#EB0000] text-[#333] leading-relaxed"
               style={{ fontFamily: "'IBM Plex Mono', monospace", tabSize: 4 }}
@@ -507,18 +700,13 @@ export default function Home() {
                 資料：{formatDateDisplay(parseResult.startDate)} — {formatDateDisplay(parseResult.endDate)}
               </div>
               <div className="space-y-1.5">
-                <div>
-                  <label className="block text-[10px] text-[#666] mb-0.5">開始日期</label>
-                  <input
-                    type="date"
-                    className="w-full text-[11px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
-                    style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                    value={customStartStr}
-                    min={toInputDate(parseResult.startDate)}
-                    max={toInputDate(parseResult.endDate)}
-                    onChange={(e) => setCustomStartStr(e.target.value)}
-                  />
-                </div>
+                <DateStepper
+                  label="開始日期"
+                  value={customStartStr}
+                  min={toInputDate(parseResult.startDate)}
+                  max={toInputDate(parseResult.endDate)}
+                  onChange={setCustomStartStr}
+                />
 
                 <div className="flex">
                   <button
@@ -550,29 +738,38 @@ export default function Home() {
                     <label className="block text-[10px] text-[#666] mb-0.5">
                       天數（預設 180）
                     </label>
-                    <input
-                      type="number"
-                      className="w-full text-[11px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
-                      style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                      value={durationDays}
-                      min={1}
-                      max={3650}
-                      onChange={(e) => setDurationDays(Math.max(1, parseInt(e.target.value) || 180))}
-                    />
+                    <div className="flex">
+                      <button
+                        onClick={() => setDurationDays((d) => Math.max(1, d - 1))}
+                        className="w-7 flex-shrink-0 border border-r-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        className="flex-1 min-w-0 text-[11px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
+                        style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                        value={durationDays}
+                        min={1}
+                        max={3650}
+                        onChange={(e) => setDurationDays(Math.max(1, parseInt(e.target.value) || 180))}
+                      />
+                      <button
+                        onClick={() => setDurationDays((d) => Math.min(3650, d + 1))}
+                        className="w-7 flex-shrink-0 border border-l-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  <div>
-                    <label className="block text-[10px] text-[#666] mb-0.5">結束日期</label>
-                    <input
-                      type="date"
-                      className="w-full text-[11px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
-                      style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                      value={customEndStr}
-                      min={customStartStr || toInputDate(parseResult.startDate)}
-                      max={toInputDate(parseResult.endDate)}
-                      onChange={(e) => setCustomEndStr(e.target.value)}
-                    />
-                  </div>
+                  <DateStepper
+                    label="結束日期"
+                    value={customEndStr}
+                    min={customStartStr || toInputDate(parseResult.startDate)}
+                    max={toInputDate(parseResult.endDate)}
+                    onChange={setCustomEndStr}
+                  />
                 )}
 
                 {rangeError && (
@@ -672,16 +869,12 @@ export default function Home() {
                 支援三種格式：多行群組（大地點 + 小地點）、單行雙地點、單行單地點。
                 左側已預載範例資料，可直接點擊解析。
               </p>
-              <div
-                className="mt-6 text-[10px] text-[#bbb] text-left max-w-md leading-relaxed"
-                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+              <button
+                onClick={() => setShowHelp(true)}
+                className="mt-4 text-[12px] text-[#EB0000] hover:underline font-medium"
               >
-                <div className="mb-1 text-[#999]">格式範例（欄位以 Tab 分隔）：</div>
-                <div className="text-[#bbb]">20240221  20240226  申根區域  希臘  20240221  20240221</div>
-                <div className="text-[#bbb]">          丹麥  20240221  20240224</div>
-                <div className="text-[#bbb] mt-1">20240630  20240705  英國  英格蘭</div>
-                <div className="text-[#bbb] mt-1">20240219  20240221  新加坡</div>
-              </div>
+                查看格式說明 →
+              </button>
             </div>
           ) : (
             <CalendarGrid result={parseResult} viewStart={viewStart} viewEnd={viewEnd} />
