@@ -12,7 +12,7 @@ const enGB: Translation = {
 
   displayModeLabel: "Display Mode",
   modeDetailed: "Sub-location Mode",
-  modeOverview: "Region Mode",
+  modeOverview: "Major Location Mode",
 
   parseBtn: "Parse & Display",
   showCalendarBtn: "Show Calendar",
@@ -38,7 +38,7 @@ const enGB: Translation = {
   statsDaysSuffix: "d",
 
   // ── Warnings ──────────────────────────────────────────────────────────────
-  warningsLabel: "Warnings",
+  errorsLabel: "Errors",
 
   // ── Calendar top bar ──────────────────────────────────────────────────────
   calendarLabel: "Calendar",

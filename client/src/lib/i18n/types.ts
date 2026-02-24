@@ -43,7 +43,7 @@ export interface Translation {
   statsDaysSuffix: string; // "天" / "d"
 
   // ── Warnings ──────────────────────────────────────────────────────────────
-  warningsLabel: string;
+  errorsLabel: string;
 
   // ── Calendar top bar ──────────────────────────────────────────────────────
   calendarLabel: string;

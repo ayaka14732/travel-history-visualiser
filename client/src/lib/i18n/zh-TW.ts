@@ -2,7 +2,7 @@ import type { Translation } from "./types";
 
 const zhTW: Translation = {
   // ── Meta ──────────────────────────────────────────────────────────────────
-  appTitle: "Travel History Visualiser",
+  appTitle: "旅行記錄視覺化",
   langLabel: "繁體中文",
 
   // ── Sidebar ───────────────────────────────────────────────────────────────
@@ -37,8 +37,8 @@ const zhTW: Translation = {
   statsLocations: "地點數",
   statsDaysSuffix: "天",
 
-  // ── Warnings ──────────────────────────────────────────────────────────────
-  warningsLabel: "警告",
+  // ── Errors ────────────────────────────────────────────────────────────────
+  errorsLabel: "錯誤",
 
   // ── Calendar top bar ──────────────────────────────────────────────────────
   calendarLabel: "日曆",
@@ -86,7 +86,7 @@ const zhTW: Translation = {
   helpNote1: "日期格式為 YYYYMMDD（8 位數字，無分隔符）。",
   helpNote2: "欄位之間以單個 Tab 分隔，不是空格。",
   helpNote3: "同一天若出現在多條小地點記錄中（如 20240224 丹麥），該天只計算一次。",
-  helpNote4: "「小地點模式」使用小地點；「大地點模式」使用大地點。",
+  helpNote4: "「小地點模式」使用小地點；「大地點模式」使用大地點（即大地點）。",
   helpNote5: "多筆記錄之間可以有空行，程式會自動忽略。",
 
   helpExampleTitle: "完整範例",

@@ -494,8 +494,8 @@ export interface TravelParseResult {
   dailyLocations: string[][];
   /** All parsed groups, for reference. */
   groups: TravelGroup[];
-  /** Non-fatal warnings from parsing and validation. */
-  warnings: string[];
+  /** Errors from parsing and validation. If non-empty, results should not be used. */
+  errors: string[];
 }
 
 /**
@@ -530,7 +530,7 @@ export function parseTravelData(
       endDate: today,
       dailyLocations: [[]],
       groups: [],
-      warnings: [...allWarnings, "No valid groups found in input."],
+      errors: allWarnings.length > 0 ? allWarnings : ["No valid groups found in input."],
     };
   }
 
@@ -579,7 +579,7 @@ export function parseTravelData(
     endDate: maxDate,
     dailyLocations,
     groups,
-    warnings: allWarnings,
+    errors: allWarnings,
   };
 }
 
@@ -633,6 +633,6 @@ export function sliceResult(
     endDate: addDays(result.startDate, endOffset),
     dailyLocations: sliced,
     groups: result.groups,
-    warnings: result.warnings,
+    errors: result.errors,
   };
 }

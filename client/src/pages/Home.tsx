@@ -697,6 +697,11 @@ export default function Home() {
   const handleParse = useCallback(() => {
     try {
       const result = parseTravelData(dataText, isDetailed);
+      if (result.errors.length > 0) {
+        setParseError(result.errors.join("\n"));
+        setParseResult(null);
+        return;
+      }
       setParseResult(result);
       setParseError(null);
       setCustomStartStr(toInputDate(result.startDate));
@@ -705,6 +710,7 @@ export default function Home() {
       setDurationDays(daysBetween(result.startDate, result.endDate) + 1);
     } catch (e: unknown) {
       setParseError(e instanceof Error ? e.message : String(e));
+      setParseResult(null);
     }
   }, [dataText, isDetailed]);
 
@@ -991,26 +997,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Warnings */}
-          {parseResult && parseResult.warnings.length > 0 && (
-            <div className="px-3 py-2 border-t border-border">
-              <div
-                className="text-[10px] text-[#888] uppercase tracking-widest mb-1"
-                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-              >
-                {t.warningsLabel}
-              </div>
-              {parseResult.warnings.map((w, i) => (
-                <div
-                  key={i}
-                  className="text-[10px] text-[#EB0000]"
-                  style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                >
-                  {w}
-                </div>
-              ))}
-            </div>
-          )}
+
         </div>
       </aside>
 

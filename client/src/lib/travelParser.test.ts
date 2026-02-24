@@ -73,7 +73,7 @@ describe("Type 3 — single row, big location only", () => {
 
   it("detailed mode: small location defaults to big location", () => {
     const result = parseTravelData(input, true);
-    expect(result.warnings).toHaveLength(0);
+    expect(result.errors).toHaveLength(0);
     expect(formatDateDisplay(result.startDate)).toBe("2024-07-18");
     expect(formatDateDisplay(result.endDate)).toBe("2024-07-21");
     // 4 days: 18, 19, 20, 21
@@ -102,7 +102,7 @@ describe("Type 2 — single row with sub-location, no sub dates", () => {
 
   it("detailed mode: uses sub-location for entire range", () => {
     const result = parseTravelData(input, true);
-    expect(result.warnings).toHaveLength(0);
+    expect(result.errors).toHaveLength(0);
     expect(result.dailyLocations).toHaveLength(6); // 30 Jun – 5 Jul
     for (const day of result.dailyLocations) {
       expect(day).toEqual(["英格蘭"]);
@@ -136,7 +136,7 @@ describe("Type 1 — multi-row group", () => {
 
   it("detailed mode: correct locations per day", () => {
     const result = parseTravelData(input, true);
-    expect(result.warnings).toHaveLength(0);
+    expect(result.errors).toHaveLength(0);
     // 6 days: 21, 22, 23, 24, 25, 26
     expect(result.dailyLocations).toHaveLength(6);
 
@@ -187,7 +187,7 @@ describe("Mixed groups — full sample data", () => {
 
   it("parses without warnings", () => {
     const result = parseTravelData(input, true);
-    expect(result.warnings).toHaveLength(0);
+    expect(result.errors).toHaveLength(0);
   });
 
   it("startDate is 2024-06-29, endDate is 2024-07-21", () => {
@@ -235,7 +235,7 @@ describe("Validation — subEnd after groupEnd", () => {
 
   it("emits a warning about subEnd before groupStart (year typo)", () => {
     const result = parseTravelData(input, true);
-    const hasWarning = result.warnings.some(
+    const hasWarning = result.errors.some(
       (w) => w.includes("丹麥") && (w.includes("before groupStart") || w.includes("subEnd"))
     );
     expect(hasWarning).toBe(true);
@@ -255,7 +255,7 @@ describe("Validation — subEnd after groupEnd", () => {
       row("", "", "", "法羅羣島", "20260526", "20260604")
     );
     const result = parseTravelData(correctInput, true);
-    expect(result.warnings).toHaveLength(0);
+    expect(result.errors).toHaveLength(0);
   });
 });
 
@@ -270,7 +270,7 @@ describe("Validation — subStart before groupStart", () => {
 
   it("emits a warning about subStart before groupStart", () => {
     const result = parseTravelData(input, true);
-    const hasWarning = result.warnings.some(
+    const hasWarning = result.errors.some(
       (w) => w.includes("英格蘭") && w.includes("before groupStart")
     );
     expect(hasWarning).toBe(true);
@@ -288,7 +288,7 @@ describe("Validation — subEnd before subStart", () => {
 
   it("emits a warning about subEnd before subStart", () => {
     const result = parseTravelData(input, true);
-    const hasWarning = result.warnings.some(
+    const hasWarning = result.errors.some(
       (w) => w.includes("英格蘭") && w.includes("before subStart")
     );
     expect(hasWarning).toBe(true);
@@ -306,7 +306,7 @@ describe("Validation — groupEnd before groupStart", () => {
 
   it("emits a warning about groupEnd before groupStart", () => {
     const result = parseTravelData(input, true);
-    const hasWarning = result.warnings.some(
+    const hasWarning = result.errors.some(
       (w) => w.includes("groupEnd") && w.includes("before groupStart")
     );
     expect(hasWarning).toBe(true);
@@ -323,7 +323,7 @@ describe("Validation — invalid date strings", () => {
       row("20240601", "20240610", "英國", "英格蘭", "2024060X", "20240605")
     );
     const result = parseTravelData(input, true);
-    const hasWarning = result.warnings.some((w) => w.includes("2024060X"));
+    const hasWarning = result.errors.some((w) => w.includes("2024060X"));
     expect(hasWarning).toBe(true);
   });
 
@@ -333,8 +333,8 @@ describe("Validation — invalid date strings", () => {
     );
     // Fatal error: groupStart is invalid, group is skipped
     const result = parseTravelData(input, true);
-    const hasWarning = result.warnings.some(
-      (w) => w.includes("20241399") || w.includes("Skipped group")
+    const hasWarning = result.errors.some(
+      (w) => w.includes("20241399") || w.includes("Skipped group") || w.includes("not a valid calendar date") || w.includes("Invalid groupStart")
     );
     expect(hasWarning).toBe(true);
   });
@@ -344,8 +344,8 @@ describe("Validation — invalid date strings", () => {
       row("20230229", "20230305", "英國", "", "", "")
     );
     const result = parseTravelData(input, true);
-    const hasWarning = result.warnings.some(
-      (w) => w.includes("20230229") || w.includes("Skipped group")
+    const hasWarning = result.errors.some(
+      (w) => w.includes("20230229") || w.includes("Skipped group") || w.includes("not a valid calendar date") || w.includes("Invalid groupStart")
     );
     expect(hasWarning).toBe(true);
   });
@@ -362,7 +362,7 @@ describe("Validation — continuation row with invalid dates", () => {
       row("", "", "", "德國", "20240606", "2024XXXX") // invalid subEnd
     );
     const result = parseTravelData(input, true);
-    const hasWarning = result.warnings.some(
+    const hasWarning = result.errors.some(
       (w) => w.includes("德國") || w.includes("Skipped continuation")
     );
     expect(hasWarning).toBe(true);
@@ -377,15 +377,15 @@ describe("Edge cases", () => {
   it("single-day trip", () => {
     const input = data(row("20240101", "20240101", "新加坡", "", "", ""));
     const result = parseTravelData(input, true);
-    expect(result.warnings).toHaveLength(0);
+    expect(result.errors).toHaveLength(0);
     expect(result.dailyLocations).toHaveLength(1);
     expect(result.dailyLocations[0]).toEqual(["新加坡"]);
   });
 
   it("empty input returns a warning", () => {
     const result = parseTravelData("", true);
-    expect(result.warnings.length).toBeGreaterThan(0);
-    expect(result.warnings.some((w) => w.includes("No valid groups"))).toBe(true);
+    expect(result.errors.length).toBeGreaterThan(0);
+    expect(result.errors.some((w) => w.includes("No valid groups"))).toBe(true);
   });
 
   it("blank lines between records are ignored", () => {
@@ -396,7 +396,7 @@ describe("Edge cases", () => {
       row("20240104", "20240106", "英國", "", "", "")
     );
     const result = parseTravelData(input, true);
-    expect(result.warnings).toHaveLength(0);
+    expect(result.errors).toHaveLength(0);
     expect(result.groups).toHaveLength(2);
   });
 
@@ -404,7 +404,7 @@ describe("Edge cases", () => {
     // Only 3 tokens — should still parse as Type 3
     const input = "20240101\t20240103\t新加坡";
     const result = parseTravelData(input, true);
-    expect(result.warnings).toHaveLength(0);
+    expect(result.errors).toHaveLength(0);
     expect(result.dailyLocations[0]).toEqual(["新加坡"]);
   });
 
