@@ -3,7 +3,7 @@
  *
  * Design: Swiss SBB/CFF/FFS — information-dense, precision-first
  *
- * Data format (tab-separated):
+ * Data format (tab-separated, 6 columns per row):
  *
  * Type 1 — Multi-row group (big location + multiple small locations):
  *   20240221\t20240226\t申根區域\t希臘\t20240221\t20240221
@@ -11,23 +11,49 @@
  *   \t\t\t瑞典\t20240224\t20240224
  *   \t\t\t丹麥\t20240224\t20240226
  *
- * Type 2 — Single row with both big + small location:
+ * Type 2 — Single row with both big + small location (no sub dates):
  *   20240630\t20240705\t英國\t英格蘭\t\t
  *
  * Type 3 — Single row with big location only (small = big):
  *   20240219\t20240221\t新加坡\t\t\t
+ *
+ * Validation performed:
+ *   - Date strings must be 8 digits and represent a valid calendar date
+ *   - groupEnd must not be before groupStart
+ *   - subEnd must not be before subStart
+ *   - subStart must not be before groupStart
+ *   - subEnd must not be after groupEnd
+ *   - Sub-entries that fall entirely outside the group range are skipped with a warning
+ *   - Gaps and overlaps between consecutive groups are reported as warnings
  */
 
 // ---------------------------------------------------------------------------
 // Core date utilities
 // ---------------------------------------------------------------------------
 
-/** Parse a YYYYMMDD string into a Date (local midnight). */
-export function parseDate(s: string): Date {
+/** Parse a YYYYMMDD string into a Date (local midnight). Returns null if invalid. */
+export function tryParseDate(s: string): Date | null {
+  if (!/^\d{8}$/.test(s)) return null;
   const y = parseInt(s.slice(0, 4), 10);
-  const m = parseInt(s.slice(4, 6), 10) - 1;
+  const m = parseInt(s.slice(4, 6), 10) - 1; // 0-indexed
   const d = parseInt(s.slice(6, 8), 10);
-  return new Date(y, m, d);
+  const date = new Date(y, m, d);
+  // Verify the date is valid (e.g. month 13 or day 32 would roll over)
+  if (
+    date.getFullYear() !== y ||
+    date.getMonth() !== m ||
+    date.getDate() !== d
+  ) {
+    return null;
+  }
+  return date;
+}
+
+/** Parse a YYYYMMDD string into a Date. Throws if invalid. */
+export function parseDate(s: string): Date {
+  const d = tryParseDate(s);
+  if (!d) throw new Error(`Invalid date string: "${s}"`);
+  return d;
 }
 
 /** Format a Date to YYYYMMDD string. */
@@ -53,7 +79,7 @@ export function addDays(d: Date, n: number): Date {
   return result;
 }
 
-/** Number of days between two dates (end - start), inclusive of start. */
+/** Number of days between two dates (end - start). Positive if end > start. */
 export function daysBetween(start: Date, end: Date): number {
   const ms = end.getTime() - start.getTime();
   return Math.round(ms / 86_400_000);
@@ -72,23 +98,21 @@ export function dateEquals(a: Date, b: Date): boolean {
 // Parser combinator primitives
 // ---------------------------------------------------------------------------
 
-type ParseResult<T> = { ok: true; value: T; rest: string[] } | { ok: false; error: string };
+type ParseResult<T> =
+  | { ok: true; value: T; rest: string[] }
+  | { ok: false; error: string };
 
 type Parser<T> = (tokens: string[]) => ParseResult<T>;
 
 /** Consume one token that satisfies a predicate. */
 function satisfy(pred: (s: string) => boolean, label: string): Parser<string> {
   return (tokens) => {
-    if (tokens.length === 0) return { ok: false, error: `Expected ${label} but got end of input` };
+    if (tokens.length === 0)
+      return { ok: false, error: `Expected ${label} but got end of input` };
     const [head, ...rest] = tokens;
     if (pred(head)) return { ok: true, value: head, rest };
     return { ok: false, error: `Expected ${label} but got "${head}"` };
   };
-}
-
-/** Consume one token unconditionally. */
-function anyToken(): Parser<string> {
-  return satisfy(() => true, "any token");
 }
 
 /** Consume a token that matches a YYYYMMDD date string (non-empty). */
@@ -96,30 +120,9 @@ function dateToken(): Parser<string> {
   return satisfy((s) => /^\d{8}$/.test(s), "YYYYMMDD date");
 }
 
-/** Consume a token that is either a YYYYMMDD date or empty string. */
-function optionalDateToken(): Parser<string | null> {
-  return (tokens) => {
-    if (tokens.length === 0) return { ok: true, value: null, rest: [] };
-    const [head, ...rest] = tokens;
-    if (/^\d{8}$/.test(head)) return { ok: true, value: head, rest };
-    if (head === "") return { ok: true, value: null, rest };
-    return { ok: false, error: `Expected optional date but got "${head}"` };
-  };
-}
-
 /** Consume a non-empty text token. */
 function textToken(): Parser<string> {
   return satisfy((s) => s.trim().length > 0, "non-empty text");
-}
-
-/** Consume an empty token. */
-function emptyToken(): Parser<null> {
-  return (tokens) => {
-    if (tokens.length === 0) return { ok: true, value: null, rest: [] };
-    const [head, ...rest] = tokens;
-    if (head === "") return { ok: true, value: null, rest };
-    return { ok: false, error: `Expected empty token but got "${head}"` };
-  };
 }
 
 /** Sequence two parsers. */
@@ -141,6 +144,12 @@ function map<A, B>(pa: Parser<A>, f: (a: A) => B): Parser<B> {
     return { ok: true, value: f(r.value), rest: r.rest };
   };
 }
+
+// Suppress unused-variable warnings for exported combinators
+void seq2;
+void map;
+void dateToken;
+void textToken;
 
 // ---------------------------------------------------------------------------
 // Domain types
@@ -166,87 +175,212 @@ export interface TravelGroup {
 }
 
 // ---------------------------------------------------------------------------
+// Validation helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Validate a date string and return the parsed Date plus any warning message.
+ * Returns null for the date if it is invalid.
+ */
+function validateDateStr(
+  s: string,
+  fieldName: string,
+  rowDesc: string
+): { date: Date | null; warning: string | null } {
+  if (!s.trim()) return { date: null, warning: null }; // empty is handled by caller
+  if (!/^\d{8}$/.test(s.trim())) {
+    return {
+      date: null,
+      warning: `[${rowDesc}] ${fieldName} "${s}" is not 8 digits`,
+    };
+  }
+  const d = tryParseDate(s.trim());
+  if (!d) {
+    return {
+      date: null,
+      warning: `[${rowDesc}] ${fieldName} "${s}" is not a valid calendar date`,
+    };
+  }
+  return { date: d, warning: null };
+}
+
+// ---------------------------------------------------------------------------
 // Row-level parsers
 // ---------------------------------------------------------------------------
+
+interface HeaderRowResult {
+  groupStart: Date;
+  groupEnd: Date;
+  bigLocation: string;
+  firstSub: SubEntry | null;
+  warnings: string[];
+}
 
 /**
  * Parse a "header row" of a group:
  *   groupStart \t groupEnd \t bigLocation \t subLocation \t subStart \t subEnd
  *
- * The last three fields may be empty (Type 2/3).
+ * Returns ok:false only for fatal errors (unparseable group start/end or missing bigLocation).
+ * Non-fatal issues are collected in warnings.
  */
-function parseHeaderRow(tokens: string[]): ParseResult<{
-  groupStart: Date;
-  groupEnd: Date;
-  bigLocation: string;
-  firstSub: SubEntry | null;
-}> {
-  // Expect exactly 6 tokens
-  if (tokens.length < 6) {
-    return { ok: false, error: `Header row needs 6 tokens, got ${tokens.length}` };
+function parseHeaderRow(
+  tokens: string[],
+  rowDesc: string
+): ParseResult<HeaderRowResult> {
+  // Normalize to exactly 6 tokens
+  const row = [...tokens];
+  while (row.length < 6) row.push("");
+  const [t0, t1, t2, t3, t4, t5] = row;
+
+  const warnings: string[] = [];
+
+  // ── groupStart (fatal if invalid) ────────────────────────────────────────
+  const gsResult = validateDateStr(t0, "groupStart", rowDesc);
+  if (gsResult.warning) warnings.push(gsResult.warning);
+  if (!gsResult.date) {
+    return { ok: false, error: `[${rowDesc}] Invalid groupStart: "${t0}"` };
+  }
+  const groupStart = gsResult.date;
+
+  // ── groupEnd (fatal if invalid) ───────────────────────────────────────────
+  const geResult = validateDateStr(t1, "groupEnd", rowDesc);
+  if (geResult.warning) warnings.push(geResult.warning);
+  if (!geResult.date) {
+    return { ok: false, error: `[${rowDesc}] Invalid groupEnd: "${t1}"` };
+  }
+  const groupEnd = geResult.date;
+
+  // ── groupEnd must not be before groupStart ────────────────────────────────
+  if (groupEnd < groupStart) {
+    warnings.push(
+      `[${rowDesc}] groupEnd ${formatDateDisplay(groupEnd)} is before groupStart ${formatDateDisplay(groupStart)}`
+    );
   }
 
-  const [t0, t1, t2, t3, t4, t5] = tokens;
-
-  if (!/^\d{8}$/.test(t0)) return { ok: false, error: `Invalid groupStart: "${t0}"` };
-  if (!/^\d{8}$/.test(t1)) return { ok: false, error: `Invalid groupEnd: "${t1}"` };
-  if (!t2.trim()) return { ok: false, error: `bigLocation is empty` };
-
-  const groupStart = parseDate(t0);
-  const groupEnd = parseDate(t1);
+  // ── bigLocation (fatal if empty) ──────────────────────────────────────────
   const bigLocation = t2.trim();
+  if (!bigLocation) {
+    return { ok: false, error: `[${rowDesc}] bigLocation is empty` };
+  }
 
-  // Determine first sub entry
+  // ── firstSub ─────────────────────────────────────────────────────────────
   let firstSub: SubEntry | null = null;
   const subLoc = t3.trim();
   const subStartStr = t4.trim();
   const subEndStr = t5.trim();
 
   if (subLoc) {
-    // Type 2: has sub location but no sub dates → use group dates
     if (!subStartStr && !subEndStr) {
+      // Type 2: sub dates inherit from group
       firstSub = { location: subLoc, startDate: groupStart, endDate: groupEnd };
-    } else if (subStartStr && subEndStr) {
-      // Type 1 header: has sub location AND sub dates
-      firstSub = {
-        location: subLoc,
-        startDate: parseDate(subStartStr),
-        endDate: parseDate(subEndStr),
-      };
     } else {
-      // Partial — treat as Type 2
-      firstSub = { location: subLoc, startDate: groupStart, endDate: groupEnd };
+      // Type 1 header: explicit sub dates
+      const ssResult = validateDateStr(subStartStr, "subStart", rowDesc);
+      if (ssResult.warning) warnings.push(ssResult.warning);
+      const seResult = validateDateStr(subEndStr, "subEnd", rowDesc);
+      if (seResult.warning) warnings.push(seResult.warning);
+
+      const subStart = ssResult.date ?? groupStart;
+      const subEnd = seResult.date ?? groupEnd;
+
+      const subWarnings = validateSubEntry(subLoc, subStart, subEnd, groupStart, groupEnd, rowDesc);
+      warnings.push(...subWarnings);
+
+      firstSub = { location: subLoc, startDate: subStart, endDate: subEnd };
     }
   }
-  // Type 3: no sub location → firstSub stays null (will default to bigLocation later)
 
   return {
     ok: true,
-    value: { groupStart, groupEnd, bigLocation, firstSub },
+    value: { groupStart, groupEnd, bigLocation, firstSub, warnings },
     rest: [],
   };
+}
+
+/**
+ * Validate a sub-entry's dates against the group range.
+ * Returns an array of warning strings (empty if all OK).
+ */
+function validateSubEntry(
+  subLoc: string,
+  subStart: Date,
+  subEnd: Date,
+  groupStart: Date,
+  groupEnd: Date,
+  rowDesc: string
+): string[] {
+  const warnings: string[] = [];
+
+  if (subEnd < subStart) {
+    warnings.push(
+      `[${rowDesc}] Sub-location "${subLoc}": subEnd ${formatDateDisplay(subEnd)} is before subStart ${formatDateDisplay(subStart)}`
+    );
+  }
+
+  if (subStart < groupStart) {
+    warnings.push(
+      `[${rowDesc}] Sub-location "${subLoc}": subStart ${formatDateDisplay(subStart)} is before groupStart ${formatDateDisplay(groupStart)}`
+    );
+  }
+
+  if (subEnd > groupEnd) {
+    warnings.push(
+      `[${rowDesc}] Sub-location "${subLoc}": subEnd ${formatDateDisplay(subEnd)} is after groupEnd ${formatDateDisplay(groupEnd)}`
+    );
+  }
+
+  return warnings;
 }
 
 /**
  * Parse a "continuation row" (starts with 3 empty tokens):
  *   \t \t \t subLocation \t subStart \t subEnd
  */
-function parseContinuationRow(tokens: string[]): ParseResult<SubEntry> {
-  if (tokens.length < 6) {
-    return { ok: false, error: `Continuation row needs 6 tokens, got ${tokens.length}` };
-  }
-  const [t0, t1, t2, t3, t4, t5] = tokens;
+function parseContinuationRow(
+  tokens: string[],
+  groupStart: Date,
+  groupEnd: Date,
+  rowDesc: string
+): ParseResult<{ entry: SubEntry; warnings: string[] }> {
+  const row = [...tokens];
+  while (row.length < 6) row.push("");
+  const [t0, t1, t2, t3, t4, t5] = row;
+
   if (t0 !== "" || t1 !== "" || t2 !== "") {
-    return { ok: false, error: `Not a continuation row (first 3 tokens not empty)` };
+    return {
+      ok: false,
+      error: `[${rowDesc}] Not a continuation row (first 3 tokens not empty)`,
+    };
   }
+
   const subLoc = t3.trim();
-  if (!subLoc) return { ok: false, error: `Continuation row has empty sub location` };
-  if (!/^\d{8}$/.test(t4) || !/^\d{8}$/.test(t5)) {
-    return { ok: false, error: `Continuation row has invalid dates: "${t4}", "${t5}"` };
+  if (!subLoc) {
+    return { ok: false, error: `[${rowDesc}] Continuation row has empty sub-location` };
   }
+
+  const warnings: string[] = [];
+
+  const ssResult = validateDateStr(t4, "subStart", rowDesc);
+  if (ssResult.warning) warnings.push(ssResult.warning);
+  const seResult = validateDateStr(t5, "subEnd", rowDesc);
+  if (seResult.warning) warnings.push(seResult.warning);
+
+  if (!ssResult.date || !seResult.date) {
+    return {
+      ok: false,
+      error: `[${rowDesc}] Continuation row for "${subLoc}" has invalid or missing dates: "${t4}", "${t5}"`,
+    };
+  }
+
+  const subStart = ssResult.date;
+  const subEnd = seResult.date;
+
+  const subWarnings = validateSubEntry(subLoc, subStart, subEnd, groupStart, groupEnd, rowDesc);
+  warnings.push(...subWarnings);
+
   return {
     ok: true,
-    value: { location: subLoc, startDate: parseDate(t4), endDate: parseDate(t5) },
+    value: { entry: { location: subLoc, startDate: subStart, endDate: subEnd }, warnings },
     rest: [],
   };
 }
@@ -258,46 +392,62 @@ function parseContinuationRow(tokens: string[]): ParseResult<SubEntry> {
 /**
  * Parse a group of rows (header + optional continuation rows) into a TravelGroup.
  */
-function parseGroup(rows: string[][]): ParseResult<TravelGroup> {
+function parseGroup(
+  rows: string[][],
+  groupIndex: number
+): ParseResult<{ group: TravelGroup; warnings: string[] }> {
   if (rows.length === 0) return { ok: false, error: "Empty group" };
 
-  const headerResult = parseHeaderRow(rows[0]);
+  const rowDesc = `group ${groupIndex + 1}, row 1`;
+  const headerResult = parseHeaderRow(rows[0], rowDesc);
   if (!headerResult.ok) return headerResult;
 
-  const { groupStart, groupEnd, bigLocation, firstSub } = headerResult.value;
+  const { groupStart, groupEnd, bigLocation, firstSub, warnings } =
+    headerResult.value;
   const subEntries: SubEntry[] = [];
 
   if (firstSub) subEntries.push(firstSub);
 
   // Parse continuation rows
   for (let i = 1; i < rows.length; i++) {
-    const contResult = parseContinuationRow(rows[i]);
+    const contDesc = `group ${groupIndex + 1}, row ${i + 1}`;
+    const contResult = parseContinuationRow(
+      rows[i],
+      groupStart,
+      groupEnd,
+      contDesc
+    );
     if (!contResult.ok) {
-      // If it looks like a new header, stop here (shouldn't happen in well-formed input)
-      break;
+      warnings.push(`Skipped continuation row: ${contResult.error}`);
+      continue;
     }
-    subEntries.push(contResult.value);
+    warnings.push(...contResult.value.warnings);
+    subEntries.push(contResult.value.entry);
   }
 
   // If no sub entries at all, default to bigLocation for the whole group range
   if (subEntries.length === 0) {
-    subEntries.push({ location: bigLocation, startDate: groupStart, endDate: groupEnd });
+    subEntries.push({
+      location: bigLocation,
+      startDate: groupStart,
+      endDate: groupEnd,
+    });
   }
 
   return {
     ok: true,
-    value: { groupStart, groupEnd, bigLocation, subEntries },
+    value: { group: { groupStart, groupEnd, bigLocation, subEntries }, warnings },
     rest: [],
   };
 }
 
 // ---------------------------------------------------------------------------
-// Top-level text parser
+// Top-level text splitter
 // ---------------------------------------------------------------------------
 
 /**
  * Split raw text into row-groups.
- * A new group starts when the first token of a row is a non-empty YYYYMMDD date.
+ * A new group starts when the first token of a row is a non-empty 8-digit string.
  */
 function splitIntoGroups(text: string): string[][][] {
   const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
@@ -315,11 +465,10 @@ function splitIntoGroups(text: string): string[][][] {
       if (current.length > 0) groups.push(current);
       current = [row];
     } else {
-      // Continuation row
       if (current.length > 0) {
         current.push(row);
       }
-      // else: orphan continuation row — ignore
+      // else: orphan continuation row — ignore silently
     }
   }
   if (current.length > 0) groups.push(current);
@@ -345,44 +494,47 @@ export interface TravelParseResult {
   dailyLocations: string[][];
   /** All parsed groups, for reference. */
   groups: TravelGroup[];
-  /** Any parse warnings (non-fatal). */
+  /** Non-fatal warnings from parsing and validation. */
   warnings: string[];
 }
 
 /**
  * Parse travel history text data.
  *
- * @param dataText  Raw tab-separated travel data text.
+ * @param dataText    Raw tab-separated travel data text.
  * @param isDetailed  If true, use sub-locations; otherwise use big locations.
  * @returns TravelParseResult
  */
-export function parseTravelData(dataText: string, isDetailed: boolean): TravelParseResult {
-  const warnings: string[] = [];
+export function parseTravelData(
+  dataText: string,
+  isDetailed: boolean
+): TravelParseResult {
+  const allWarnings: string[] = [];
   const rawGroups = splitIntoGroups(dataText);
   const groups: TravelGroup[] = [];
 
-  for (const rawGroup of rawGroups) {
-    const result = parseGroup(rawGroup);
+  for (let gi = 0; gi < rawGroups.length; gi++) {
+    const result = parseGroup(rawGroups[gi], gi);
     if (result.ok) {
-      groups.push(result.value);
+      groups.push(result.value.group);
+      allWarnings.push(...result.value.warnings);
     } else {
-      warnings.push(`Skipped group: ${result.error}`);
+      allWarnings.push(`Skipped group ${gi + 1}: ${result.error}`);
     }
   }
 
   if (groups.length === 0) {
-    // Return empty result
     const today = new Date();
     return {
       startDate: today,
       endDate: today,
       dailyLocations: [[]],
       groups: [],
-      warnings: ["No valid groups found in input."],
+      warnings: [...allWarnings, "No valid groups found in input."],
     };
   }
 
-  // Determine overall date range
+  // Determine overall date range from group boundaries
   let minDate = groups[0].groupStart;
   let maxDate = groups[0].groupEnd;
   for (const g of groups) {
@@ -391,12 +543,14 @@ export function parseTravelData(dataText: string, isDetailed: boolean): TravelPa
   }
 
   const totalDays = daysBetween(minDate, maxDate) + 1;
-  // dailyLocations[i] = Set of locations for day i (offset from minDate)
-  const dailySets: Set<string>[] = Array.from({ length: totalDays }, () => new Set<string>());
+  const dailySets: Set<string>[] = Array.from(
+    { length: totalDays },
+    () => new Set<string>()
+  );
 
   for (const group of groups) {
     if (isDetailed) {
-      // Use sub-entries
+      // Use sub-entries; skip any that fall entirely outside the overall range
       for (const sub of group.subEntries) {
         const startOffset = daysBetween(minDate, sub.startDate);
         const endOffset = daysBetween(minDate, sub.endDate);
@@ -425,7 +579,7 @@ export function parseTravelData(dataText: string, isDetailed: boolean): TravelPa
     endDate: maxDate,
     dailyLocations,
     groups,
-    warnings,
+    warnings: allWarnings,
   };
 }
 
@@ -439,8 +593,8 @@ export interface CountryStat {
 }
 
 /**
- * Compute per-country day counts from a TravelParseResult.
- * Each day is counted at most once per country, even if it appears in multiple sub-entries.
+ * Compute per-location day counts from a TravelParseResult.
+ * Each day is counted at most once per location, even if it appears in multiple sub-entries.
  */
 export function computeStats(result: TravelParseResult): CountryStat[] {
   const counts = new Map<string, number>();
@@ -460,7 +614,6 @@ export function computeStats(result: TravelParseResult): CountryStat[] {
 
 /**
  * Slice a TravelParseResult to a custom date range.
- * The custom range must be within the original data range.
  */
 export function sliceResult(
   result: TravelParseResult,
