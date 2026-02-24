@@ -33,11 +33,16 @@ interface LocaleContextValue {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(detectLocale);
+  const [locale, setLocaleState] = useState<Locale>(() => {
+    const l = detectLocale();
+    document.documentElement.lang = l;
+    return l;
+  });
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
     localStorage.setItem(STORAGE_KEY, l);
+    document.documentElement.lang = l;
   }, []);
 
   const value: LocaleContextValue = {

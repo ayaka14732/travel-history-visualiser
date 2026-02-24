@@ -42,8 +42,10 @@ export interface Translation {
   statsLocations: string;
   statsDaysSuffix: string; // "天" / "d"
 
-  // ── Warnings ──────────────────────────────────────────────────────────────
+  // ── Errors ──────────────────────────────────────────────────────────────
   errorsLabel: string;
+  errorDialogTitle: string;
+  errorDialogClose: string;
 
   // ── Calendar top bar ──────────────────────────────────────────────────────
   calendarLabel: string;

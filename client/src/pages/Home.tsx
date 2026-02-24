@@ -275,6 +275,74 @@ function HelpSection({ title, desc, colHeader, note, rows }: HelpSectionProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Error dialog
+// ---------------------------------------------------------------------------
+function ErrorDialog({ errors, onClose }: { errors: string[]; onClose: () => void }) {
+  const { t } = useLocale();
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white w-full max-w-md border-t-4 border-[#EB0000] shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
+          <span
+            className="text-[13px] font-bold text-[#EB0000] uppercase tracking-wide"
+            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+          >
+            {t.errorDialogTitle}
+          </span>
+          <button
+            onClick={onClose}
+            className="text-[#888] hover:text-[#222] text-[18px] leading-none font-light px-1"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        {/* Error list */}
+        <div className="px-4 py-3 max-h-64 overflow-y-auto">
+          {errors.map((err, i) => (
+            <div
+              key={i}
+              className="flex gap-2 py-1 border-b border-border last:border-0"
+            >
+              <span
+                className="text-[#EB0000] font-bold text-[11px] flex-shrink-0 mt-0.5"
+                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+              >
+                ✕
+              </span>
+              <span
+                className="text-[11px] text-[#222] leading-relaxed"
+                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+              >
+                {err}
+              </span>
+            </div>
+          ))}
+        </div>
+        {/* Footer */}
+        <div className="px-4 py-2.5 border-t border-border flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-1.5 bg-[#EB0000] text-white text-[11px] font-medium hover:bg-[#c00000] transition-colors"
+            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+          >
+            {t.errorDialogClose}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Calendar popup (mobile only)
 // ---------------------------------------------------------------------------
 interface CalendarPopupProps {
@@ -684,7 +752,7 @@ export default function Home() {
   const [dataText, setDataText] = useState(SAMPLE_DATA);
   const [isDetailed, setIsDetailed] = useState(true);
   const [parseResult, setParseResult] = useState<TravelParseResult | null>(null);
-  const [parseError, setParseError] = useState<string | null>(null);
+  const [parseError, setParseError] = useState<string[] | null>(null);
   const [showHelp, setShowHelp] = useState(false);
   const [showCalendarPopup, setShowCalendarPopup] = useState(false);
 
@@ -698,7 +766,7 @@ export default function Home() {
     try {
       const result = parseTravelData(dataText, isDetailed);
       if (result.errors.length > 0) {
-        setParseError(result.errors.join("\n"));
+        setParseError(result.errors);
         setParseResult(null);
         return;
       }
@@ -709,7 +777,7 @@ export default function Home() {
       setRangeMode("start-end");
       setDurationDays(daysBetween(result.startDate, result.endDate) + 1);
     } catch (e: unknown) {
-      setParseError(e instanceof Error ? e.message : String(e));
+      setParseError([e instanceof Error ? e.message : String(e)]);
       setParseResult(null);
     }
   }, [dataText, isDetailed]);
@@ -765,6 +833,14 @@ export default function Home() {
       {/* Format help popup */}
       {showHelp && <FormatHelpPopup onClose={() => setShowHelp(false)} />}
 
+      {/* Error dialog */}
+      {parseError && (
+        <ErrorDialog
+          errors={parseError}
+          onClose={() => setParseError(null)}
+        />
+      )}
+
       {/* Mobile calendar popup */}
       {showCalendarPopup && parseResult && (
         <CalendarPopup
@@ -812,14 +888,7 @@ export default function Home() {
               placeholder={t.dataInputPlaceholder}
               spellCheck={false}
             />
-            {parseError && (
-              <div
-                className="mt-1 text-[11px] text-[#EB0000]"
-                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-              >
-                {parseError}
-              </div>
-            )}
+
           </div>
 
           {/* Mode toggle */}

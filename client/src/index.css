@@ -1,8 +1,8 @@
-/**
+/*
  * Travel History Visualiser — Global Styles
  * Design: Swiss SBB/CFF/FFS — information-dense, red-accented, sharp corners
  * Primary: #EB0000 (SBB Red)
- * Typography: IBM Plex Mono (dates/numbers), IBM Plex Sans (labels)
+ * Typography: SBB + Source Han Sans HC (zh-TW), SBB (en-GB), IBM Plex Mono (data/numbers)
  */
 
 @import "tailwindcss";
@@ -38,6 +38,8 @@
 
 :root {
   --radius: 0px;
+  --font-sans: "SBB", "Helvetica Neue", Helvetica, Arial;
+  --font-cjk-sans: "Source Han Sans HC", "Source Han Sans K", "Noto Sans CJK KR", "Source Han Sans SC", "Noto Sans CJK SC", "Source Han Sans", "Noto Sans CJK JP", "Source Han Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans SC", "Noto Sans TC";
   /* SBB Red */
   --primary: oklch(0.46 0.22 27);
   --primary-foreground: oklch(1 0 0);
@@ -71,10 +73,16 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-family: var(--font-sans), sans-serif;
     font-size: 13px;
     line-height: 1.4;
     -webkit-font-smoothing: antialiased;
+  }
+  :lang(zh-TW) {
+    font-family: var(--font-sans), var(--font-cjk-sans), sans-serif;
+  }
+  :lang(en-GB) {
+    font-family: var(--font-sans), sans-serif;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),

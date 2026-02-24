@@ -39,6 +39,8 @@ const enGB: Translation = {
 
   // ── Warnings ──────────────────────────────────────────────────────────────
   errorsLabel: "Errors",
+  errorDialogTitle: "Parse Error",
+  errorDialogClose: "Close",
 
   // ── Calendar top bar ──────────────────────────────────────────────────────
   calendarLabel: "Calendar",

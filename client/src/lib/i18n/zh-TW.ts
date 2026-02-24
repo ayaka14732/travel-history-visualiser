@@ -39,6 +39,8 @@ const zhTW: Translation = {
 
   // ── Errors ────────────────────────────────────────────────────────────────
   errorsLabel: "錯誤",
+  errorDialogTitle: "解析錯誤",
+  errorDialogClose: "關閉",
 
   // ── Calendar top bar ──────────────────────────────────────────────────────
   calendarLabel: "日曆",
