@@ -1,11 +1,13 @@
 /**
  * Travel History Visualiser — Main Page
  * Design: Swiss SBB/CFF/FFS (without branding label)
- * - Left sidebar: data input + controls + statistics
- * - Right main: calendar grid
+ * - Desktop: Left sidebar (296px) + Right calendar
+ * - Mobile: Sidebar only; calendar opens as full-screen popup via "顯示日曆" button
  * - Primary color: #EB0000 (SBB Red)
  * - Typography: IBM Plex Mono (dates), IBM Plex Sans (labels)
  * - Sharp corners, thin borders, dense layout
+ * - Mode names: 小地點模式 / 大地點模式
+ * - Range modes: 指定起訖日 / 指定起始日和天數 / 指定結束日和天數
  */
 
 import { useState, useMemo, useCallback } from "react";
@@ -42,6 +44,8 @@ const MONTHS_ZH = [
   "7月", "8月", "9月", "10月", "11月", "12月",
 ];
 
+type RangeMode = "start-end" | "start-duration" | "end-duration";
+
 function toInputDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
@@ -61,16 +65,16 @@ function fromInputDate(s: string): Date | null {
 function FormatHelpPopup({ onClose }: { onClose: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-0"
       style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="bg-white border border-border w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col"
+        className="bg-white border border-border w-full max-w-2xl max-h-[92vh] overflow-y-auto flex flex-col"
         style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-[#EB0000]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-[#EB0000] flex-shrink-0">
           <h2 className="text-[14px] font-bold text-white">記錄格式說明</h2>
           <button
             onClick={onClose}
@@ -82,8 +86,6 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="px-5 py-4 space-y-5 text-[12px] text-[#222] leading-relaxed">
-
-          {/* Overview */}
           <p>
             每一筆記錄由若干行組成，每行以 <strong>Tab（⇥）</strong> 分隔為 6 個欄位。
             共有三種格式：
@@ -164,7 +166,7 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
               <li className="flex gap-2"><span className="text-[#EB0000] font-bold">·</span><span>日期格式為 <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>YYYYMMDD</span>（8 位數字，無分隔符）。</span></li>
               <li className="flex gap-2"><span className="text-[#EB0000] font-bold">·</span><span>欄位之間以單個 <strong>Tab</strong> 分隔，不是空格。</span></li>
               <li className="flex gap-2"><span className="text-[#EB0000] font-bold">·</span><span>同一天若出現在多條小地點記錄中（如 20240224 丹麥），該天只計算一次。</span></li>
-              <li className="flex gap-2"><span className="text-[#EB0000] font-bold">·</span><span>「詳細模式」使用小地點；「概覽模式」使用大地點。</span></li>
+              <li className="flex gap-2"><span className="text-[#EB0000] font-bold">·</span><span>「小地點模式」使用小地點；「大地點模式」使用大地點。</span></li>
               <li className="flex gap-2"><span className="text-[#EB0000] font-bold">·</span><span>多筆記錄之間可以有空行，程式會自動忽略。</span></li>
             </ul>
           </div>
@@ -188,7 +190,7 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-border flex justify-end">
+        <div className="px-5 py-3 border-t border-border flex justify-end flex-shrink-0">
           <button
             onClick={onClose}
             className="px-4 py-1.5 bg-[#EB0000] text-white text-[12px] font-semibold hover:bg-[#c00000]"
@@ -196,6 +198,48 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
             關閉
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Calendar popup (mobile only)
+// ---------------------------------------------------------------------------
+interface CalendarPopupProps {
+  result: TravelParseResult;
+  viewStart: Date;
+  viewEnd: Date;
+  isDetailed: boolean;
+  onClose: () => void;
+}
+
+function CalendarPopup({ result, viewStart, viewEnd, isDetailed, onClose }: CalendarPopupProps) {
+  return (
+    <div className="fixed inset-0 z-40 flex flex-col bg-white">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-[#EB0000] flex-shrink-0">
+        <div className="flex-1 min-w-0">
+          <span
+            className="text-[11px] text-white/80"
+            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+          >
+            {formatDateDisplay(viewStart)} — {formatDateDisplay(viewEnd)}
+            &nbsp;·&nbsp;{daysBetween(viewStart, viewEnd) + 1} 天
+            &nbsp;·&nbsp;{isDetailed ? "小地點模式" : "大地點模式"}
+          </span>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-white/80 hover:text-white text-[20px] leading-none font-light flex-shrink-0 px-1"
+          aria-label="關閉日曆"
+        >
+          ×
+        </button>
+      </div>
+      {/* Calendar scroll */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <CalendarGrid result={result} viewStart={viewStart} viewEnd={viewEnd} />
       </div>
     </div>
   );
@@ -248,6 +292,46 @@ function DateStepper({ label, value, min, max, onChange }: DateStepperProps) {
           onClick={() => step(1)}
           className="w-7 flex-shrink-0 border border-l-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
           title="後一天"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Duration stepper
+// ---------------------------------------------------------------------------
+interface DurationStepperProps {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+}
+
+function DurationStepper({ label, value, onChange }: DurationStepperProps) {
+  return (
+    <div>
+      <label className="block text-[10px] text-[#666] mb-0.5">{label}</label>
+      <div className="flex">
+        <button
+          onClick={() => onChange(Math.max(1, value - 1))}
+          className="w-7 flex-shrink-0 border border-r-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
+        >
+          −
+        </button>
+        <input
+          type="number"
+          className="flex-1 min-w-0 text-[11px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
+          style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+          value={value}
+          min={1}
+          max={3650}
+          onChange={(e) => onChange(Math.max(1, parseInt(e.target.value) || 180))}
+        />
+        <button
+          onClick={() => onChange(Math.min(3650, value + 1))}
+          className="w-7 flex-shrink-0 border border-l-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
         >
           +
         </button>
@@ -518,6 +602,15 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Range mode selector (3 modes)
+// ---------------------------------------------------------------------------
+const RANGE_MODES: { id: RangeMode; label: string }[] = [
+  { id: "start-end",      label: "指定起訖日" },
+  { id: "start-duration", label: "指定起始日和天數" },
+  { id: "end-duration",   label: "指定結束日和天數" },
+];
+
+// ---------------------------------------------------------------------------
 // Main Home component
 // ---------------------------------------------------------------------------
 export default function Home() {
@@ -526,12 +619,13 @@ export default function Home() {
   const [parseResult, setParseResult] = useState<TravelParseResult | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
   const [showHelp, setShowHelp] = useState(false);
+  const [showCalendarPopup, setShowCalendarPopup] = useState(false);
 
-  // Custom view range
+  // Range mode state
+  const [rangeMode, setRangeMode] = useState<RangeMode>("start-end");
   const [customStartStr, setCustomStartStr] = useState("");
   const [customEndStr, setCustomEndStr] = useState("");
   const [durationDays, setDurationDays] = useState(180);
-  const [useDuration, setUseDuration] = useState(false);
 
   const handleParse = useCallback(() => {
     try {
@@ -540,7 +634,8 @@ export default function Home() {
       setParseError(null);
       setCustomStartStr(toInputDate(result.startDate));
       setCustomEndStr(toInputDate(result.endDate));
-      setUseDuration(false);
+      setRangeMode("start-end");
+      setDurationDays(daysBetween(result.startDate, result.endDate) + 1);
     } catch (e: unknown) {
       setParseError(e instanceof Error ? e.message : String(e));
     }
@@ -549,55 +644,63 @@ export default function Home() {
   const { viewStart, viewEnd, rangeError } = useMemo(() => {
     if (!parseResult) return { viewStart: new Date(), viewEnd: new Date(), rangeError: null };
 
-    let vs: Date = parseResult.startDate;
-    let ve: Date = parseResult.endDate;
+    const dataStart = parseResult.startDate;
+    const dataEnd = parseResult.endDate;
+    let vs: Date = dataStart;
+    let ve: Date = dataEnd;
     let rangeError: string | null = null;
 
-    if (customStartStr) {
-      const d = fromInputDate(customStartStr);
-      if (d) {
-        if (d < parseResult.startDate) {
-          rangeError = `開始日期不得早於 ${formatDateDisplay(parseResult.startDate)}`;
-          vs = parseResult.startDate;
-        } else if (d > parseResult.endDate) {
-          rangeError = `開始日期不得晚於 ${formatDateDisplay(parseResult.endDate)}`;
-          vs = parseResult.startDate;
-        } else {
-          vs = d;
-        }
-      }
-    }
+    const clampStart = (d: Date): Date => {
+      if (d < dataStart) { rangeError = `開始日期不得早於 ${formatDateDisplay(dataStart)}`; return dataStart; }
+      if (d > dataEnd)   { rangeError = `開始日期不得晚於 ${formatDateDisplay(dataEnd)}`; return dataStart; }
+      return d;
+    };
+    const clampEnd = (d: Date, start: Date): Date => {
+      if (d > dataEnd)  { rangeError = (rangeError ? rangeError + "\n" : "") + `結束日期不得晚於 ${formatDateDisplay(dataEnd)}`; return dataEnd; }
+      if (d < start)    { rangeError = (rangeError ? rangeError + "\n" : "") + `結束日期不得早於開始日期`; return dataEnd; }
+      return d;
+    };
 
-    if (useDuration) {
+    if (rangeMode === "start-end") {
+      const sd = fromInputDate(customStartStr);
+      const ed = fromInputDate(customEndStr);
+      if (sd) vs = clampStart(sd);
+      if (ed) ve = clampEnd(ed, vs);
+    } else if (rangeMode === "start-duration") {
+      const sd = fromInputDate(customStartStr);
+      if (sd) vs = clampStart(sd);
       ve = addDays(vs, durationDays - 1);
-      if (ve > parseResult.endDate) ve = parseResult.endDate;
-    } else if (customEndStr) {
-      const d = fromInputDate(customEndStr);
-      if (d) {
-        if (d > parseResult.endDate) {
-          rangeError = (rangeError ? rangeError + "\n" : "") +
-            `結束日期不得晚於 ${formatDateDisplay(parseResult.endDate)}`;
-          ve = parseResult.endDate;
-        } else if (d < vs) {
-          rangeError = (rangeError ? rangeError + "\n" : "") + `結束日期不得早於開始日期`;
-          ve = parseResult.endDate;
-        } else {
-          ve = d;
-        }
-      }
+      if (ve > dataEnd) ve = dataEnd;
+    } else {
+      // end-duration
+      const ed = fromInputDate(customEndStr);
+      if (ed) ve = clampEnd(ed, dataStart);
+      vs = addDays(ve, -(durationDays - 1));
+      if (vs < dataStart) vs = dataStart;
     }
 
     return { viewStart: vs, viewEnd: ve, rangeError };
-  }, [parseResult, customStartStr, customEndStr, durationDays, useDuration]);
+  }, [parseResult, rangeMode, customStartStr, customEndStr, durationDays]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Format help popup */}
       {showHelp && <FormatHelpPopup onClose={() => setShowHelp(false)} />}
 
-      {/* ── Left Sidebar ── */}
-      <aside className="w-[296px] flex-shrink-0 border-r border-border flex flex-col overflow-hidden">
-        {/* Header — no SBB branding */}
+      {/* Mobile calendar popup */}
+      {showCalendarPopup && parseResult && (
+        <CalendarPopup
+          result={parseResult}
+          viewStart={viewStart}
+          viewEnd={viewEnd}
+          isDetailed={isDetailed}
+          onClose={() => setShowCalendarPopup(false)}
+        />
+      )}
+
+      {/* ── Left Sidebar ── full width on mobile, fixed 296px on desktop */}
+      <aside className="w-full md:w-[296px] flex-shrink-0 md:border-r border-border flex flex-col overflow-hidden">
+        {/* Header */}
         <div className="px-3 py-2 border-b border-[#c00000] bg-[#EB0000]">
           <h1 className="text-[15px] font-bold text-white leading-tight">
             Travel History Visualiser
@@ -658,7 +761,7 @@ export default function Home() {
                     : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
                 ].join(" ")}
               >
-                詳細（小地點）
+                小地點模式
               </button>
               <button
                 onClick={() => setIsDetailed(false)}
@@ -669,7 +772,7 @@ export default function Home() {
                     : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
                 ].join(" ")}
               >
-                概覽（大地點）
+                大地點模式
               </button>
             </div>
           </div>
@@ -683,6 +786,18 @@ export default function Home() {
               解析並顯示
             </button>
           </div>
+
+          {/* Mobile: show calendar button */}
+          {parseResult && (
+            <div className="px-3 py-2 border-b border-border md:hidden">
+              <button
+                onClick={() => setShowCalendarPopup(true)}
+                className="w-full py-1.5 border border-[#EB0000] text-[#EB0000] text-[12px] font-semibold hover:bg-[#fff5f5] active:bg-[#ffe0e0]"
+              >
+                顯示日曆
+              </button>
+            </div>
+          )}
 
           {/* Date range controls */}
           {parseResult && (
@@ -699,77 +814,81 @@ export default function Home() {
               >
                 資料：{formatDateDisplay(parseResult.startDate)} — {formatDateDisplay(parseResult.endDate)}
               </div>
+
+              {/* Range mode selector — 3 modes, wrap on mobile */}
+              <div className="flex flex-wrap mb-2 border border-border">
+                {RANGE_MODES.map((m, i) => (
+                  <button
+                    key={m.id}
+                    onClick={() => setRangeMode(m.id)}
+                    className={[
+                      "flex-1 min-w-0 py-0.5 text-[10px] font-medium whitespace-nowrap px-1",
+                      i > 0 ? "border-l border-border" : "",
+                      rangeMode === m.id
+                        ? "bg-[#222] text-white"
+                        : "bg-white text-[#555] hover:bg-[#f5f5f5]",
+                    ].join(" ")}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+
               <div className="space-y-1.5">
-                <DateStepper
-                  label="開始日期"
-                  value={customStartStr}
-                  min={toInputDate(parseResult.startDate)}
-                  max={toInputDate(parseResult.endDate)}
-                  onChange={setCustomStartStr}
-                />
+                {/* start-end: two date pickers */}
+                {rangeMode === "start-end" && (
+                  <>
+                    <DateStepper
+                      label="開始日期"
+                      value={customStartStr}
+                      min={toInputDate(parseResult.startDate)}
+                      max={toInputDate(parseResult.endDate)}
+                      onChange={setCustomStartStr}
+                    />
+                    <DateStepper
+                      label="結束日期"
+                      value={customEndStr}
+                      min={customStartStr || toInputDate(parseResult.startDate)}
+                      max={toInputDate(parseResult.endDate)}
+                      onChange={setCustomEndStr}
+                    />
+                  </>
+                )}
 
-                <div className="flex">
-                  <button
-                    onClick={() => setUseDuration(false)}
-                    className={[
-                      "flex-1 py-0.5 text-[10px] border",
-                      !useDuration
-                        ? "bg-[#222] text-white border-[#222]"
-                        : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
-                    ].join(" ")}
-                  >
-                    指定結束日
-                  </button>
-                  <button
-                    onClick={() => setUseDuration(true)}
-                    className={[
-                      "flex-1 py-0.5 text-[10px] border-t border-b border-r",
-                      useDuration
-                        ? "bg-[#222] text-white border-[#222]"
-                        : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
-                    ].join(" ")}
-                  >
-                    指定天數
-                  </button>
-                </div>
+                {/* start-duration: start date + days */}
+                {rangeMode === "start-duration" && (
+                  <>
+                    <DateStepper
+                      label="起始日期"
+                      value={customStartStr}
+                      min={toInputDate(parseResult.startDate)}
+                      max={toInputDate(parseResult.endDate)}
+                      onChange={setCustomStartStr}
+                    />
+                    <DurationStepper
+                      label="天數（預設 180）"
+                      value={durationDays}
+                      onChange={setDurationDays}
+                    />
+                  </>
+                )}
 
-                {useDuration ? (
-                  <div>
-                    <label className="block text-[10px] text-[#666] mb-0.5">
-                      天數（預設 180）
-                    </label>
-                    <div className="flex">
-                      <button
-                        onClick={() => setDurationDays((d) => Math.max(1, d - 1))}
-                        className="w-7 flex-shrink-0 border border-r-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
-                      >
-                        −
-                      </button>
-                      <input
-                        type="number"
-                        className="flex-1 min-w-0 text-[11px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
-                        style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                        value={durationDays}
-                        min={1}
-                        max={3650}
-                        onChange={(e) => setDurationDays(Math.max(1, parseInt(e.target.value) || 180))}
-                      />
-                      <button
-                        onClick={() => setDurationDays((d) => Math.min(3650, d + 1))}
-                        className="w-7 flex-shrink-0 border border-l-0 border-border bg-[#f5f5f5] hover:bg-[#eee] text-[#444] text-[13px] font-semibold flex items-center justify-center"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <DateStepper
-                    label="結束日期"
-                    value={customEndStr}
-                    min={customStartStr || toInputDate(parseResult.startDate)}
-                    max={toInputDate(parseResult.endDate)}
-                    onChange={setCustomEndStr}
-                  />
+                {/* end-duration: end date + days */}
+                {rangeMode === "end-duration" && (
+                  <>
+                    <DateStepper
+                      label="結束日期"
+                      value={customEndStr}
+                      min={toInputDate(parseResult.startDate)}
+                      max={toInputDate(parseResult.endDate)}
+                      onChange={setCustomEndStr}
+                    />
+                    <DurationStepper
+                      label="天數（預設 180）"
+                      value={durationDays}
+                      onChange={setDurationDays}
+                    />
+                  </>
                 )}
 
                 {rangeError && (
@@ -822,8 +941,8 @@ export default function Home() {
         </div>
       </aside>
 
-      {/* ── Main calendar area ── */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      {/* ── Main calendar area — hidden on mobile ── */}
+      <main className="hidden md:flex flex-1 flex-col overflow-hidden">
         {/* Top bar */}
         <div className="px-4 py-2 border-b border-border flex items-center gap-3 bg-white flex-shrink-0">
           <div className="w-1 h-4 bg-[#EB0000]" />
@@ -851,7 +970,7 @@ export default function Home() {
                 className="text-[10px] text-[#aaa]"
                 style={{ fontFamily: "'IBM Plex Mono', monospace" }}
               >
-                {isDetailed ? "詳細模式" : "概覽模式"}
+                {isDetailed ? "小地點模式" : "大地點模式"}
               </span>
             </>
           )}
