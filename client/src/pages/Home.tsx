@@ -78,7 +78,7 @@ function LangSelector() {
             className="fixed inset-0 z-30"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 top-full mt-0.5 z-40 bg-white border border-border shadow-sm min-w-[140px]">
+          <div className="absolute right-0 top-full mt-0.5 z-40 bg-white border border-border shadow-sm min-w-full">
             {(localeOrder as Locale[]).map((l) => (
               <button
                 key={l}

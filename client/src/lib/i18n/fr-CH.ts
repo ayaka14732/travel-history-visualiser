@@ -3,7 +3,7 @@ import type { Translation } from "./types";
 const frCH: Translation = {
   // ── Meta ──────────────────────────────────────────────────────────────────
   appTitle: "Visualiseur d'historique de voyage",
-  langLabel: "Français (CH)",
+  langLabel: "Français",
   languageSectionLabel: "Langue",
 
   // ── Sidebar ───────────────────────────────────────────────────────────────

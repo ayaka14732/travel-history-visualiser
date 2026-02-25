@@ -3,7 +3,7 @@ import type { Translation } from "./types";
 const enGB: Translation = {
   // ── Meta ──────────────────────────────────────────────────────────────────
   appTitle: "Travel History Visualiser",
-  langLabel: "English (UK)",
+  langLabel: "English",
   languageSectionLabel: "Language",
 
   // ── Sidebar ───────────────────────────────────────────────────────────────
