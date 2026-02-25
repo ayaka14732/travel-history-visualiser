@@ -65,12 +65,11 @@ function LangSelector() {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 text-white/80 hover:text-white text-[11px] font-medium px-1.5 py-0.5 border border-white/30 hover:border-white/60"
-        style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+        className="flex items-center gap-1 text-white/80 hover:text-white text-[13px] font-medium px-1.5 py-0.5 border border-white/30 hover:border-white/60"
         aria-label="Select language"
       >
-        <span>{locale}</span>
-        <span className="text-[9px] opacity-70">▾</span>
+        <span>{LOCALES[locale].langLabel}</span>
+        <span className="text-[10px] opacity-70">▾</span>
       </button>
       {open && (
         <>
@@ -85,20 +84,13 @@ function LangSelector() {
                 key={l}
                 onClick={() => { setLocale(l); setOpen(false); }}
                 className={[
-                  "w-full text-left px-3 py-1.5 text-[11px] flex items-center justify-between gap-3",
+                  "w-full text-left px-3 py-2 text-[13px]",
                   l === locale
                     ? "bg-[#EB0000] text-white"
                     : "text-[#222] hover:bg-[#f5f5f5]",
                 ].join(" ")}
-                style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
               >
-                <span>{LOCALES[l].langLabel}</span>
-                <span
-                  className="text-[9px] opacity-60"
-                  style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                >
-                  {l}
-                </span>
+                {LOCALES[l].langLabel}
               </button>
             ))}
           </div>
@@ -441,7 +433,7 @@ function DateStepper({ label, value, min, max, onChange }: DateStepperProps) {
 
   return (
     <div>
-      <label className="block text-[10px] text-[#666] mb-0.5">{label}</label>
+      <label className="block text-[12px] text-[#555] mb-0.5">{label}</label>
       <div className="flex">
         <button
           {...prevPress}
@@ -453,7 +445,7 @@ function DateStepper({ label, value, min, max, onChange }: DateStepperProps) {
         </button>
         <input
           type="date"
-          className="flex-1 min-w-0 text-[11px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
+          className="flex-1 min-w-0 text-[13px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
           style={{ fontFamily: "'IBM Plex Mono', monospace" }}
           value={value}
           min={min}
@@ -488,7 +480,7 @@ function DurationStepper({ label, value, onChange }: DurationStepperProps) {
 
   return (
     <div>
-      <label className="block text-[10px] text-[#666] mb-0.5">{label}</label>
+      <label className="block text-[12px] text-[#555] mb-0.5">{label}</label>
       <div className="flex">
         <button
           {...prevPress}
@@ -499,7 +491,7 @@ function DurationStepper({ label, value, onChange }: DurationStepperProps) {
         </button>
         <input
           type="number"
-          className="flex-1 min-w-0 text-[11px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
+          className="flex-1 min-w-0 text-[13px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
           style={{ fontFamily: "'IBM Plex Mono', monospace" }}
           value={value}
           min={1}
@@ -525,7 +517,7 @@ function LocationChip({ location }: { location: string }) {
   const color = getLocationColor(location);
   return (
     <span
-      className="inline-flex items-center px-1 py-0 text-[11px] font-medium leading-[18px] whitespace-nowrap"
+      className="inline-flex items-center px-1 py-0 text-[12px] font-medium leading-[20px] whitespace-nowrap"
       style={{
         backgroundColor: color.bg,
         color: color.text,
@@ -563,35 +555,26 @@ function DayCell({ date, locations, isToday, isWeekend, isFirstOfMonth }: DayCel
       ].join(" ")}
     >
       {isFirstOfMonth && (
-        <span
-          className="text-[9px] text-[#EB0000] font-semibold leading-none mb-0.5 uppercase tracking-wide"
-          style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-        >
+        <span className="text-[11px] text-[#EB0000] font-semibold leading-none mb-0.5">
           {t.months[date.getMonth()]}
         </span>
       )}
       <div className="flex items-start justify-between gap-1">
         <span
           className={[
-            "text-[12px] font-semibold leading-none",
+            "text-[13px] font-semibold leading-none",
             isToday ? "text-[#EB0000]" : isWeekend ? "text-[#999]" : "text-[#222]",
           ].join(" ")}
           style={{ fontFamily: "'IBM Plex Mono', monospace" }}
         >
           {String(dayNum).padStart(2, "0")}
         </span>
-        <span
-          className="text-[9px] text-[#ccc] leading-none"
-          style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-        >
+        <span className="text-[11px] text-[#ccc] leading-none">
           {t.weekdays[date.getDay()]}
         </span>
       </div>
       {isEmpty ? (
-        <span
-          className="text-[10px] text-[#ddd] mt-1"
-          style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-        >
+        <span className="text-[12px] text-[#ddd] mt-1">
           —
         </span>
       ) : (
@@ -657,10 +640,9 @@ function CalendarGrid({ result, viewStart, viewEnd }: CalendarGridProps) {
           <div
             key={d}
             className={[
-              "border-b border-r border-border px-1 py-1 text-center text-[10px] font-semibold uppercase tracking-widest",
+              "border-b border-r border-border px-1 py-1.5 text-center text-[12px] font-semibold",
               i === 0 || i === 6 ? "text-[#999] bg-[#fafafa]" : "text-[#555]",
             ].join(" ")}
-            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
           >
             {d}
           </div>
@@ -719,10 +701,7 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
   return (
     <div>
       <div className="border-b border-border pb-1 mb-2">
-        <span
-          className="text-[10px] text-[#888] uppercase tracking-widest"
-          style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-        >
+        <span className="text-[13px] font-semibold text-[#555]">
           {t.statsLabel}
         </span>
       </div>
@@ -734,12 +713,11 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
         ].map(({ val, label, red }) => (
           <div key={label}>
             <div
-              className={`text-[20px] font-semibold leading-none ${red ? "text-[#EB0000]" : "text-[#222]"}`}
-              style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+              className={`text-[22px] font-semibold leading-none ${red ? "text-[#EB0000]" : "text-[#222]"}`}
             >
               {val}
             </div>
-            <div className="text-[10px] text-[#888] mt-0.5">{label}</div>
+            <div className="text-[12px] text-[#888] mt-0.5">{label}</div>
           </div>
         ))}
       </div>
@@ -754,17 +732,11 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
                   className="w-2 h-2 flex-shrink-0"
                   style={{ backgroundColor: color.border }}
                 />
-                <span className="flex-1 text-[12px] text-[#222] truncate">{s.location}</span>
-                <span
-                  className="text-[11px] text-[#888] w-7 text-right"
-                  style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                >
+                <span className="flex-1 text-[13px] text-[#222] truncate">{s.location}</span>
+                <span className="text-[12px] text-[#888] w-8 text-right">
                   {pct}%
                 </span>
-                <span
-                  className="text-[11px] font-semibold text-[#222] w-9 text-right"
-                  style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                >
+                <span className="text-[12px] font-semibold text-[#222] w-10 text-right">
                   {s.days}{t.statsDaysSuffix}
                 </span>
               </div>
@@ -892,10 +864,10 @@ export default function Home() {
       )}
 
       {/* ── Left Sidebar ── full width on mobile, fixed 296px on desktop */}
-      <aside className="w-full md:w-[296px] flex-shrink-0 md:border-r border-border flex flex-col overflow-hidden">
+      <aside className="w-full md:w-[360px] flex-shrink-0 md:border-r border-border flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-3 py-2 border-b border-[#c00000] bg-[#EB0000] flex items-center justify-between gap-2">
-          <h1 className="text-[15px] font-bold text-white leading-tight truncate">
+          <h1 className="text-[16px] font-bold text-white leading-tight truncate">
             {t.appTitle}
           </h1>
           <LangSelector />
@@ -906,20 +878,19 @@ export default function Home() {
           <div className="px-3 py-2 border-b border-border">
             <div className="flex items-center justify-between mb-1">
               <label
-                className="text-[10px] text-[#888] uppercase tracking-widest"
-                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                className="text-[13px] font-semibold text-[#555]"
               >
                 {t.dataInputLabel}
               </label>
               <button
                 onClick={() => setShowHelp(true)}
-                className="text-[10px] text-[#EB0000] hover:underline font-medium"
+                className="text-[12px] text-[#EB0000] hover:underline font-medium"
               >
                 {t.formatHelpBtn}
               </button>
             </div>
             <textarea
-              className="w-full text-[11px] bg-[#fafafa] border border-border p-1.5 resize-none focus:outline-none focus:border-[#EB0000] text-[#333] leading-relaxed"
+              className="w-full text-[13px] bg-[#fafafa] border border-border p-1.5 resize-none focus:outline-none focus:border-[#EB0000] text-[#333] leading-relaxed"
               style={{ fontFamily: "'IBM Plex Mono', monospace", tabSize: 4 }}
               rows={10}
               value={dataText}
@@ -933,8 +904,7 @@ export default function Home() {
           {/* Mode toggle */}
           <div className="px-3 py-2 border-b border-border">
             <label
-              className="block text-[10px] text-[#888] uppercase tracking-widest mb-1.5"
-              style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+              className="block text-[13px] font-semibold text-[#555] mb-1.5"
             >
               {t.displayModeLabel}
             </label>
@@ -942,7 +912,7 @@ export default function Home() {
               <button
                 onClick={() => setIsDetailed(true)}
                 className={[
-                  "flex-1 py-1 text-[11px] font-medium border",
+                  "flex-1 py-1.5 text-[13px] font-medium border",
                   isDetailed
                     ? "bg-[#EB0000] text-white border-[#EB0000]"
                     : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
@@ -953,7 +923,7 @@ export default function Home() {
               <button
                 onClick={() => setIsDetailed(false)}
                 className={[
-                  "flex-1 py-1 text-[11px] font-medium border-t border-b border-r",
+                  "flex-1 py-1.5 text-[13px] font-medium border-t border-b border-r",
                   !isDetailed
                     ? "bg-[#EB0000] text-white border-[#EB0000]"
                     : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
@@ -968,7 +938,7 @@ export default function Home() {
           <div className="px-3 py-2 border-b border-border">
             <button
               onClick={handleParse}
-              className="w-full py-1.5 bg-[#EB0000] text-white text-[12px] font-semibold hover:bg-[#c00000] active:bg-[#a00000]"
+              className="w-full py-2 bg-[#EB0000] text-white text-[14px] font-semibold hover:bg-[#c00000] active:bg-[#a00000]"
             >
               {t.parseBtn}
             </button>
@@ -979,7 +949,7 @@ export default function Home() {
             <div className="px-3 py-2 border-b border-border md:hidden">
               <button
                 onClick={() => setShowCalendarPopup(true)}
-                className="w-full py-1.5 border border-[#EB0000] text-[#EB0000] text-[12px] font-semibold hover:bg-[#fff5f5] active:bg-[#ffe0e0]"
+                className="w-full py-2 border border-[#EB0000] text-[#EB0000] text-[14px] font-semibold hover:bg-[#fff5f5] active:bg-[#ffe0e0]"
               >
                 {t.showCalendarBtn}
               </button>
@@ -990,15 +960,11 @@ export default function Home() {
           {parseResult && (
             <div className="px-3 py-2 border-b border-border">
               <label
-                className="block text-[10px] text-[#888] uppercase tracking-widest mb-1.5"
-                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                className="block text-[13px] font-semibold text-[#555] mb-1.5"
               >
                 {t.rangeLabel}
               </label>
-              <div
-                className="text-[10px] text-[#aaa] mb-2"
-                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-              >
+              <div className="text-[12px] text-[#aaa] mb-2">
                 {t.dataRangePrefix}{formatDateDisplay(parseResult.startDate)} — {formatDateDisplay(parseResult.endDate)}
               </div>
 
@@ -1009,7 +975,7 @@ export default function Home() {
                     key={m.id}
                     onClick={() => setRangeMode(m.id)}
                     className={[
-                      "flex-1 min-w-0 py-0.5 text-[10px] font-medium whitespace-nowrap px-1",
+                      "flex-1 min-w-0 py-1 text-[12px] font-medium whitespace-nowrap px-1",
                       i > 0 ? "border-l border-border" : "",
                       rangeMode === m.id
                         ? "bg-[#222] text-white"
@@ -1076,18 +1042,12 @@ export default function Home() {
                 )}
 
                 {rangeError && (
-                  <div
-                    className="text-[10px] text-[#EB0000] whitespace-pre-line"
-                    style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                  >
+                  <div className="text-[12px] text-[#EB0000] whitespace-pre-line">
                     {rangeError}
                   </div>
                 )}
 
-                <div
-                  className="text-[10px] text-[#aaa]"
-                  style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                >
+                <div className="text-[12px] text-[#aaa]">
                   {t.displayRangeInfo(
                     formatDateDisplay(viewStart),
                     formatDateDisplay(viewEnd),
@@ -1114,30 +1074,18 @@ export default function Home() {
         {/* Top bar */}
         <div className="px-4 py-2 border-b border-border flex items-center gap-3 bg-white flex-shrink-0">
           <div className="w-1 h-4 bg-[#EB0000]" />
-          <span
-            className="text-[10px] text-[#888] uppercase tracking-widest"
-            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-          >
+          <span className="text-[13px] font-semibold text-[#555]">
             {t.calendarLabel}
           </span>
           {parseResult && (
             <>
-              <span
-                className="text-[11px] text-[#555]"
-                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-              >
+              <span className="text-[13px] text-[#555]">
                 {formatDateDisplay(viewStart)} — {formatDateDisplay(viewEnd)}
               </span>
-              <span
-                className="text-[11px] font-semibold text-[#EB0000]"
-                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-              >
+              <span className="text-[13px] font-semibold text-[#EB0000]">
                 {daysBetween(viewStart, viewEnd) + 1}{t.calendarDaysSuffix}
               </span>
-              <span
-                className="text-[10px] text-[#aaa]"
-                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-              >
+              <span className="text-[12px] text-[#aaa]">
                 {isDetailed ? t.modeDetailed : t.modeOverview}
               </span>
             </>
