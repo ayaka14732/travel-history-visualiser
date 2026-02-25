@@ -4,6 +4,7 @@ const zhTW: Translation = {
   // ── Meta ──────────────────────────────────────────────────────────────────
   appTitle: "旅行記錄視覺化",
   langLabel: "繁體中文",
+  languageSectionLabel: "語言",
 
   // ── Sidebar ───────────────────────────────────────────────────────────────
   dataInputLabel: "旅行記錄資料",

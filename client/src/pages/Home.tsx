@@ -65,7 +65,7 @@ function LangSelector() {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 text-white/80 hover:text-white text-[13px] font-medium px-1.5 py-0.5 border border-white/30 hover:border-white/60"
+        className="flex items-center gap-1 text-[#333] hover:text-[#EB0000] text-[13px] font-medium px-2 py-1 border border-border hover:border-[#EB0000] w-full justify-between bg-white"
         aria-label="Select language"
       >
         <span>{LOCALES[locale].langLabel}</span>
@@ -867,13 +867,20 @@ export default function Home() {
       <aside className="w-full md:w-[360px] flex-shrink-0 md:border-r border-border flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-3 py-2 border-b border-[#c00000] bg-[#EB0000] flex items-center justify-between gap-2">
-          <h1 className="text-[16px] font-bold text-white leading-tight truncate">
+          <h1 className="text-[20px] font-bold text-white leading-tight truncate">
             {t.appTitle}
           </h1>
-          <LangSelector />
         </div>
 
         <div className="flex-1 overflow-y-auto">
+          {/* Language selector */}
+          <div className="px-3 py-2 border-b border-border">
+            <label className="block text-[13px] font-semibold text-[#555] mb-1.5">
+              {t.languageSectionLabel}
+            </label>
+            <LangSelector />
+          </div>
+
           {/* Data input */}
           <div className="px-3 py-2 border-b border-border">
             <div className="flex items-center justify-between mb-1">

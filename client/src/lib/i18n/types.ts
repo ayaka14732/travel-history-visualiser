@@ -11,6 +11,7 @@ export interface Translation {
   langLabel: string; // e.g. "繁體中文", "English (UK)"
 
   // ── Sidebar sections ──────────────────────────────────────────────────────
+  languageSectionLabel: string; // "語言" / "Language"
   dataInputLabel: string;
   dataInputPlaceholder: string;
   formatHelpBtn: string;

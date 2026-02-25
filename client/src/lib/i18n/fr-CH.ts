@@ -4,6 +4,7 @@ const frCH: Translation = {
   // ── Meta ──────────────────────────────────────────────────────────────────
   appTitle: "Visualiseur d'historique de voyage",
   langLabel: "Français (CH)",
+  languageSectionLabel: "Langue",
 
   // ── Sidebar ───────────────────────────────────────────────────────────────
   dataInputLabel: "Données de voyage",

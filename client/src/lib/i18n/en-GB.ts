@@ -4,6 +4,7 @@ const enGB: Translation = {
   // ── Meta ──────────────────────────────────────────────────────────────────
   appTitle: "Travel History Visualiser",
   langLabel: "English (UK)",
+  languageSectionLabel: "Language",
 
   // ── Sidebar ───────────────────────────────────────────────────────────────
   dataInputLabel: "Travel Record Data",
