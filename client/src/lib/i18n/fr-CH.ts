@@ -21,9 +21,9 @@ const frCH: Translation = {
   // ── Range ─────────────────────────────────────────────────────────────────
   rangeLabel: "Plage d'affichage",
   dataRangePrefix: "Données : ",
-  rangeModeStartEnd: "Début et fin",
-  rangeModeStartDuration: "Début et durée",
-  rangeModeEndDuration: "Fin et durée",
+  rangeModeStartEnd: "Début–Fin",
+  rangeModeStartDuration: "Début+Jours",
+  rangeModeEndDuration: "Fin+Jours",
   startDateLabel: "Date de début",
   endDateLabel: "Date de fin",
   durationLabel: "Jours (défaut 180)",

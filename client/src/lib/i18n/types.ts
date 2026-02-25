@@ -3,7 +3,7 @@
  * Add new locales to the `Locale` union and provide a corresponding translation file.
  */
 
-export type Locale = "zh-TW" | "en-GB" | "fr-CH";
+export type Locale = "zh-TW" | "en-GB" | "fr-CH" | "da-DK";
 
 export interface Translation {
   // ── Meta ──────────────────────────────────────────────────────────────────

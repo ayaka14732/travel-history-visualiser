@@ -21,9 +21,9 @@ const zhTW: Translation = {
   // ── Range ─────────────────────────────────────────────────────────────────
   rangeLabel: "顯示範圍",
   dataRangePrefix: "資料：",
-  rangeModeStartEnd: "指定起訖日",
-  rangeModeStartDuration: "指定起始日和天數",
-  rangeModeEndDuration: "指定結束日和天數",
+  rangeModeStartEnd: "起訖日",
+  rangeModeStartDuration: "起始日+天數",
+  rangeModeEndDuration: "結束日+天數",
   startDateLabel: "開始日期",
   endDateLabel: "結束日期",
   durationLabel: "天數（預設 180）",

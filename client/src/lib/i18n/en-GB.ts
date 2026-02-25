@@ -21,9 +21,9 @@ const enGB: Translation = {
   // ── Range ─────────────────────────────────────────────────────────────────
   rangeLabel: "Display Range",
   dataRangePrefix: "Data: ",
-  rangeModeStartEnd: "Start & End Date",
-  rangeModeStartDuration: "Start Date & Duration",
-  rangeModeEndDuration: "End Date & Duration",
+  rangeModeStartEnd: "Start–End",
+  rangeModeStartDuration: "Start+Days",
+  rangeModeEndDuration: "End+Days",
   startDateLabel: "Start Date",
   endDateLabel: "End Date",
   durationLabel: "Days (default 180)",
