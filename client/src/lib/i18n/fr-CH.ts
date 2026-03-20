@@ -9,6 +9,11 @@ const frCH: Translation = {
   // ── Sidebar ───────────────────────────────────────────────────────────────
   dataInputLabel: "Données de voyage",
   dataInputPlaceholder: "Collez les données de voyage ici (séparées par tabulation)…",
+  expandEditorBtn: "Éditeur plein écran",
+  editorDialogTitle: "Modifier les enregistrements",
+  editorDialogApply: "Appliquer",
+  editorDialogCancel: "Annuler",
+
   formatHelpBtn: "Guide de format ?",
 
   displayModeLabel: "Mode d'affichage",

@@ -10,6 +10,7 @@
  */
 
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import Editor from "@monaco-editor/react";
 import {
   parseTravelData,
   computeStats,
@@ -245,6 +246,110 @@ function HelpSection({ title, desc, colHeader, note, rows }: HelpSectionProps) {
         ))}
       </div>
       <p className="mt-2 text-[#555]">{note}</p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Monaco Editor Popup
+// ---------------------------------------------------------------------------
+function MonacoEditorPopup({
+  initialValue,
+  onApply,
+  onClose,
+}: {
+  initialValue: string;
+  onApply: (value: string) => void;
+  onClose: () => void;
+}) {
+  const { t } = useLocale();
+  const [editorValue, setEditorValue] = useState(initialValue);
+
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        className="bg-white border border-border flex flex-col"
+        style={{ width: "min(96vw, 900px)", height: "min(90vh, 680px)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-[#EB0000] flex-shrink-0">
+          <h2
+            className="text-[13px] font-bold text-white tracking-wide"
+            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+          >
+            {t.editorDialogTitle}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-white/80 hover:text-white text-[18px] leading-none font-light px-1"
+            aria-label={t.editorDialogCancel}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Monaco Editor */}
+        <div className="flex-1 overflow-hidden">
+          <Editor
+            height="100%"
+            defaultLanguage="plaintext"
+            value={editorValue}
+            onChange={(val) => setEditorValue(val ?? "")}
+            options={{
+              fontFamily: "'IBM Plex Mono', 'Cascadia Code', 'Fira Code', monospace",
+              fontSize: 13,
+              lineHeight: 22,
+              minimap: { enabled: false },
+              scrollBeyondLastLine: false,
+              wordWrap: "off",
+              renderWhitespace: "boundary",
+              tabSize: 4,
+              insertSpaces: false,
+              lineNumbers: "on",
+              folding: false,
+              glyphMargin: false,
+              overviewRulerLanes: 0,
+              hideCursorInOverviewRuler: true,
+              scrollbar: {
+                verticalScrollbarSize: 8,
+                horizontalScrollbarSize: 8,
+              },
+              padding: { top: 10, bottom: 10 },
+            }}
+            theme="light"
+          />
+        </div>
+
+        {/* Footer */}
+        <div className="px-4 py-2.5 border-t border-border flex justify-end gap-2 flex-shrink-0 bg-[#fafafa]">
+          <button
+            onClick={onClose}
+            className="px-4 py-1.5 border border-border text-[12px] font-medium text-[#555] hover:bg-[#f0f0f0]"
+          >
+            {t.editorDialogCancel}
+          </button>
+          <button
+            onClick={() => onApply(editorValue)}
+            className="px-5 py-1.5 bg-[#EB0000] text-white text-[12px] font-semibold hover:bg-[#c00000]"
+          >
+            {t.editorDialogApply}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -786,6 +891,8 @@ export default function Home() {
   const [parseError, setParseError] = useState<string[] | null>(null);
   const [showHelp, setShowHelp] = useState(false);
   const [showCalendarPopup, setShowCalendarPopup] = useState(false);
+  const [showMonacoEditor, setShowMonacoEditor] = useState(false);
+  const [monacoEditorText, setMonacoEditorText] = useState("");
 
   // Range mode state
   const [rangeMode, setRangeMode] = useState<RangeMode>("start-end");
@@ -864,6 +971,19 @@ export default function Home() {
       {/* Format help popup */}
       {showHelp && <FormatHelpPopup onClose={() => setShowHelp(false)} />}
 
+      {/* Monaco Editor popup */}
+      {showMonacoEditor && (
+        <MonacoEditorPopup
+          initialValue={monacoEditorText}
+          onApply={(val) => {
+            setDataText(val);
+            setUserEdited(true);
+            setShowMonacoEditor(false);
+          }}
+          onClose={() => setShowMonacoEditor(false)}
+        />
+      )}
+
       {/* Error dialog */}
       {parseError && (
         <ErrorDialog
@@ -909,12 +1029,24 @@ export default function Home() {
               >
                 {t.dataInputLabel}
               </label>
-              <button
-                onClick={() => setShowHelp(true)}
-                className="text-[12px] text-[#EB0000] hover:underline font-medium"
-              >
-                {t.formatHelpBtn}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => { setMonacoEditorText(dataText); setShowMonacoEditor(true); }}
+                  className="text-[12px] text-[#555] hover:text-[#EB0000] font-medium flex items-center gap-0.5"
+                  title={t.expandEditorBtn}
+                >
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <path d="M1 6V1h5M10 1h5v5M15 10v5h-5M6 15H1v-5"/>
+                  </svg>
+                  <span>{t.expandEditorBtn}</span>
+                </button>
+                <button
+                  onClick={() => setShowHelp(true)}
+                  className="text-[12px] text-[#EB0000] hover:underline font-medium"
+                >
+                  {t.formatHelpBtn}
+                </button>
+              </div>
             </div>
             <textarea
               className="w-full text-[13px] bg-[#fafafa] border border-border p-1.5 resize-none focus:outline-none focus:border-[#EB0000] text-[#333] leading-relaxed"

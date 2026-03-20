@@ -15,6 +15,10 @@ export interface Translation {
   dataInputLabel: string;
   dataInputPlaceholder: string;
   formatHelpBtn: string;
+  expandEditorBtn: string;   // 放大編輯器按鈕
+  editorDialogTitle: string; // Monaco 彈出視窗標題
+  editorDialogApply: string; // 確認按鈕
+  editorDialogCancel: string; // 取消按鈕
 
   displayModeLabel: string;
   modeDetailed: string;   // 小地點模式

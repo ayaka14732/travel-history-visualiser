@@ -9,6 +9,11 @@ const enGB: Translation = {
   // ── Sidebar ───────────────────────────────────────────────────────────────
   dataInputLabel: "Travel Record Data",
   dataInputPlaceholder: "Paste travel records here (tab-separated)\u2026",
+  expandEditorBtn: "Expand Editor",
+  editorDialogTitle: "Edit Travel Records",
+  editorDialogApply: "Apply",
+  editorDialogCancel: "Cancel",
+
   formatHelpBtn: "Format Help ?",
 
   displayModeLabel: "Display Mode",

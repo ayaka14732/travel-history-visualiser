@@ -9,6 +9,11 @@ const zhTW: Translation = {
   // ── Sidebar ───────────────────────────────────────────────────────────────
   dataInputLabel: "旅行記錄資料",
   dataInputPlaceholder: "貼上旅行記錄資料（Tab 分隔）...",
+  expandEditorBtn: "放大編輯",
+  editorDialogTitle: "編輯旅行記錄",
+  editorDialogApply: "確認",
+  editorDialogCancel: "取消",
+
   formatHelpBtn: "格式說明 ?",
 
   displayModeLabel: "顯示模式",
