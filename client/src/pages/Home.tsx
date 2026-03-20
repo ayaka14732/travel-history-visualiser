@@ -289,7 +289,6 @@ function MonacoEditorPopup({
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-[#EB0000] flex-shrink-0">
           <h2
             className="text-[13px] font-bold text-white tracking-wide"
-            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
           >
             {t.editorDialogTitle}
           </h2>

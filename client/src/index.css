@@ -84,6 +84,15 @@
   :lang(en-GB) {
     font-family: var(--font-sans), sans-serif;
   }
+  /* Exclude Monaco Editor from :lang font overrides */
+  :lang(zh-TW) .monaco-editor,
+  :lang(en-GB) .monaco-editor,
+  :lang(fr-CH) .monaco-editor,
+  :lang(da-DK) .monaco-editor,
+  .monaco-editor,
+  .monaco-editor * {
+    font-family: unset;
+  }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
