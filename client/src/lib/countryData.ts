@@ -414,12 +414,27 @@ export function getDisplayName(code: string, locale: CountryLocale): string {
 
 /**
  * Convert an ISO 3166-1 alpha-2 code to a flag emoji.
- * Returns null if the code is not exactly 2 ASCII uppercase letters
- * (e.g. GB-ENG, SCHENGEN, or unknown strings won't get a flag).
+ * Also handles GB subdivision codes (GB-ENG, GB-SCT, GB-WLS) via Unicode Tag Sequences.
+ * Returns null for codes that have no known flag (e.g. SCHENGEN, GB-NIR).
  */
 export function getFlagEmoji(code: string): string | null {
   const upper = code.trim().toUpperCase();
-  // Must be exactly 2 ASCII letters A-Z
+
+  // Unicode Tag Sequence flags for GB subdivisions
+  // Format: 🏴 + tag chars (U+E0000 + char code) + U+E007F (cancel tag)
+  const TAG_BASE = 0xe0000;
+  const TAG_END = 0xe007f;
+  const BLACK_FLAG = "\u{1F3F4}";
+  const makeTagFlag = (suffix: string) =>
+    BLACK_FLAG +
+    Array.from(suffix.toLowerCase()).map((c) => String.fromCodePoint(TAG_BASE + c.charCodeAt(0))).join("") +
+    String.fromCodePoint(TAG_END);
+
+  if (upper === "GB-ENG") return makeTagFlag("gbeng");
+  if (upper === "GB-SCT") return makeTagFlag("gbsct");
+  if (upper === "GB-WLS") return makeTagFlag("gbwls");
+
+  // Standard ISO 3166-1 alpha-2: must be exactly 2 ASCII letters A-Z
   if (!/^[A-Z]{2}$/.test(upper)) return null;
   const [a, b] = upper.split("");
   return (
