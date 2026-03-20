@@ -79,14 +79,14 @@ describe("Type 3 — single row, big location only", () => {
     // 4 days: 18, 19, 20, 21
     expect(result.dailyLocations).toHaveLength(4);
     for (const day of result.dailyLocations) {
-      expect(day).toEqual(["中國"]);
+      expect(day).toEqual(["CN"]);
     }
   });
 
   it("overview mode: uses big location", () => {
     const result = parseTravelData(input, false);
     for (const day of result.dailyLocations) {
-      expect(day).toEqual(["中國"]);
+      expect(day).toEqual(["CN"]);
     }
   });
 });
@@ -105,14 +105,14 @@ describe("Type 2 — single row with sub-location, no sub dates", () => {
     expect(result.errors).toHaveLength(0);
     expect(result.dailyLocations).toHaveLength(6); // 30 Jun – 5 Jul
     for (const day of result.dailyLocations) {
-      expect(day).toEqual(["英格蘭"]);
+      expect(day).toEqual(["GB-ENG"]);
     }
   });
 
   it("overview mode: uses big location", () => {
     const result = parseTravelData(input, false);
     for (const day of result.dailyLocations) {
-      expect(day).toEqual(["英國"]);
+      expect(day).toEqual(["GB"]);
     }
   });
 });
@@ -140,18 +140,18 @@ describe("Type 1 — multi-row group", () => {
     // 6 days: 21, 22, 23, 24, 25, 26
     expect(result.dailyLocations).toHaveLength(6);
 
-    // Day 0: 20240221 — 希臘 + 丹麥
-    expect(result.dailyLocations[0].sort()).toEqual(["丹麥", "希臘"]);
+    // Day 0: 20240221 — GR + DK
+    expect(result.dailyLocations[0].sort()).toEqual(["DK", "GR"]);
     // Day 1: 20240222 — 丹麥 only
-    expect(result.dailyLocations[1]).toEqual(["丹麥"]);
+    expect(result.dailyLocations[1]).toEqual(["DK"]);
     // Day 2: 20240223 — 丹麥 only
-    expect(result.dailyLocations[2]).toEqual(["丹麥"]);
-    // Day 3: 20240224 — 丹麥 + 瑞典 (丹麥 deduplicated)
-    expect(result.dailyLocations[3].sort()).toEqual(["丹麥", "瑞典"]);
+    expect(result.dailyLocations[2]).toEqual(["DK"]);
+    // Day 3: 20240224 — DK + SE (DK deduplicated)
+    expect(result.dailyLocations[3].sort()).toEqual(["DK", "SE"]);
     // Day 4: 20240225 — 丹麥
-    expect(result.dailyLocations[4]).toEqual(["丹麥"]);
+    expect(result.dailyLocations[4]).toEqual(["DK"]);
     // Day 5: 20240226 — 丹麥
-    expect(result.dailyLocations[5]).toEqual(["丹麥"]);
+    expect(result.dailyLocations[5]).toEqual(["DK"]);
   });
 
   it("overview mode: all days are 申根區域", () => {
@@ -165,7 +165,7 @@ describe("Type 1 — multi-row group", () => {
     const result = parseTravelData(input, true);
     // Day 3 (20240224) should have 丹麥 exactly once
     const day3 = result.dailyLocations[3];
-    const danmarkCount = day3.filter((l) => l === "丹麥").length;
+    const danmarkCount = day3.filter((l) => l === "DK").length;
     expect(danmarkCount).toBe(1);
   });
 });
@@ -196,28 +196,28 @@ describe("Mixed groups — full sample data", () => {
     expect(formatDateDisplay(result.endDate)).toBe("2024-07-21");
   });
 
-  it("detailed: 2024-06-29 has 瑞士 and 法國", () => {
+  it("detailed: 2024-06-29 has CH and FR", () => {
     const result = parseTravelData(input, true);
-    expect(result.dailyLocations[0].sort()).toEqual(["法國", "瑞士"]);
+    expect(result.dailyLocations[0].sort()).toEqual(["CH", "FR"]);
   });
 
-  it("detailed: 2024-06-30 has 瑞士 and 英格蘭", () => {
+  it("detailed: 2024-06-30 has CH and GB-ENG", () => {
     const result = parseTravelData(input, true);
     // offset 1 = 2024-06-30
-    expect(result.dailyLocations[1].sort()).toEqual(["瑞士", "英格蘭"]);
+    expect(result.dailyLocations[1].sort()).toEqual(["CH", "GB-ENG"]);
   });
 
-  it("detailed: 2024-07-05 has 英格蘭 and 法國 (transition day)", () => {
+  it("detailed: 2024-07-05 has GB-ENG and FR (transition day)", () => {
     const result = parseTravelData(input, true);
     // 2024-07-05 = offset 6
     const offset = daysBetween(result.startDate, new Date(2024, 6, 5));
-    expect(result.dailyLocations[offset].sort()).toEqual(["法國", "英格蘭"]);
+    expect(result.dailyLocations[offset].sort()).toEqual(["FR", "GB-ENG"]);
   });
 
-  it("overview: 2024-07-01 is 英國", () => {
+  it("overview: 2024-07-01 is GB", () => {
     const result = parseTravelData(input, false);
     const offset = daysBetween(result.startDate, new Date(2024, 6, 1));
-    expect(result.dailyLocations[offset]).toEqual(["英國"]);
+    expect(result.dailyLocations[offset]).toEqual(["GB"]);
   });
 });
 
@@ -236,7 +236,7 @@ describe("Validation — subEnd after groupEnd", () => {
   it("emits a warning about subEnd before groupStart (year typo)", () => {
     const result = parseTravelData(input, true);
     const hasWarning = result.errors.some(
-      (w) => w.includes("丹麥") && (w.includes("before groupStart") || w.includes("subEnd"))
+      (w) => w.includes("DK") && (w.includes("before groupStart") || w.includes("subEnd"))
     );
     expect(hasWarning).toBe(true);
   });
@@ -245,7 +245,7 @@ describe("Validation — subEnd after groupEnd", () => {
     const result = parseTravelData(input, true);
     // 法羅羣島 should appear from 20260526 to 20260604
     const offset526 = daysBetween(result.startDate, new Date(2026, 4, 26));
-    expect(result.dailyLocations[offset526]).toContain("法羅羣島");
+    expect(result.dailyLocations[offset526]).toContain("FO");
   });
 
   it("correct data (no typo) has no warnings", () => {
@@ -271,7 +271,7 @@ describe("Validation — subStart before groupStart", () => {
   it("emits a warning about subStart before groupStart", () => {
     const result = parseTravelData(input, true);
     const hasWarning = result.errors.some(
-      (w) => w.includes("英格蘭") && w.includes("before groupStart")
+      (w) => w.includes("GB-ENG") && w.includes("before groupStart")
     );
     expect(hasWarning).toBe(true);
   });
@@ -289,7 +289,7 @@ describe("Validation — subEnd before subStart", () => {
   it("emits a warning about subEnd before subStart", () => {
     const result = parseTravelData(input, true);
     const hasWarning = result.errors.some(
-      (w) => w.includes("英格蘭") && w.includes("before subStart")
+      (w) => w.includes("GB-ENG") && w.includes("before subStart")
     );
     expect(hasWarning).toBe(true);
   });
@@ -363,7 +363,7 @@ describe("Validation — continuation row with invalid dates", () => {
     );
     const result = parseTravelData(input, true);
     const hasWarning = result.errors.some(
-      (w) => w.includes("德國") || w.includes("Skipped continuation")
+      (w) => w.includes("DE") || w.includes("Skipped continuation")
     );
     expect(hasWarning).toBe(true);
   });
@@ -379,7 +379,7 @@ describe("Edge cases", () => {
     const result = parseTravelData(input, true);
     expect(result.errors).toHaveLength(0);
     expect(result.dailyLocations).toHaveLength(1);
-    expect(result.dailyLocations[0]).toEqual(["新加坡"]);
+    expect(result.dailyLocations[0]).toEqual(["SG"]);
   });
 
   it("empty input returns a warning", () => {
@@ -405,7 +405,7 @@ describe("Edge cases", () => {
     const input = "20240101\t20240103\t新加坡";
     const result = parseTravelData(input, true);
     expect(result.errors).toHaveLength(0);
-    expect(result.dailyLocations[0]).toEqual(["新加坡"]);
+    expect(result.dailyLocations[0]).toEqual(["SG"]);
   });
 
   it("addDays and daysBetween are inverses", () => {
@@ -432,14 +432,101 @@ describe("computeStats deduplication", () => {
     const result = parseTravelData(input, true);
     const { computeStats } = await import("./travelParser");
     const stats = computeStats(result);
-    const denmark = stats.find((s) => s.location === "丹麥");
+    const denmark = stats.find((s) => s.location === "DK");
     // 丹麥: 21, 22, 23, 24, 25, 26 = 6 days
     expect(denmark?.days).toBe(6);
     // 瑞典: only 24 = 1 day
-    const sweden = stats.find((s) => s.location === "瑞典");
+    const sweden = stats.find((s) => s.location === "SE");
     expect(sweden?.days).toBe(1);
     // 希臘: only 21 = 1 day
-    const greece = stats.find((s) => s.location === "希臘");
+    const greece = stats.find((s) => s.location === "GR");
     expect(greece?.days).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Location normalisation (countryData integration)
+// ---------------------------------------------------------------------------
+
+describe("Location normalisation", () => {
+  it("Chinese input 英國 resolves to GB", () => {
+    const result = parseTravelData(
+      "20240101\t20240103\t英國\t\t\t",
+      false
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["GB"]);
+  });
+
+  it("ISO code input GB resolves to GB", () => {
+    const result = parseTravelData(
+      "20240101\t20240103\tGB\t\t\t",
+      false
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["GB"]);
+  });
+
+  it("Chinese input 丹麥 resolves to DK", () => {
+    const result = parseTravelData(
+      "20240101\t20240103\t丹麥\t\t\t",
+      false
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["DK"]);
+  });
+
+  it("alternate Chinese name 千里達和多巴哥 resolves to TT", () => {
+    const result = parseTravelData(
+      "20240101\t20240103\t千里達和多巴哥\t\t\t",
+      false
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["TT"]);
+  });
+
+  it("alternate Chinese name 特立尼達和多巴哥 also resolves to TT", () => {
+    const result = parseTravelData(
+      "20240101\t20240103\t特立尼達和多巴哥\t\t\t",
+      false
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["TT"]);
+  });
+
+  it("unknown location 申根區域 stays as-is", () => {
+    const result = parseTravelData(
+      "20240101\t20240103\t申根區域\t\t\t",
+      false
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["申根區域"]);
+  });
+
+  it("English input Denmark resolves to DK", () => {
+    const result = parseTravelData(
+      "20240101\t20240103\tDenmark\t\t\t",
+      false
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["DK"]);
+  });
+
+  it("French input France resolves to FR", () => {
+    const result = parseTravelData(
+      "20240101\t20240103\tFrance\t\t\t",
+      false
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["FR"]);
+  });
+
+  it("case-insensitive: 'united kingdom' resolves to GB", () => {
+    const result = parseTravelData(
+      "20240101\t20240103\tunited kingdom\t\t\t",
+      false
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["GB"]);
   });
 });

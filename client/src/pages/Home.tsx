@@ -20,6 +20,7 @@ import {
   type TravelParseResult,
 } from "@/lib/travelParser";
 import { getLocationColor } from "@/lib/countryColors";
+import { getDisplayName, type CountryLocale } from "@/lib/countryData";
 import { useLocale } from "@/contexts/LocaleContext";
 import { LOCALES, LOCALE_ORDER, type Locale } from "@/lib/i18n";
 
@@ -513,7 +514,8 @@ function DurationStepper({ label, value, onChange }: DurationStepperProps) {
 // ---------------------------------------------------------------------------
 // Location chip
 // ---------------------------------------------------------------------------
-function LocationChip({ location }: { location: string }) {
+function LocationChip({ location, locale }: { location: string; locale: CountryLocale }) {
+  const displayName = getDisplayName(location, locale);
   const color = getLocationColor(location);
   return (
     <span
@@ -525,7 +527,7 @@ function LocationChip({ location }: { location: string }) {
         fontFamily: "'IBM Plex Sans', sans-serif",
       }}
     >
-      {location}
+      {displayName}
     </span>
   );
 }
@@ -542,7 +544,7 @@ interface DayCellProps {
 }
 
 function DayCell({ date, locations, isToday, isWeekend, isFirstOfMonth }: DayCellProps) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const dayNum = date.getDate();
   const isEmpty = locations.length === 0;
 
@@ -580,7 +582,7 @@ function DayCell({ date, locations, isToday, isWeekend, isFirstOfMonth }: DayCel
       ) : (
         <div className="flex flex-wrap gap-[2px] mt-1">
           {locations.map((loc) => (
-            <LocationChip key={loc} location={loc} />
+            <LocationChip key={loc} location={loc} locale={locale as CountryLocale} />
           ))}
         </div>
       )}
@@ -689,7 +691,7 @@ interface StatsPanelProps {
 }
 
 function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const sliced = useMemo(
     () => sliceResult(result, viewStart, viewEnd),
     [result, viewStart, viewEnd]
@@ -732,7 +734,7 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
                   className="w-2 h-2 flex-shrink-0"
                   style={{ backgroundColor: color.border }}
                 />
-                <span className="flex-1 text-[13px] text-[#222] truncate">{s.location}</span>
+                <span className="flex-1 text-[13px] text-[#222] truncate">{getDisplayName(s.location, locale as CountryLocale)}</span>
                 <span className="text-[12px] text-[#888] w-8 text-right">
                   {pct}%
                 </span>

@@ -1,3 +1,5 @@
+import { resolveLocation } from "./countryData";
+
 /**
  * Travel History Parser — using parser combinator style
  *
@@ -258,14 +260,18 @@ function parseHeaderRow(
   }
 
   // ── bigLocation (fatal if empty) ──────────────────────────────────────────
-  const bigLocation = t2.trim();
-  if (!bigLocation) {
+  const bigLocationRaw = t2.trim();
+  if (!bigLocationRaw) {
     return { ok: false, error: `[${rowDesc}] bigLocation is empty` };
   }
+  const bigLocationEntry = resolveLocation(bigLocationRaw);
+  const bigLocation = bigLocationEntry ? bigLocationEntry.code : bigLocationRaw;
 
   // ── firstSub ─────────────────────────────────────────────────────────────
   let firstSub: SubEntry | null = null;
-  const subLoc = t3.trim();
+  const subLocRaw = t3.trim();
+  const subLocEntry = subLocRaw ? resolveLocation(subLocRaw) : null;
+  const subLoc = subLocEntry ? subLocEntry.code : subLocRaw;
   const subStartStr = t4.trim();
   const subEndStr = t5.trim();
 
@@ -353,10 +359,12 @@ function parseContinuationRow(
     };
   }
 
-  const subLoc = t3.trim();
-  if (!subLoc) {
+  const subLocRaw = t3.trim();
+  if (!subLocRaw) {
     return { ok: false, error: `[${rowDesc}] Continuation row has empty sub-location` };
   }
+  const subLocEntry = resolveLocation(subLocRaw);
+  const subLoc = subLocEntry ? subLocEntry.code : subLocRaw;
 
   const warnings: string[] = [];
 
