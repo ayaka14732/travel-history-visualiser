@@ -530,3 +530,66 @@ describe("Location normalisation", () => {
     expect(result.dailyLocations[0]).toEqual(["GB"]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Comma-separated input
+// ---------------------------------------------------------------------------
+
+describe("Comma-separated input", () => {
+  it("Type 3 with commas: single row big location only", () => {
+    const result = parseTravelData(
+      "20240718,20240721,中國,,,",
+      false
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(formatDateDisplay(result.startDate)).toBe("2024-07-18");
+    expect(formatDateDisplay(result.endDate)).toBe("2024-07-21");
+    expect(result.dailyLocations).toHaveLength(4);
+    expect(result.dailyLocations[0]).toEqual(["CN"]);
+  });
+
+  it("Type 2 with commas: single row with sub-location", () => {
+    const result = parseTravelData(
+      "20240630,20240705,英國,英格蘭,,",
+      true
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["GB-ENG"]);
+  });
+
+  it("Type 1 with commas: multi-row group", () => {
+    const input = [
+      "20240629,20240630,申根區域,瑞士,20240629,20240629",
+      ",,,法國,20240629,20240629",
+      ",,,瑞士,20240629,20240630",
+    ].join("\n");
+    const result = parseTravelData(input, true);
+    expect(result.errors).toHaveLength(0);
+    expect(formatDateDisplay(result.startDate)).toBe("2024-06-29");
+    expect(formatDateDisplay(result.endDate)).toBe("2024-06-30");
+    // Day 0 (Jun 29): CH + FR
+    expect(result.dailyLocations[0].sort()).toEqual(["CH", "FR"]);
+    // Day 1 (Jun 30): CH only
+    expect(result.dailyLocations[1]).toEqual(["CH"]);
+  });
+
+  it("comma input: location resolves to ISO code", () => {
+    const result = parseTravelData(
+      "20240101,20240103,Denmark,,,",
+      false
+    );
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["DK"]);
+  });
+
+  it("mixed: tab and comma lines in same input each parse independently", () => {
+    const input = [
+      "20240718\t20240721\t中國\t\t\t",
+      "20240722,20240725,Denmark,,,",
+    ].join("\n");
+    const result = parseTravelData(input, false);
+    expect(result.errors).toHaveLength(0);
+    expect(result.dailyLocations[0]).toEqual(["CN"]);
+    expect(result.dailyLocations[4]).toEqual(["DK"]);
+  });
+});

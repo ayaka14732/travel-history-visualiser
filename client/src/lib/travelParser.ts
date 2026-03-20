@@ -5,7 +5,8 @@ import { resolveLocation } from "./countryData";
  *
  * Design: Swiss SBB/CFF/FFS — information-dense, precision-first
  *
- * Data format (tab-separated, 6 columns per row):
+ * Data format (tab- or comma-separated, 6 columns per row):
+ * Each line is split by Tab if it contains a Tab character, otherwise by comma.
  *
  * Type 1 — Multi-row group (big location + multiple small locations):
  *   20240221\t20240226\t申根區域\t希臘\t20240221\t20240221
@@ -454,16 +455,21 @@ function parseGroup(
 // ---------------------------------------------------------------------------
 
 /**
- * Split raw text into row-groups.
- * A new group starts when the first token of a row is a non-empty 8-digit string.
+ * Detect the delimiter for a single line: Tab if the line contains a Tab,
+ * otherwise comma. This allows both formats without mixing within a line.
  */
+function detectDelimiter(line: string): string {
+  return line.includes("\t") ? "\t" : ",";
+}
+
 function splitIntoGroups(text: string): string[][][] {
   const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
   const groups: string[][][] = [];
   let current: string[][] = [];
 
   for (const line of lines) {
-    const tokens = line.split("\t");
+    const delim = detectDelimiter(line);
+    const tokens = line.split(delim);
     // Normalize to exactly 6 tokens
     while (tokens.length < 6) tokens.push("");
     const row = tokens.slice(0, 6);

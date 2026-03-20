@@ -89,7 +89,7 @@ const daDK: Translation = {
 
   helpNotesTitle: "Bemærkninger",
   helpNote1: "Datoformat er YYYYMMDD (8 cifre, ingen separatorer).",
-  helpNote2: "Felter adskilles af et enkelt tabulatortegn, ikke mellemrum.",
+  helpNote2: "Felter adskilles af Tab (\u21e5) eller komma (,) — begge virker, men bland dem ikke på samme linje.",
   helpNote3: "Hvis samme dag optræder i flere understeds-poster (f.eks. 20240224 Danmark), tælles den kun én gang.",
   helpNote4: '"Understed-tilstand" bruger understeder; "Hovedsted-tilstand" bruger regioner.',
   helpNote5: "Tomme linjer mellem poster ignoreres.",
@@ -103,23 +103,23 @@ const daDK: Translation = {
   helpExChina: "Kina",
 
   helpExampleData: [
-    "20240629\t20240630\tSchengen-området\tSchweiz\t20240629\t20240629",
-    "\t\t\tFrankrig\t20240629\t20240629",
-    "\t\t\tSchweiz\t20240629\t20240630",
-    "20240630\t20240705\tStorbritannien\tEngland\t\t",
-    "20240705\t20240708\tSchengen-området\tFrankrig\t\t",
-    "20240708\t20240717\tStorbritannien\tEngland\t\t",
-    "20240718\t20240721\tKina\t\t\t",
+    "20240629,20240630,Schengen-området,Schweiz,20240629,20240629",
+    ",,,Frankrig,20240629,20240629",
+    ",,,Schweiz,20240629,20240630",
+    "20240630,20240705,Storbritannien,England,,",
+    "20240705,20240708,Schengen-området,Frankrig,,",
+    "20240708,20240717,Storbritannien,England,,",
+    "20240718,20240721,Kina,,,",
   ].join("\n"),
 
   defaultSampleData: [
-    "20240629\t20240630\tSchengen-området\tSchweiz\t20240629\t20240629",
-    "\t\t\tFrankrig\t20240629\t20240629",
-    "\t\t\tSchweiz\t20240629\t20240630",
-    "20240630\t20240705\tStorbritannien\tEngland\t\t",
-    "20240705\t20240708\tSchengen-området\tFrankrig\t\t",
-    "20240708\t20240717\tStorbritannien\tEngland\t\t",
-    "20240718\t20240721\tKina\t\t\t",
+    "20240629,20240630,Schengen-området,Schweiz,20240629,20240629",
+    ",,,Frankrig,20240629,20240629",
+    ",,,Schweiz,20240629,20240630",
+    "20240630,20240705,Storbritannien,England,,",
+    "20240705,20240708,Schengen-området,Frankrig,,",
+    "20240708,20240717,Storbritannien,England,,",
+    "20240718,20240721,Kina,,,",
   ].join("\n"),
 
   // ── Mobile calendar popup ─────────────────────────────────────────────────

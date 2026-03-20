@@ -89,7 +89,7 @@ const frCH: Translation = {
 
   helpNotesTitle: "Remarques",
   helpNote1: "Le format de date est AAAAMMJJ (8 chiffres, sans séparateurs).",
-  helpNote2: "Les champs sont séparés par un seul caractère Tab, pas des espaces.",
+  helpNote2: "Les champs sont séparés par Tab (\u21e5) ou virgule (,) — les deux fonctionnent, mais ne mélangez pas les deux sur la même ligne.",
   helpNote3: "Si le même jour apparaît dans plusieurs enregistrements de sous-lieux (ex. 20240224 Danemark), il n'est compté qu'une seule fois.",
   helpNote4: "Le « Mode sous-lieu » utilise les sous-lieux ; le « Mode lieu principal » utilise les lieux principaux.",
   helpNote5: "Les lignes vides entre les enregistrements sont ignorées.",
@@ -103,23 +103,23 @@ const frCH: Translation = {
   helpExChina: "Chine",
 
   helpExampleData: [
-    "20240629\t20240630\tEspace Schengen\tSuisse\t20240629\t20240629",
-    "\t\t\tFrance\t20240629\t20240629",
-    "\t\t\tSuisse\t20240629\t20240630",
-    "20240630\t20240705\tRoyaume-Uni\tAngleterre\t\t",
-    "20240705\t20240708\tEspace Schengen\tFrance\t\t",
-    "20240708\t20240717\tRoyaume-Uni\tAngleterre\t\t",
-    "20240718\t20240721\tChine\t\t\t",
+    "20240629,20240630,Espace Schengen,Suisse,20240629,20240629",
+    ",,,France,20240629,20240629",
+    ",,,Suisse,20240629,20240630",
+    "20240630,20240705,Royaume-Uni,Angleterre,,",
+    "20240705,20240708,Espace Schengen,France,,",
+    "20240708,20240717,Royaume-Uni,Angleterre,,",
+    "20240718,20240721,Chine,,,",
   ].join("\n"),
 
   defaultSampleData: [
-    "20240629\t20240630\tEspace Schengen\tSuisse\t20240629\t20240629",
-    "\t\t\tFrance\t20240629\t20240629",
-    "\t\t\tSuisse\t20240629\t20240630",
-    "20240630\t20240705\tRoyaume-Uni\tAngleterre\t\t",
-    "20240705\t20240708\tEspace Schengen\tFrance\t\t",
-    "20240708\t20240717\tRoyaume-Uni\tAngleterre\t\t",
-    "20240718\t20240721\tChine\t\t\t",
+    "20240629,20240630,Espace Schengen,Suisse,20240629,20240629",
+    ",,,France,20240629,20240629",
+    ",,,Suisse,20240629,20240630",
+    "20240630,20240705,Royaume-Uni,Angleterre,,",
+    "20240705,20240708,Espace Schengen,France,,",
+    "20240708,20240717,Royaume-Uni,Angleterre,,",
+    "20240718,20240721,Chine,,,",
   ].join("\n"),
 
   // ── Mobile calendar popup ─────────────────────────────────────────────────

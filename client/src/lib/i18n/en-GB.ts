@@ -89,7 +89,7 @@ const enGB: Translation = {
 
   helpNotesTitle: "Notes",
   helpNote1: "Date format is YYYYMMDD (8 digits, no separators).",
-  helpNote2: "Fields are separated by a single Tab character, not spaces.",
+  helpNote2: "Fields are separated by Tab (\u21e5) or comma (,) — either works, but do not mix both in the same line.",
   helpNote3: "If the same day appears in multiple sub-location records (e.g. 20240224 Denmark), it is counted only once.",
   helpNote4: '"Sub-location Mode" uses sub-locations; "Region Mode" uses regions.',
   helpNote5: "Blank lines between records are ignored.",
@@ -103,23 +103,23 @@ const enGB: Translation = {
   helpExChina: "China",
 
   helpExampleData: [
-    "20240629\t20240630\tSchengen Area\tSwitzerland\t20240629\t20240629",
-    "\t\t\tFrance\t20240629\t20240629",
-    "\t\t\tSwitzerland\t20240629\t20240630",
-    "20240630\t20240705\tUnited Kingdom\tEngland\t\t",
-    "20240705\t20240708\tSchengen Area\tFrance\t\t",
-    "20240708\t20240717\tUnited Kingdom\tEngland\t\t",
-    "20240718\t20240721\tChina\t\t\t",
+    "20240629,20240630,Schengen Area,Switzerland,20240629,20240629",
+    ",,,France,20240629,20240629",
+    ",,,Switzerland,20240629,20240630",
+    "20240630,20240705,United Kingdom,England,,",
+    "20240705,20240708,Schengen Area,France,,",
+    "20240708,20240717,United Kingdom,England,,",
+    "20240718,20240721,China,,,",
   ].join("\n"),
 
   defaultSampleData: [
-    "20240629\t20240630\tSchengen Area\tSwitzerland\t20240629\t20240629",
-    "\t\t\tFrance\t20240629\t20240629",
-    "\t\t\tSwitzerland\t20240629\t20240630",
-    "20240630\t20240705\tUnited Kingdom\tEngland\t\t",
-    "20240705\t20240708\tSchengen Area\tFrance\t\t",
-    "20240708\t20240717\tUnited Kingdom\tEngland\t\t",
-    "20240718\t20240721\tChina\t\t\t",
+    "20240629,20240630,Schengen Area,Switzerland,20240629,20240629",
+    ",,,France,20240629,20240629",
+    ",,,Switzerland,20240629,20240630",
+    "20240630,20240705,United Kingdom,England,,",
+    "20240705,20240708,Schengen Area,France,,",
+    "20240708,20240717,United Kingdom,England,,",
+    "20240718,20240721,China,,,",
   ].join("\n"),
 
   // ── Mobile calendar popup ─────────────────────────────────────────────────
