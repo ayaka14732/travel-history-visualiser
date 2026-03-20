@@ -1028,8 +1028,7 @@ export default function Home() {
               >
                 {t.dataInputLabel}
               </label>
-              <div className="flex items-center gap-2">
-                <button
+              <button
                   onClick={() => { setMonacoEditorText(dataText); setShowMonacoEditor(true); }}
                   className="text-[12px] text-[#555] hover:text-[#EB0000] font-medium flex items-center gap-0.5"
                   title={t.expandEditorBtn}
@@ -1039,13 +1038,6 @@ export default function Home() {
                   </svg>
                   <span>{t.expandEditorBtn}</span>
                 </button>
-                <button
-                  onClick={() => setShowHelp(true)}
-                  className="text-[12px] text-[#EB0000] hover:underline font-medium"
-                >
-                  {t.formatHelpBtn}
-                </button>
-              </div>
             </div>
             <textarea
               className="w-full text-[13px] bg-[#fafafa] border border-border p-1.5 resize-none focus:outline-none focus:border-[#EB0000] text-[#333] leading-relaxed"
