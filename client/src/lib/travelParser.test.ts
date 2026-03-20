@@ -154,10 +154,10 @@ describe("Type 1 — multi-row group", () => {
     expect(result.dailyLocations[5]).toEqual(["DK"]);
   });
 
-  it("overview mode: all days are 申根區域", () => {
+  it("overview mode: all days are SCHENGEN", () => {
     const result = parseTravelData(input, false);
     for (const day of result.dailyLocations) {
-      expect(day).toEqual(["申根區域"]);
+      expect(day).toEqual(["SCHENGEN"]);
     }
   });
 
@@ -494,13 +494,13 @@ describe("Location normalisation", () => {
     expect(result.dailyLocations[0]).toEqual(["TT"]);
   });
 
-  it("unknown location 申根區域 stays as-is", () => {
+  it("known location 申根區域 resolves to SCHENGEN", () => {
     const result = parseTravelData(
       "20240101\t20240103\t申根區域\t\t\t",
       false
     );
     expect(result.errors).toHaveLength(0);
-    expect(result.dailyLocations[0]).toEqual(["申根區域"]);
+    expect(result.dailyLocations[0]).toEqual(["SCHENGEN"]);
   });
 
   it("English input Denmark resolves to DK", () => {

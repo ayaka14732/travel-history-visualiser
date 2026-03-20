@@ -360,6 +360,11 @@ export const COUNTRIES: CountryEntry[] = [
   c("PR", "波多黎各", "Puerto Rico", "Porto Rico", "Puerto Rico"),
   c("VI", "美屬維爾京群島", "US Virgin Islands", "Îles Vierges américaines", "Amerikanske Jomfruøer"),
   c("UM", "美國本土外小島嶼", "US Minor Outlying Islands", "Îles mineures éloignées des États-Unis", "Amerikanske oversøiske øer"),
+
+  // ── Custom / supra-national zones ────────────────────────────────────────────
+  c("SCHENGEN", "申根區域", "Schengen Area", "Espace Schengen", "Schengen-området", [
+    "申根", "schengen", "schengen area", "espace schengen", "schengen-området", "schengenområdet",
+  ]),
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
