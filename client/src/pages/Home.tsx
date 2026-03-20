@@ -20,7 +20,7 @@ import {
   type TravelParseResult,
 } from "@/lib/travelParser";
 import { getLocationColor } from "@/lib/countryColors";
-import { getDisplayName, type CountryLocale } from "@/lib/countryData";
+import { getDisplayName, getFlagEmoji, type CountryLocale } from "@/lib/countryData";
 import { useLocale } from "@/contexts/LocaleContext";
 import { LOCALES, LOCALE_ORDER, type Locale } from "@/lib/i18n";
 
@@ -516,7 +516,24 @@ function DurationStepper({ label, value, onChange }: DurationStepperProps) {
 // ---------------------------------------------------------------------------
 function LocationChip({ location, locale }: { location: string; locale: CountryLocale }) {
   const displayName = getDisplayName(location, locale);
+  const flag = getFlagEmoji(location);
   const color = getLocationColor(location);
+  if (flag) {
+    return (
+      <span
+        className="inline-flex items-center gap-0.5 px-1 py-0 text-[12px] font-medium leading-[20px] whitespace-nowrap"
+        style={{
+          backgroundColor: color.bg,
+          color: color.text,
+          border: `1px solid ${color.border}`,
+          fontFamily: "'IBM Plex Sans', sans-serif",
+        }}
+      >
+        <span className="text-[14px] leading-none">{flag}</span>
+        <span>{displayName}</span>
+      </span>
+    );
+  }
   return (
     <span
       className="inline-flex items-center px-1 py-0 text-[12px] font-medium leading-[20px] whitespace-nowrap"
@@ -730,10 +747,17 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
           return (
             <div key={s.location} className="py-[5px] border-b border-[#f0f0f0]">
               <div className="flex items-center gap-1.5 mb-1">
-                <div
-                  className="w-2 h-2 flex-shrink-0"
-                  style={{ backgroundColor: color.border }}
-                />
+                {(() => {
+                  const flag = getFlagEmoji(s.location);
+                  return flag ? (
+                    <span className="text-[18px] leading-none flex-shrink-0">{flag}</span>
+                  ) : (
+                    <div
+                      className="w-2 h-2 flex-shrink-0"
+                      style={{ backgroundColor: color.border }}
+                    />
+                  );
+                })()}
                 <span className="flex-1 text-[13px] text-[#222] truncate">{getDisplayName(s.location, locale as CountryLocale)}</span>
                 <span className="text-[12px] text-[#888] w-8 text-right">
                   {pct}%

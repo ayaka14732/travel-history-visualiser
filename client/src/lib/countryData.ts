@@ -411,3 +411,19 @@ export function getDisplayName(code: string, locale: CountryLocale): string {
   if (!entry) return code;
   return entry.names[locale] ?? entry.names["en-GB"] ?? code;
 }
+
+/**
+ * Convert an ISO 3166-1 alpha-2 code to a flag emoji.
+ * Returns null if the code is not exactly 2 ASCII uppercase letters
+ * (e.g. GB-ENG, SCHENGEN, or unknown strings won't get a flag).
+ */
+export function getFlagEmoji(code: string): string | null {
+  const upper = code.trim().toUpperCase();
+  // Must be exactly 2 ASCII letters A-Z
+  if (!/^[A-Z]{2}$/.test(upper)) return null;
+  const [a, b] = upper.split("");
+  return (
+    String.fromCodePoint(0x1f1a5 + a.charCodeAt(0)) +
+    String.fromCodePoint(0x1f1a5 + b.charCodeAt(0))
+  );
+}
