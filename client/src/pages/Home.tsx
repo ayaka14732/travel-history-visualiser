@@ -839,9 +839,9 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
                   return flag ? (
                     <span className="text-[18px] leading-none flex-shrink-0">{flag}</span>
                   ) : (
-                    <div
-                      className="w-2 h-2 flex-shrink-0"
-                      style={{ backgroundColor: color.border }}
+                    <span
+                      className="inline-block flex-shrink-0"
+                      style={{ width: "1.1em", height: "1.1em", fontSize: "18px", backgroundColor: color.border, verticalAlign: "middle" }}
                     />
                   );
                 })()}
