@@ -95,6 +95,32 @@ const daDK: Translation = {
   helpNote5: "Tomme linjer mellem poster ignoreres.",
 
   helpExampleTitle: "Fuldt eksempel",
+  helpExSchengen: "Schengen-området",
+  helpExSwitzerland: "Schweiz",
+  helpExFrance: "Frankrig",
+  helpExUK: "Storbritannien",
+  helpExEngland: "England",
+  helpExChina: "Kina",
+
+  helpExampleData: [
+    "20240629\t20240630\tSchengen-området\tSchweiz\t20240629\t20240629",
+    "\t\t\tFrankrig\t20240629\t20240629",
+    "\t\t\tSchweiz\t20240629\t20240630",
+    "20240630\t20240705\tStorbritannien\tEngland\t\t",
+    "20240705\t20240708\tSchengen-området\tFrankrig\t\t",
+    "20240708\t20240717\tStorbritannien\tEngland\t\t",
+    "20240718\t20240721\tKina\t\t\t",
+  ].join("\n"),
+
+  defaultSampleData: [
+    "20240629\t20240630\tSchengen-området\tSchweiz\t20240629\t20240629",
+    "\t\t\tFrankrig\t20240629\t20240629",
+    "\t\t\tSchweiz\t20240629\t20240630",
+    "20240630\t20240705\tStorbritannien\tEngland\t\t",
+    "20240705\t20240708\tSchengen-området\tFrankrig\t\t",
+    "20240708\t20240717\tStorbritannien\tEngland\t\t",
+    "20240718\t20240721\tKina\t\t\t",
+  ].join("\n"),
 
   // ── Mobile calendar popup ─────────────────────────────────────────────────
   calendarPopupClose: "×",

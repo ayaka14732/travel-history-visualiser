@@ -24,18 +24,7 @@ import { getDisplayName, getFlagEmoji, type CountryLocale } from "@/lib/countryD
 import { useLocale } from "@/contexts/LocaleContext";
 import { LOCALES, LOCALE_ORDER, type Locale } from "@/lib/i18n";
 
-// ---------------------------------------------------------------------------
-// Sample data — uses actual tab characters
-// ---------------------------------------------------------------------------
-const SAMPLE_DATA = [
-  "20240629\t20240630\t申根區域\t瑞士\t20240629\t20240629",
-  "\t\t\t法國\t20240629\t20240629",
-  "\t\t\t瑞士\t20240629\t20240630",
-  "20240630\t20240705\t英國\t英格蘭\t\t",
-  "20240705\t20240708\t申根區域\t法國\t\t",
-  "20240708\t20240717\t英國\t英格蘭\t\t",
-  "20240718\t20240721\t中國\t\t\t",
-].join("\n");
+// (Sample data is now per-locale, stored in t.defaultSampleData)
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -143,9 +132,9 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
             colHeader={t.helpType1ColHeader}
             note={t.helpType1Note}
             rows={[
-              { cols: ["20240629", "20240630", "申根區域", "瑞士", "20240629", "20240629"], highlight: [0,1,2,3] },
-              { cols: [`[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, "法國", "20240629", "20240629"], highlight: [3] },
-              { cols: [`[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, "瑞士", "20240629", "20240630"], highlight: [3] },
+              { cols: ["20240629", "20240630", t.helpExSchengen, t.helpExSwitzerland, "20240629", "20240629"], highlight: [0,1,2,3] },
+              { cols: [`[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, t.helpExFrance, "20240629", "20240629"], highlight: [3] },
+              { cols: [`[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, t.helpExSwitzerland, "20240629", "20240630"], highlight: [3] },
             ]}
           />
 
@@ -156,7 +145,7 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
             colHeader={t.helpType2ColHeader}
             note={t.helpType2Note}
             rows={[
-              { cols: ["20240630", "20240705", "英國", "英格蘭", `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`], highlight: [0,1,2,3] },
+              { cols: ["20240630", "20240705", t.helpExUK, t.helpExEngland, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`], highlight: [0,1,2,3] },
             ]}
           />
 
@@ -167,7 +156,7 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
             colHeader={t.helpType3ColHeader}
             note={t.helpType3Note}
             rows={[
-              { cols: ["20240718", "20240721", "中國", `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`], highlight: [0,1,2] },
+              { cols: ["20240718", "20240721", t.helpExChina, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`], highlight: [0,1,2] },
             ]}
           />
 
@@ -191,13 +180,7 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
               className="bg-[#fafafa] border border-border p-3 text-[11px] leading-[1.8] overflow-x-auto whitespace-pre"
               style={{ fontFamily: "'IBM Plex Mono', monospace" }}
             >
-{`20240629\t20240630\t申根區域\t瑞士\t20240629\t20240629
-\t\t\t法國\t20240629\t20240629
-\t\t\t瑞士\t20240629\t20240630
-20240630\t20240705\t英國\t英格蘭\t\t
-20240705\t20240708\t申根區域\t法國\t\t
-20240708\t20240717\t英國\t英格蘭\t\t
-20240718\t20240721\t中國\t\t\t`}
+              {t.helpExampleData}
             </div>
           </div>
         </div>
@@ -784,9 +767,20 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
 // Main Home component
 // ---------------------------------------------------------------------------
 export default function Home() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
-  const [dataText, setDataText] = useState(SAMPLE_DATA);
+  // Track whether user has manually edited the textarea.
+  // If not, auto-update the sample data when the locale changes.
+  const [userEdited, setUserEdited] = useState(false);
+  const [dataText, setDataText] = useState(() => t.defaultSampleData);
+
+  // When locale changes and user hasn't edited, swap in the new locale's sample data.
+  useEffect(() => {
+    if (!userEdited) {
+      setDataText(t.defaultSampleData);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
   const [isDetailed, setIsDetailed] = useState(true);
   const [parseResult, setParseResult] = useState<TravelParseResult | null>(null);
   const [parseError, setParseError] = useState<string[] | null>(null);
@@ -927,7 +921,7 @@ export default function Home() {
               style={{ fontFamily: "'IBM Plex Mono', monospace", tabSize: 4 }}
               rows={10}
               value={dataText}
-              onChange={(e) => setDataText(e.target.value)}
+              onChange={(e) => { setDataText(e.target.value); setUserEdited(true); }}
               placeholder={t.dataInputPlaceholder}
               spellCheck={false}
             />

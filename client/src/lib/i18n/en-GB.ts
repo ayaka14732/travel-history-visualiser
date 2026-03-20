@@ -95,6 +95,32 @@ const enGB: Translation = {
   helpNote5: "Blank lines between records are ignored.",
 
   helpExampleTitle: "Full Example",
+  helpExSchengen: "Schengen Area",
+  helpExSwitzerland: "Switzerland",
+  helpExFrance: "France",
+  helpExUK: "United Kingdom",
+  helpExEngland: "England",
+  helpExChina: "China",
+
+  helpExampleData: [
+    "20240629\t20240630\tSchengen Area\tSwitzerland\t20240629\t20240629",
+    "\t\t\tFrance\t20240629\t20240629",
+    "\t\t\tSwitzerland\t20240629\t20240630",
+    "20240630\t20240705\tUnited Kingdom\tEngland\t\t",
+    "20240705\t20240708\tSchengen Area\tFrance\t\t",
+    "20240708\t20240717\tUnited Kingdom\tEngland\t\t",
+    "20240718\t20240721\tChina\t\t\t",
+  ].join("\n"),
+
+  defaultSampleData: [
+    "20240629\t20240630\tSchengen Area\tSwitzerland\t20240629\t20240629",
+    "\t\t\tFrance\t20240629\t20240629",
+    "\t\t\tSwitzerland\t20240629\t20240630",
+    "20240630\t20240705\tUnited Kingdom\tEngland\t\t",
+    "20240705\t20240708\tSchengen Area\tFrance\t\t",
+    "20240708\t20240717\tUnited Kingdom\tEngland\t\t",
+    "20240718\t20240721\tChina\t\t\t",
+  ].join("\n"),
 
   // ── Mobile calendar popup ─────────────────────────────────────────────────
   calendarPopupClose: "\u00d7",

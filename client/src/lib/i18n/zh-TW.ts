@@ -95,6 +95,32 @@ const zhTW: Translation = {
   helpNote5: "多筆記錄之間可以有空行，程式會自動忽略。",
 
   helpExampleTitle: "完整範例",
+  helpExSchengen: "申根區域",
+  helpExSwitzerland: "瑞士",
+  helpExFrance: "法國",
+  helpExUK: "英國",
+  helpExEngland: "英格蘭",
+  helpExChina: "中國",
+
+  helpExampleData: [
+    "20240629\t20240630\t申根區域\t瑞士\t20240629\t20240629",
+    "\t\t\t法國\t20240629\t20240629",
+    "\t\t\t瑞士\t20240629\t20240630",
+    "20240630\t20240705\t英國\t英格蘭\t\t",
+    "20240705\t20240708\t申根區域\t法國\t\t",
+    "20240708\t20240717\t英國\t英格蘭\t\t",
+    "20240718\t20240721\t中國\t\t\t",
+  ].join("\n"),
+
+  defaultSampleData: [
+    "20240629\t20240630\t申根區域\t瑞士\t20240629\t20240629",
+    "\t\t\t法國\t20240629\t20240629",
+    "\t\t\t瑞士\t20240629\t20240630",
+    "20240630\t20240705\t英國\t英格蘭\t\t",
+    "20240705\t20240708\t申根區域\t法國\t\t",
+    "20240708\t20240717\t英國\t英格蘭\t\t",
+    "20240718\t20240721\t中國\t\t\t",
+  ].join("\n"),
 
   // ── Mobile calendar popup ─────────────────────────────────────────────────
   calendarPopupClose: "×",

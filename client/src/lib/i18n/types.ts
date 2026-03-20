@@ -100,6 +100,19 @@ export interface Translation {
   helpNote5: string;
 
   helpExampleTitle: string;
+  /** The raw tab-separated example shown in the full-example block */
+  helpExampleData: string;
+
+  /** Localized place names used in the inline HelpSection example rows */
+  helpExSchengen: string;   // e.g. "申根區域" / "Schengen Area"
+  helpExSwitzerland: string; // e.g. "瑞士" / "Switzerland"
+  helpExFrance: string;     // e.g. "法國" / "France"
+  helpExUK: string;         // e.g. "英國" / "United Kingdom"
+  helpExEngland: string;    // e.g. "英格蘭" / "England"
+  helpExChina: string;      // e.g. "中國" / "China"
+
+  /** Per-locale sample data pre-loaded in the textarea */
+  defaultSampleData: string;
 
   // ── Mobile calendar popup ─────────────────────────────────────────────────
   calendarPopupClose: string;

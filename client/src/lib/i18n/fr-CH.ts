@@ -95,6 +95,32 @@ const frCH: Translation = {
   helpNote5: "Les lignes vides entre les enregistrements sont ignorées.",
 
   helpExampleTitle: "Exemple complet",
+  helpExSchengen: "Espace Schengen",
+  helpExSwitzerland: "Suisse",
+  helpExFrance: "France",
+  helpExUK: "Royaume-Uni",
+  helpExEngland: "Angleterre",
+  helpExChina: "Chine",
+
+  helpExampleData: [
+    "20240629\t20240630\tEspace Schengen\tSuisse\t20240629\t20240629",
+    "\t\t\tFrance\t20240629\t20240629",
+    "\t\t\tSuisse\t20240629\t20240630",
+    "20240630\t20240705\tRoyaume-Uni\tAngleterre\t\t",
+    "20240705\t20240708\tEspace Schengen\tFrance\t\t",
+    "20240708\t20240717\tRoyaume-Uni\tAngleterre\t\t",
+    "20240718\t20240721\tChine\t\t\t",
+  ].join("\n"),
+
+  defaultSampleData: [
+    "20240629\t20240630\tEspace Schengen\tSuisse\t20240629\t20240629",
+    "\t\t\tFrance\t20240629\t20240629",
+    "\t\t\tSuisse\t20240629\t20240630",
+    "20240630\t20240705\tRoyaume-Uni\tAngleterre\t\t",
+    "20240705\t20240708\tEspace Schengen\tFrance\t\t",
+    "20240708\t20240717\tRoyaume-Uni\tAngleterre\t\t",
+    "20240718\t20240721\tChine\t\t\t",
+  ].join("\n"),
 
   // ── Mobile calendar popup ─────────────────────────────────────────────────
   calendarPopupClose: "×",
