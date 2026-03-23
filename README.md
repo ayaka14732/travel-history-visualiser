@@ -36,7 +36,7 @@ Each line describes a location visit. Fields are separated by tabs or commas.
 
 ## Getting Started
 
-**Requirements:** Node.js 20+, pnpm 10+
+**Requirements:** Node.js 20+, pnpm 10.4.1 (or enable [Corepack](https://nodejs.org/api/corepack.html): `corepack enable`)
 
 ```bash
 pnpm install
@@ -65,6 +65,12 @@ pnpm dev          # Dev server at http://localhost:3000
 - **Vitest** (test cases for the parser)
 
 ## Deployment
+
+### GitHub Pages
+
+The project is deployed automatically to [https://ayaka14732.github.io/travel-history-visualiser-manus/](https://ayaka14732.github.io/travel-history-visualiser-manus/) on every push to `main` via GitHub Actions.
+
+### Self-hosted
 
 ```bash
 pnpm build
