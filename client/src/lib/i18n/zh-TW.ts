@@ -2,7 +2,7 @@ import type { Translation } from "./types";
 
 const zhTW: Translation = {
   // ── Meta ──────────────────────────────────────────────────────────────────
-  appTitle: "旅行記錄視覺化",
+  appTitle: "旅行記錄視覺化器",
   langLabel: "中文（繁體）",
   languageSectionLabel: "語言",
 

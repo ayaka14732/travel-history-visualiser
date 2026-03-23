@@ -1,8 +1,5 @@
 /*
  * Travel History Visualiser — Global Styles
- * Design: Swiss SBB/CFF/FFS — information-dense, red-accented, sharp corners
- * Primary: #EB0000 (SBB Red)
- * Typography: SBB + Source Han Sans HC (zh-TW), SBB (en-GB), IBM Plex Mono (data/numbers)
  */
 
 @import "tailwindcss";
@@ -121,7 +118,7 @@
   }
 }
 
-/* SBB-style scrollbar */
+/* scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

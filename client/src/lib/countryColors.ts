@@ -1,6 +1,5 @@
 /**
  * Country/location color palette
- * Design: Swiss SBB — muted, professional, distinguishable
  * Each location gets a consistent color derived from its name hash.
  */
 

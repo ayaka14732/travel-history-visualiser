@@ -3,8 +3,6 @@ import { resolveLocation } from "./countryData";
 /**
  * Travel History Parser — using parser combinator style
  *
- * Design: Swiss SBB/CFF/FFS — information-dense, precision-first
- *
  * Data format (tab- or comma-separated, 6 columns per row):
  * Each line is split by Tab if it contains a Tab character, otherwise by comma.
  *

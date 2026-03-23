@@ -1,11 +1,8 @@
 /**
  * Travel History Visualiser — Main Page
- * Design: Swiss SBB/CFF/FFS (without branding label)
+ * Design:
  * - Desktop: Left sidebar (296px) + Right calendar
  * - Mobile: Sidebar only; calendar opens as full-screen popup via "Show Calendar" button
- * - Primary color: #EB0000 (SBB Red)
- * - Typography: IBM Plex Mono (dates), IBM Plex Sans (labels)
- * - Sharp corners, thin borders, dense layout
  * - i18n: all UI strings via useLocale() hook
  */
 
