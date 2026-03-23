@@ -8,6 +8,7 @@ const plugins = [react(), tailwindcss(), jsxLocPlugin()];
 
 export default defineConfig({
   plugins,
+  base: process.env.GITHUB_PAGES === 'true' ? '/travel-history-visualiser-manus/' : '/',
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, 'client', 'src'),
