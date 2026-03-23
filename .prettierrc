@@ -1,15 +1,65 @@
 {
-  "semi": true,
-  "trailingComma": "es5",
-  "singleQuote": false,
-  "printWidth": 80,
+  "printWidth": 120,
   "tabWidth": 2,
   "useTabs": false,
-  "bracketSpacing": true,
-  "bracketSameLine": false,
-  "arrowParens": "avoid",
-  "endOfLine": "lf",
+  "semi": true,
+  "singleQuote": true,
   "quoteProps": "as-needed",
   "jsxSingleQuote": false,
-  "proseWrap": "preserve"
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "bracketSameLine": false,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "proseWrap": "preserve",
+  "htmlWhitespaceSensitivity": "css",
+  "embeddedLanguageFormatting": "auto",
+  "experimentalTernaries": true,
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.mts", "*.cts"],
+      "options": {
+        "parser": "typescript",
+        "printWidth": 120,
+        "trailingComma": "all"
+      }
+    },
+    {
+      "files": ["*.json", "*.jsonc", "*.json5"],
+      "options": {
+        "printWidth": 120,
+        "trailingComma": "none",
+        "tabWidth": 2
+      }
+    },
+    {
+      "files": ["*.md", "*.mdx"],
+      "options": {
+        "printWidth": 120,
+        "proseWrap": "always",
+        "embeddedLanguageFormatting": "auto"
+      }
+    },
+    {
+      "files": ["*.css", "*.scss", "*.less"],
+      "options": {
+        "singleQuote": false,
+        "printWidth": 120
+      }
+    },
+    {
+      "files": ["*.yaml", "*.yml"],
+      "options": {
+        "tabWidth": 2,
+        "singleQuote": false,
+        "printWidth": 120
+      }
+    },
+    {
+      "files": [".prettierrc", ".eslintrc"],
+      "options": {
+        "parser": "json"
+      }
+    }
+  ]
 }

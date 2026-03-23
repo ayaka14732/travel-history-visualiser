@@ -3,7 +3,7 @@
  * Add new locales to the `Locale` union and provide a corresponding translation file.
  */
 
-export type Locale = "zh-TW" | "en-GB" | "fr-CH" | "da-DK";
+export type Locale = 'zh-TW' | 'en-GB' | 'fr-CH' | 'da-DK';
 
 export interface Translation {
   // ── Meta ──────────────────────────────────────────────────────────────────
@@ -15,18 +15,18 @@ export interface Translation {
   dataInputLabel: string;
   dataInputPlaceholder: string;
   formatHelpBtn: string;
-  expandEditorBtn: string;   // 放大編輯器按鈕
+  expandEditorBtn: string; // 放大編輯器按鈕
   editorDialogTitle: string; // Monaco 彈出視窗標題
   editorDialogApply: string; // 確認按鈕
   editorDialogCancel: string; // 取消按鈕
 
   displayModeLabel: string;
-  modeDetailed: string;   // 小地點模式
-  modeOverview: string;   // 大地點模式
+  modeDetailed: string; // 小地點模式
+  modeOverview: string; // 大地點模式
 
-  weekStartLabel: string;   // 週起始
-  weekStartSun: string;     // 星期日
-  weekStartMon: string;     // 星期一
+  weekStartLabel: string; // 週起始
+  weekStartSun: string; // 星期日
+  weekStartMon: string; // 星期一
 
   parseBtn: string;
   showCalendarBtn: string; // mobile only
@@ -39,7 +39,7 @@ export interface Translation {
   rangeModeEndDuration: string;
   startDateLabel: string;
   endDateLabel: string;
-  durationLabel: string;   // "天數（預設 180）"
+  durationLabel: string; // "天數（預設 180）"
   displayRangeInfo: (start: string, end: string, days: number) => string;
   prevDayTitle: string;
   nextDayTitle: string;
@@ -112,12 +112,12 @@ export interface Translation {
   helpExampleData: string;
 
   /** Localized place names used in the inline HelpSection example rows */
-  helpExSchengen: string;   // e.g. "申根區域" / "Schengen Area"
+  helpExSchengen: string; // e.g. "申根區域" / "Schengen Area"
   helpExSwitzerland: string; // e.g. "瑞士" / "Switzerland"
-  helpExFrance: string;     // e.g. "法國" / "France"
-  helpExUK: string;         // e.g. "英國" / "United Kingdom"
-  helpExEngland: string;    // e.g. "英格蘭" / "England"
-  helpExChina: string;      // e.g. "中國" / "China"
+  helpExFrance: string; // e.g. "法國" / "France"
+  helpExUK: string; // e.g. "英國" / "United Kingdom"
+  helpExEngland: string; // e.g. "英格蘭" / "England"
+  helpExChina: string; // e.g. "中國" / "China"
 
   /** Per-locale sample data pre-loaded in the textarea */
   defaultSampleData: string;

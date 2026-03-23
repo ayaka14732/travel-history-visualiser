@@ -6,8 +6,8 @@
  * - i18n: all UI strings via useLocale() hook
  */
 
-import { useState, useMemo, useCallback, useRef, useEffect } from "react";
-import Editor from "@monaco-editor/react";
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import Editor from '@monaco-editor/react';
 import {
   parseTravelData,
   computeStats,
@@ -16,26 +16,26 @@ import {
   daysBetween,
   formatDateDisplay,
   type TravelParseResult,
-} from "@/lib/travelParser";
-import { getLocationColor } from "@/lib/countryColors";
-import { getDisplayName, getFlagEmoji, type CountryLocale } from "@/lib/countryData";
-import { useLocale } from "@/contexts/LocaleContext";
-import { LOCALES, LOCALE_ORDER, type Locale } from "@/lib/i18n";
+} from '@/lib/travelParser';
+import { getLocationColor } from '@/lib/countryColors';
+import { getDisplayName, getFlagEmoji, type CountryLocale } from '@/lib/countryData';
+import { useLocale } from '@/contexts/LocaleContext';
+import { LOCALES, LOCALE_ORDER, type Locale } from '@/lib/i18n';
 
 // (Sample data is now per-locale, stored in t.defaultSampleData)
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-type RangeMode = "start-end" | "start-duration" | "end-duration";
+type RangeMode = 'start-end' | 'start-duration' | 'end-duration';
 
 function toInputDate(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function fromInputDate(s: string): Date | null {
   if (!s) return null;
-  const parts = s.split("-");
+  const parts = s.split('-');
   if (parts.length !== 3) return null;
   const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
   if (isNaN(d.getTime())) return null;
@@ -62,21 +62,19 @@ function LangSelector() {
       {open && (
         <>
           {/* backdrop */}
-          <div
-            className="fixed inset-0 z-30"
-            onClick={() => setOpen(false)}
-          />
+          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-full mt-0.5 z-40 bg-white border border-border shadow-sm min-w-full">
             {(localeOrder as Locale[]).map((l) => (
               <button
                 key={l}
-                onClick={() => { setLocale(l); setOpen(false); }}
+                onClick={() => {
+                  setLocale(l);
+                  setOpen(false);
+                }}
                 className={[
-                  "w-full text-left px-3 py-2 text-[13px]",
-                  l === locale
-                    ? "bg-[#EB0000] text-white"
-                    : "text-[#222] hover:bg-[#f5f5f5]",
-                ].join(" ")}
+                  'w-full text-left px-3 py-2 text-[13px]',
+                  l === locale ? 'bg-[#EB0000] text-white' : 'text-[#222] hover:bg-[#f5f5f5]',
+                ].join(' ')}
               >
                 {LOCALES[l].langLabel}
               </button>
@@ -97,8 +95,10 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-0"
-      style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         className="bg-white border border-border w-full max-w-2xl max-h-[92vh] overflow-y-auto flex flex-col"
@@ -118,8 +118,7 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
 
         <div className="px-5 py-4 space-y-5 text-[12px] text-[#222] leading-relaxed">
           <p>
-            {t.helpIntro}{" "}
-            <strong>{t.helpTabNote}</strong>
+            {t.helpIntro} <strong>{t.helpTabNote}</strong>
             {t.helpIntroCont}
           </p>
 
@@ -130,9 +129,32 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
             colHeader={t.helpType1ColHeader}
             note={t.helpType1Note}
             rows={[
-              { cols: ["20240629", "20240630", t.helpExSchengen, t.helpExSwitzerland, "20240629", "20240629"], highlight: [0,1,2,3] },
-              { cols: [`[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, t.helpExFrance, "20240629", "20240629"], highlight: [3] },
-              { cols: [`[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, t.helpExSwitzerland, "20240629", "20240630"], highlight: [3] },
+              {
+                cols: ['20240629', '20240630', t.helpExSchengen, t.helpExSwitzerland, '20240629', '20240629'],
+                highlight: [0, 1, 2, 3],
+              },
+              {
+                cols: [
+                  `[${t.helpEmptyCell}]`,
+                  `[${t.helpEmptyCell}]`,
+                  `[${t.helpEmptyCell}]`,
+                  t.helpExFrance,
+                  '20240629',
+                  '20240629',
+                ],
+                highlight: [3],
+              },
+              {
+                cols: [
+                  `[${t.helpEmptyCell}]`,
+                  `[${t.helpEmptyCell}]`,
+                  `[${t.helpEmptyCell}]`,
+                  t.helpExSwitzerland,
+                  '20240629',
+                  '20240630',
+                ],
+                highlight: [3],
+              },
             ]}
           />
 
@@ -143,7 +165,17 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
             colHeader={t.helpType2ColHeader}
             note={t.helpType2Note}
             rows={[
-              { cols: ["20240630", "20240705", t.helpExUK, t.helpExEngland, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`], highlight: [0,1,2,3] },
+              {
+                cols: [
+                  '20240630',
+                  '20240705',
+                  t.helpExUK,
+                  t.helpExEngland,
+                  `[${t.helpEmptyCell}]`,
+                  `[${t.helpEmptyCell}]`,
+                ],
+                highlight: [0, 1, 2, 3],
+              },
             ]}
           />
 
@@ -154,7 +186,17 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
             colHeader={t.helpType3ColHeader}
             note={t.helpType3Note}
             rows={[
-              { cols: ["20240718", "20240721", t.helpExChina, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`, `[${t.helpEmptyCell}]`], highlight: [0,1,2] },
+              {
+                cols: [
+                  '20240718',
+                  '20240721',
+                  t.helpExChina,
+                  `[${t.helpEmptyCell}]`,
+                  `[${t.helpEmptyCell}]`,
+                  `[${t.helpEmptyCell}]`,
+                ],
+                highlight: [0, 1, 2],
+              },
             ]}
           />
 
@@ -220,7 +262,7 @@ function HelpSection({ title, desc, colHeader, note, rows }: HelpSectionProps) {
       >
         <div className="text-[#888] mb-1">{colHeader}</div>
         {rows.map((row, ri) => (
-          <div key={ri} className={ri > 0 ? "text-[#aaa]" : ""}>
+          <div key={ri} className={ri > 0 ? 'text-[#aaa]' : ''}>
             {row.cols.map((col, ci) => {
               const isDate = ci < 2 && row.highlight.includes(ci);
               const isRegion = ci === 2 && row.highlight.includes(ci);
@@ -229,11 +271,11 @@ function HelpSection({ title, desc, colHeader, note, rows }: HelpSectionProps) {
                 <span
                   key={ci}
                   className={[
-                    ci > 0 ? "ml-2" : "",
-                    isDate ? "text-[#EB0000]" : "",
-                    isRegion ? "text-blue-700" : "",
-                    isSub ? "text-green-700" : "",
-                  ].join(" ")}
+                    ci > 0 ? 'ml-2' : '',
+                    isDate ? 'text-[#EB0000]' : '',
+                    isRegion ? 'text-blue-700' : '',
+                    isSub ? 'text-green-700' : '',
+                  ].join(' ')}
                 >
                   {col}
                 </span>
@@ -265,30 +307,28 @@ function MonacoEditorPopup({
   // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === 'Escape') onClose();
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         className="bg-white border border-border flex flex-col"
-        style={{ width: "min(96vw, 900px)", height: "min(90vh, 680px)" }}
+        style={{ width: 'min(96vw, 900px)', height: 'min(90vh, 680px)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-[#EB0000] flex-shrink-0">
-          <h2
-            className="text-[13px] font-bold text-white tracking-wide"
-          >
-            {t.editorDialogTitle}
-          </h2>
+          <h2 className="text-[13px] font-bold text-white tracking-wide">{t.editorDialogTitle}</h2>
           <button
             onClick={onClose}
             className="text-white/80 hover:text-white text-[18px] leading-none font-light px-1"
@@ -304,18 +344,18 @@ function MonacoEditorPopup({
             height="100%"
             defaultLanguage="plaintext"
             value={editorValue}
-            onChange={(val) => setEditorValue(val ?? "")}
+            onChange={(val) => setEditorValue(val ?? '')}
             options={{
               fontFamily: "'IBM Plex Mono', 'Cascadia Code', 'Fira Code', monospace",
               fontSize: 13,
               lineHeight: 22,
               minimap: { enabled: false },
               scrollBeyondLastLine: false,
-              wordWrap: "off",
-              renderWhitespace: "boundary",
+              wordWrap: 'off',
+              renderWhitespace: 'boundary',
               tabSize: 4,
               insertSpaces: false,
-              lineNumbers: "on",
+              lineNumbers: 'on',
               folding: false,
               glyphMargin: false,
               overviewRulerLanes: 0,
@@ -358,7 +398,7 @@ function ErrorDialog({ errors, onClose }: { errors: string[]; onClose: () => voi
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}
     >
       <div
@@ -384,10 +424,7 @@ function ErrorDialog({ errors, onClose }: { errors: string[]; onClose: () => voi
         {/* Error list */}
         <div className="px-4 py-3 max-h-64 overflow-y-auto">
           {errors.map((err, i) => (
-            <div
-              key={i}
-              className="flex gap-2 py-1 border-b border-border last:border-0"
-            >
+            <div key={i} className="flex gap-2 py-1 border-b border-border last:border-0">
               <span
                 className="text-[#EB0000] font-bold text-[11px] flex-shrink-0 mt-0.5"
                 style={{ fontFamily: "'IBM Plex Mono', monospace" }}
@@ -436,12 +473,10 @@ function CalendarPopup({ result, viewStart, viewEnd, isDetailed, weekStartsMonda
     <div className="fixed inset-0 z-40 flex flex-col bg-white">
       <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-[#EB0000] flex-shrink-0">
         <div className="flex-1 min-w-0">
-          <span
-            className="text-[11px] text-white/80"
-            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-          >
+          <span className="text-[11px] text-white/80" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
             {formatDateDisplay(viewStart)} — {formatDateDisplay(viewEnd)}
-            &nbsp;·&nbsp;{daysBetween(viewStart, viewEnd) + 1}{t.calendarDaysSuffix}
+            &nbsp;·&nbsp;{daysBetween(viewStart, viewEnd) + 1}
+            {t.calendarDaysSuffix}
             &nbsp;·&nbsp;{isDetailed ? t.modeDetailed : t.modeOverview}
           </span>
         </div>
@@ -465,7 +500,9 @@ function CalendarPopup({ result, viewStart, viewEnd, isDetailed, weekStartsMonda
 // ---------------------------------------------------------------------------
 function useLongPress(callback: () => void, { delay = 400, interval = 80 } = {}) {
   const cbRef = useRef(callback);
-  useEffect(() => { cbRef.current = callback; });
+  useEffect(() => {
+    cbRef.current = callback;
+  });
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -477,15 +514,24 @@ function useLongPress(callback: () => void, { delay = 400, interval = 80 } = {})
   }, [delay, interval]);
 
   const stop = useCallback(() => {
-    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
-    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
   }, []);
 
   return {
     onMouseDown: start,
     onMouseUp: stop,
     onMouseLeave: stop,
-    onTouchStart: (e: React.TouchEvent) => { e.preventDefault(); start(); },
+    onTouchStart: (e: React.TouchEvent) => {
+      e.preventDefault();
+      start();
+    },
     onTouchEnd: stop,
   };
 }
@@ -653,10 +699,10 @@ function DayCell({ date, locations, isToday, isWeekend, isFirstOfMonth }: DayCel
   return (
     <div
       className={[
-        "border-b border-r border-border flex flex-col min-h-[56px] p-1 relative",
-        isWeekend ? "bg-[#fafafa]" : "bg-white",
-        isToday ? "outline outline-1 outline-[#EB0000] outline-offset-[-1px]" : "",
-      ].join(" ")}
+        'border-b border-r border-border flex flex-col min-h-[56px] p-1 relative',
+        isWeekend ? 'bg-[#fafafa]' : 'bg-white',
+        isToday ? 'outline outline-1 outline-[#EB0000] outline-offset-[-1px]' : '',
+      ].join(' ')}
     >
       {isFirstOfMonth && (
         <span className="text-[11px] text-[#EB0000] font-semibold leading-none mb-0.5">
@@ -666,28 +712,27 @@ function DayCell({ date, locations, isToday, isWeekend, isFirstOfMonth }: DayCel
       <div className="flex items-start justify-between gap-1">
         <span
           className={[
-            "text-[13px] font-semibold leading-none",
-            isToday ? "text-[#EB0000]" : isWeekend ? "text-[#999]" : "text-[#222]",
-          ].join(" ")}
+            'text-[13px] font-semibold leading-none',
+            isToday ? 'text-[#EB0000]'
+            : isWeekend ? 'text-[#999]'
+            : 'text-[#222]',
+          ].join(' ')}
           style={{ fontFamily: "'IBM Plex Mono', monospace" }}
         >
-          {String(dayNum).padStart(2, "0")}
+          {String(dayNum).padStart(2, '0')}
         </span>
         {/* <span className="text-[11px] text-[#ccc] leading-none">
           {t.weekdays[date.getDay()]}
         </span> */}
       </div>
-      {isEmpty ? (
-        <span className="text-[12px] text-[#ddd] mt-1">
-          —
-        </span>
-      ) : (
-        <div className="flex flex-wrap gap-[2px] mt-1">
+      {isEmpty ?
+        <span className="text-[12px] text-[#ddd] mt-1">—</span>
+      : <div className="flex flex-wrap gap-[2px] mt-1">
           {locations.map((loc) => (
             <LocationChip key={loc} location={loc} locale={locale as CountryLocale} />
           ))}
         </div>
-      )}
+      }
     </div>
   );
 }
@@ -713,17 +758,12 @@ function CalendarGrid({ result, viewStart, viewEnd, weekStartsMonday }: Calendar
   for (let i = 0; i < totalDays; i++) {
     const date = addDays(viewStart, i);
     const offset = daysBetween(result.startDate, date);
-    const locations =
-      offset >= 0 && offset < result.dailyLocations.length
-        ? result.dailyLocations[offset]
-        : [];
+    const locations = offset >= 0 && offset < result.dailyLocations.length ? result.dailyLocations[offset] : [];
     days.push({ date, locations });
   }
 
   // weekStartsMonday: Sun=0→6, Mon=1→0, …, Sat=6→5; else use getDay() directly
-  const startDow = weekStartsMonday
-    ? (viewStart.getDay() + 6) % 7
-    : viewStart.getDay();
+  const startDow = weekStartsMonday ? (viewStart.getDay() + 6) % 7 : viewStart.getDay();
   const paddedDays: Array<{ date: Date | null; locations: string[] }> = [
     ...Array.from({ length: startDow }, () => ({ date: null as Date | null, locations: [] as string[] })),
     ...days,
@@ -736,14 +776,12 @@ function CalendarGrid({ result, viewStart, viewEnd, weekStartsMonday }: Calendar
     }
   }
 
-  const weeks: typeof paddedDays[] = [];
+  const weeks: (typeof paddedDays)[] = [];
   for (let i = 0; i < paddedDays.length; i += 7) {
     weeks.push(paddedDays.slice(i, i + 7));
   }
 
-  const orderedWeekdays = weekStartsMonday
-    ? [...t.weekdays.slice(1), t.weekdays[0]]
-    : [...t.weekdays];
+  const orderedWeekdays = weekStartsMonday ? [...t.weekdays.slice(1), t.weekdays[0]] : [...t.weekdays];
   const weekendCols = weekStartsMonday ? [5, 6] : [0, 6];
 
   return (
@@ -753,9 +791,9 @@ function CalendarGrid({ result, viewStart, viewEnd, weekStartsMonday }: Calendar
           <div
             key={d}
             className={[
-              "border-b border-r border-border px-1 py-1.5 text-center text-[12px] font-semibold",
-              weekendCols.includes(i) ? "text-[#999] bg-[#fafafa]" : "text-[#555]",
-            ].join(" ")}
+              'border-b border-r border-border px-1 py-1.5 text-center text-[12px] font-semibold',
+              weekendCols.includes(i) ? 'text-[#999] bg-[#fafafa]' : 'text-[#555]',
+            ].join(' ')}
           >
             {d}
           </div>
@@ -765,12 +803,7 @@ function CalendarGrid({ result, viewStart, viewEnd, weekStartsMonday }: Calendar
         <div key={wi} className="grid grid-cols-7 border-l border-border">
           {week.map((cell, di) => {
             if (!cell.date) {
-              return (
-                <div
-                  key={di}
-                  className="border-b border-r border-border min-h-[56px] bg-[#f5f5f5]"
-                />
-              );
+              return <div key={di} className="border-b border-r border-border min-h-[56px] bg-[#f5f5f5]" />;
             }
             const isToday = cell.date.getTime() === today.getTime();
             const isWeekend = cell.date.getDay() === 0 || cell.date.getDay() === 6;
@@ -803,10 +836,7 @@ interface StatsPanelProps {
 
 function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
   const { t, locale } = useLocale();
-  const sliced = useMemo(
-    () => sliceResult(result, viewStart, viewEnd),
-    [result, viewStart, viewEnd]
-  );
+  const sliced = useMemo(() => sliceResult(result, viewStart, viewEnd), [result, viewStart, viewEnd]);
   const stats = useMemo(() => computeStats(sliced), [sliced]);
   const totalDays = daysBetween(viewStart, viewEnd) + 1;
   const coveredDays = sliced.dailyLocations.filter((d) => d.length > 0).length;
@@ -814,9 +844,7 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
   return (
     <div>
       <div className="border-border mb-1.5">
-        <span className="text-[13px] font-semibold text-[#555]">
-          {t.statsLabel}
-        </span>
+        <span className="text-[13px] font-semibold text-[#555]">{t.statsLabel}</span>
       </div>
       <div className="flex gap-4 pt-1 mb-3">
         {[
@@ -825,9 +853,7 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
           { val: stats.length, label: t.statsLocations, red: false },
         ].map(({ val, label, red }) => (
           <div key={label}>
-            <div
-              className={`text-[22px] font-semibold leading-none ${red ? "text-[#EB0000]" : "text-[#222]"}`}
-            >
+            <div className={`text-[22px] font-semibold leading-none ${red ? 'text-[#EB0000]' : 'text-[#222]'}`}>
               {val}
             </div>
             <div className="text-[12px] text-[#888] mt-0.5">{label}</div>
@@ -843,28 +869,31 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
               <div className="flex items-center gap-1.5 mb-1">
                 {(() => {
                   const flag = getFlagEmoji(s.location);
-                  return flag ? (
-                    <span className="text-[18px] leading-none flex-shrink-0">{flag}</span>
-                  ) : (
-                    <span
-                      className="inline-block flex-shrink-0"
-                      style={{ width: "1.2em", height: "0.9em", borderRadius: "2px", fontSize: "18px", backgroundColor: color.border, verticalAlign: "middle" }}
-                    />
-                  );
+                  return flag ?
+                      <span className="text-[18px] leading-none flex-shrink-0">{flag}</span>
+                    : <span
+                        className="inline-block flex-shrink-0"
+                        style={{
+                          width: '1.2em',
+                          height: '0.9em',
+                          borderRadius: '2px',
+                          fontSize: '18px',
+                          backgroundColor: color.border,
+                          verticalAlign: 'middle',
+                        }}
+                      />;
                 })()}
-                <span className="flex-1 text-[13px] text-[#222] truncate">{getDisplayName(s.location, locale as CountryLocale)}</span>
-                <span className="text-[12px] text-[#888] w-8 text-right">
-                  {pct}%
+                <span className="flex-1 text-[13px] text-[#222] truncate">
+                  {getDisplayName(s.location, locale as CountryLocale)}
                 </span>
+                <span className="text-[12px] text-[#888] w-8 text-right">{pct}%</span>
                 <span className="text-[12px] font-semibold text-[#222] w-10 text-right">
-                  {s.days}{t.statsDaysSuffix}
+                  {s.days}
+                  {t.statsDaysSuffix}
                 </span>
               </div>
               <div className="h-[3px] bg-[#f0f0f0] w-full">
-                <div
-                  className="h-full"
-                  style={{ width: `${pct}%`, backgroundColor: color.border }}
-                />
+                <div className="h-full" style={{ width: `${pct}%`, backgroundColor: color.border }} />
               </div>
             </div>
           );
@@ -890,7 +919,7 @@ export default function Home() {
     if (!userEdited) {
       setDataText(t.defaultSampleData);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
   const [isDetailed, setIsDetailed] = useState(true);
   const [weekStartsMonday, setWeekStartsMonday] = useState(true);
@@ -899,12 +928,12 @@ export default function Home() {
   const [showHelp, setShowHelp] = useState(false);
   const [showCalendarPopup, setShowCalendarPopup] = useState(false);
   const [showMonacoEditor, setShowMonacoEditor] = useState(false);
-  const [monacoEditorText, setMonacoEditorText] = useState("");
+  const [monacoEditorText, setMonacoEditorText] = useState('');
 
   // Range mode state
-  const [rangeMode, setRangeMode] = useState<RangeMode>("start-end");
-  const [customStartStr, setCustomStartStr] = useState("");
-  const [customEndStr, setCustomEndStr] = useState("");
+  const [rangeMode, setRangeMode] = useState<RangeMode>('start-end');
+  const [customStartStr, setCustomStartStr] = useState('');
+  const [customEndStr, setCustomEndStr] = useState('');
   const [durationDays, setDurationDays] = useState(180);
 
   const handleParse = useCallback(() => {
@@ -919,7 +948,7 @@ export default function Home() {
       setParseError(null);
       setCustomStartStr(toInputDate(result.startDate));
       setCustomEndStr(toInputDate(result.endDate));
-      setRangeMode("start-end");
+      setRangeMode('start-end');
       setDurationDays(daysBetween(result.startDate, result.endDate) + 1);
     } catch (e: unknown) {
       setParseError([e instanceof Error ? e.message : String(e)]);
@@ -937,22 +966,34 @@ export default function Home() {
     let rangeError: string | null = null;
 
     const clampStart = (d: Date): Date => {
-      if (d < dataStart) { rangeError = t.errStartTooEarly(formatDateDisplay(dataStart)); return dataStart; }
-      if (d > dataEnd)   { rangeError = t.errStartTooLate(formatDateDisplay(dataEnd)); return dataStart; }
+      if (d < dataStart) {
+        rangeError = t.errStartTooEarly(formatDateDisplay(dataStart));
+        return dataStart;
+      }
+      if (d > dataEnd) {
+        rangeError = t.errStartTooLate(formatDateDisplay(dataEnd));
+        return dataStart;
+      }
       return d;
     };
     const clampEnd = (d: Date, start: Date): Date => {
-      if (d > dataEnd)  { rangeError = (rangeError ? rangeError + "\n" : "") + t.errEndTooLate(formatDateDisplay(dataEnd)); return dataEnd; }
-      if (d < start)    { rangeError = (rangeError ? rangeError + "\n" : "") + t.errEndBeforeStart; return dataEnd; }
+      if (d > dataEnd) {
+        rangeError = (rangeError ? rangeError + '\n' : '') + t.errEndTooLate(formatDateDisplay(dataEnd));
+        return dataEnd;
+      }
+      if (d < start) {
+        rangeError = (rangeError ? rangeError + '\n' : '') + t.errEndBeforeStart;
+        return dataEnd;
+      }
       return d;
     };
 
-    if (rangeMode === "start-end") {
+    if (rangeMode === 'start-end') {
       const sd = fromInputDate(customStartStr);
       const ed = fromInputDate(customEndStr);
       if (sd) vs = clampStart(sd);
       if (ed) ve = clampEnd(ed, vs);
-    } else if (rangeMode === "start-duration") {
+    } else if (rangeMode === 'start-duration') {
       const sd = fromInputDate(customStartStr);
       if (sd) vs = clampStart(sd);
       ve = addDays(vs, durationDays - 1);
@@ -968,9 +1009,9 @@ export default function Home() {
   }, [parseResult, rangeMode, customStartStr, customEndStr, durationDays, t]);
 
   const rangeModes: { id: RangeMode; label: string }[] = [
-    { id: "start-end",      label: t.rangeModeStartEnd },
-    { id: "start-duration", label: t.rangeModeStartDuration },
-    { id: "end-duration",   label: t.rangeModeEndDuration },
+    { id: 'start-end', label: t.rangeModeStartEnd },
+    { id: 'start-duration', label: t.rangeModeStartDuration },
+    { id: 'end-duration', label: t.rangeModeEndDuration },
   ];
 
   return (
@@ -992,12 +1033,7 @@ export default function Home() {
       )}
 
       {/* Error dialog */}
-      {parseError && (
-        <ErrorDialog
-          errors={parseError}
-          onClose={() => setParseError(null)}
-        />
-      )}
+      {parseError && <ErrorDialog errors={parseError} onClose={() => setParseError(null)} />}
 
       {/* Mobile calendar popup */}
       {showCalendarPopup && parseResult && (
@@ -1015,78 +1051,71 @@ export default function Home() {
       <aside className="w-full md:w-[360px] flex-shrink-0 md:border-r border-border flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-3 py-2 border-b border-[#c00000] bg-[#EB0000] flex items-center justify-between gap-2">
-          <h1 className="text-[20px] font-bold text-white leading-tight truncate">
-            {t.appTitle}
-          </h1>
+          <h1 className="text-[20px] font-bold text-white leading-tight truncate">{t.appTitle}</h1>
         </div>
 
         <div className="flex-1 overflow-y-auto">
           {/* Language selector */}
           <div className="px-3 py-2 border-b border-border">
-            <label className="block text-[13px] font-semibold text-[#555] mb-1.5">
-              {t.languageSectionLabel}
-            </label>
+            <label className="block text-[13px] font-semibold text-[#555] mb-1.5">{t.languageSectionLabel}</label>
             <LangSelector />
           </div>
 
           {/* Data input */}
           <div className="px-3 py-2 border-b border-border">
             <div className="flex items-center justify-between mb-1">
-              <label
-                className="text-[13px] font-semibold text-[#555]"
-              >
-                {t.dataInputLabel}
-              </label>
+              <label className="text-[13px] font-semibold text-[#555]">{t.dataInputLabel}</label>
               <button
-                  onClick={() => { setMonacoEditorText(dataText); setShowMonacoEditor(true); }}
-                  className="text-[12px] text-[#555] hover:text-[#EB0000] font-medium flex items-center gap-1"
-                  title={t.expandEditorBtn}
-                >
-                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
-                    <path d="M1 6V1h5M10 1h5v5M15 10v5h-5M6 15H1v-5"/>
-                  </svg>
-                  <span>{t.expandEditorBtn}</span>
-                </button>
+                onClick={() => {
+                  setMonacoEditorText(dataText);
+                  setShowMonacoEditor(true);
+                }}
+                className="text-[12px] text-[#555] hover:text-[#EB0000] font-medium flex items-center gap-1"
+                title={t.expandEditorBtn}
+              >
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M1 6V1h5M10 1h5v5M15 10v5h-5M6 15H1v-5" />
+                </svg>
+                <span>{t.expandEditorBtn}</span>
+              </button>
             </div>
             <textarea
               className="w-full text-[13px] bg-[#fafafa] border border-border p-1.5 resize-none focus:outline-none focus:border-[#EB0000] text-[#333] leading-relaxed"
               style={{ fontFamily: "'IBM Plex Mono', monospace", tabSize: 4 }}
               rows={10}
               value={dataText}
-              onChange={(e) => { setDataText(e.target.value); setUserEdited(true); }}
+              onChange={(e) => {
+                setDataText(e.target.value);
+                setUserEdited(true);
+              }}
               placeholder={t.dataInputPlaceholder}
               spellCheck={false}
             />
-
           </div>
 
           {/* Mode toggle */}
           <div className="px-3 py-2 border-b border-border">
-            <label
-              className="block text-[13px] font-semibold text-[#555] mb-1.5"
-            >
-              {t.displayModeLabel}
-            </label>
+            <label className="block text-[13px] font-semibold text-[#555] mb-1.5">{t.displayModeLabel}</label>
             <div className="flex">
               <button
                 onClick={() => setIsDetailed(true)}
                 className={[
-                  "flex-1 py-1.5 text-[13px] font-medium border",
-                  isDetailed
-                    ? "bg-[#EB0000] text-white border-[#EB0000]"
-                    : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
-                ].join(" ")}
+                  'flex-1 py-1.5 text-[13px] font-medium border',
+                  isDetailed ?
+                    'bg-[#EB0000] text-white border-[#EB0000]'
+                  : 'bg-white text-[#555] border-border hover:bg-[#f5f5f5]',
+                ].join(' ')}
               >
                 {t.modeDetailed}
               </button>
               <button
                 onClick={() => setIsDetailed(false)}
                 className={[
-                  "flex-1 py-1.5 text-[13px] font-medium border-t border-b border-r",
-                  !isDetailed
-                    ? "bg-[#EB0000] text-white border-[#EB0000]"
-                    : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
-                ].join(" ")}
+                  'flex-1 py-1.5 text-[13px] font-medium border-t border-b border-r',
+                  !isDetailed ?
+                    'bg-[#EB0000] text-white border-[#EB0000]'
+                  : 'bg-white text-[#555] border-border hover:bg-[#f5f5f5]',
+                ].join(' ')}
               >
                 {t.modeOverview}
               </button>
@@ -1095,29 +1124,27 @@ export default function Home() {
 
           {/* Week start toggle */}
           <div className="px-3 py-2 border-b border-border">
-            <label className="block text-[13px] font-semibold text-[#555] mb-1.5">
-              {t.weekStartLabel}
-            </label>
+            <label className="block text-[13px] font-semibold text-[#555] mb-1.5">{t.weekStartLabel}</label>
             <div className="flex">
               <button
                 onClick={() => setWeekStartsMonday(false)}
                 className={[
-                  "flex-1 py-1.5 text-[13px] font-medium border",
-                  !weekStartsMonday
-                    ? "bg-[#EB0000] text-white border-[#EB0000]"
-                    : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
-                ].join(" ")}
+                  'flex-1 py-1.5 text-[13px] font-medium border',
+                  !weekStartsMonday ?
+                    'bg-[#EB0000] text-white border-[#EB0000]'
+                  : 'bg-white text-[#555] border-border hover:bg-[#f5f5f5]',
+                ].join(' ')}
               >
                 {t.weekStartSun}
               </button>
               <button
                 onClick={() => setWeekStartsMonday(true)}
                 className={[
-                  "flex-1 py-1.5 text-[13px] font-medium border-t border-b border-r",
-                  weekStartsMonday
-                    ? "bg-[#EB0000] text-white border-[#EB0000]"
-                    : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
-                ].join(" ")}
+                  'flex-1 py-1.5 text-[13px] font-medium border-t border-b border-r',
+                  weekStartsMonday ?
+                    'bg-[#EB0000] text-white border-[#EB0000]'
+                  : 'bg-white text-[#555] border-border hover:bg-[#f5f5f5]',
+                ].join(' ')}
               >
                 {t.weekStartMon}
               </button>
@@ -1149,13 +1176,10 @@ export default function Home() {
           {/* Date range controls */}
           {parseResult && (
             <div className="px-3 py-2 border-b border-border">
-              <label
-                className="block text-[13px] font-semibold text-[#555] mb-1.5"
-              >
-                {t.rangeLabel}
-              </label>
+              <label className="block text-[13px] font-semibold text-[#555] mb-1.5">{t.rangeLabel}</label>
               <div className="text-[12px] text-[#aaa] mb-2">
-                {t.dataRangePrefix}{formatDateDisplay(parseResult.startDate)} — {formatDateDisplay(parseResult.endDate)}
+                {t.dataRangePrefix}
+                {formatDateDisplay(parseResult.startDate)} — {formatDateDisplay(parseResult.endDate)}
               </div>
 
               {/* Range mode selector */}
@@ -1165,12 +1189,10 @@ export default function Home() {
                     key={m.id}
                     onClick={() => setRangeMode(m.id)}
                     className={[
-                      "flex-1 min-w-0 py-1 text-[12px] font-medium whitespace-nowrap px-1",
-                      i > 0 ? "border-l border-border" : "",
-                      rangeMode === m.id
-                        ? "bg-[#222] text-white"
-                        : "bg-white text-[#555] hover:bg-[#f5f5f5]",
-                    ].join(" ")}
+                      'flex-1 min-w-0 py-1 text-[12px] font-medium whitespace-nowrap px-1',
+                      i > 0 ? 'border-l border-border' : '',
+                      rangeMode === m.id ? 'bg-[#222] text-white' : 'bg-white text-[#555] hover:bg-[#f5f5f5]',
+                    ].join(' ')}
                   >
                     {m.label}
                   </button>
@@ -1178,7 +1200,7 @@ export default function Home() {
               </div>
 
               <div className="space-y-1.5">
-                {rangeMode === "start-end" && (
+                {rangeMode === 'start-end' && (
                   <>
                     <DateStepper
                       label={t.startDateLabel}
@@ -1197,7 +1219,7 @@ export default function Home() {
                   </>
                 )}
 
-                {rangeMode === "start-duration" && (
+                {rangeMode === 'start-duration' && (
                   <>
                     <DateStepper
                       label={t.startDateLabel}
@@ -1206,15 +1228,11 @@ export default function Home() {
                       max={toInputDate(parseResult.endDate)}
                       onChange={setCustomStartStr}
                     />
-                    <DurationStepper
-                      label={t.durationLabel}
-                      value={durationDays}
-                      onChange={setDurationDays}
-                    />
+                    <DurationStepper label={t.durationLabel} value={durationDays} onChange={setDurationDays} />
                   </>
                 )}
 
-                {rangeMode === "end-duration" && (
+                {rangeMode === 'end-duration' && (
                   <>
                     <DateStepper
                       label={t.endDateLabel}
@@ -1223,25 +1241,17 @@ export default function Home() {
                       max={toInputDate(parseResult.endDate)}
                       onChange={setCustomEndStr}
                     />
-                    <DurationStepper
-                      label={t.durationLabel}
-                      value={durationDays}
-                      onChange={setDurationDays}
-                    />
+                    <DurationStepper label={t.durationLabel} value={durationDays} onChange={setDurationDays} />
                   </>
                 )}
 
-                {rangeError && (
-                  <div className="text-[12px] text-[#EB0000] whitespace-pre-line">
-                    {rangeError}
-                  </div>
-                )}
+                {rangeError && <div className="text-[12px] text-[#EB0000] whitespace-pre-line">{rangeError}</div>}
 
                 <div className="text-[12px] text-[#aaa]">
                   {t.displayRangeInfo(
                     formatDateDisplay(viewStart),
                     formatDateDisplay(viewEnd),
-                    daysBetween(viewStart, viewEnd) + 1
+                    daysBetween(viewStart, viewEnd) + 1,
                   )}
                 </div>
               </div>
@@ -1254,8 +1264,6 @@ export default function Home() {
               <StatsPanel result={parseResult} viewStart={viewStart} viewEnd={viewEnd} />
             </div>
           )}
-
-
         </div>
       </aside>
 
@@ -1264,35 +1272,28 @@ export default function Home() {
         {/* Top bar */}
         <div className="px-4 py-2 border-b border-border flex items-center gap-3 bg-white flex-shrink-0">
           <div className="w-1 h-4 bg-[#EB0000]" />
-          <span className="text-[13px] font-semibold text-[#555]">
-            {t.calendarLabel}
-          </span>
+          <span className="text-[13px] font-semibold text-[#555]">{t.calendarLabel}</span>
           {parseResult && (
             <>
               <span className="text-[13px] text-[#555]">
                 {formatDateDisplay(viewStart)} — {formatDateDisplay(viewEnd)}
               </span>
               <span className="text-[13px] font-semibold text-[#EB0000]">
-                {daysBetween(viewStart, viewEnd) + 1}{t.calendarDaysSuffix}
+                {daysBetween(viewStart, viewEnd) + 1}
+                {t.calendarDaysSuffix}
               </span>
-              <span className="text-[12px] text-[#aaa]">
-                {isDetailed ? t.modeDetailed : t.modeOverview}
-              </span>
+              <span className="text-[12px] text-[#aaa]">{isDetailed ? t.modeDetailed : t.modeOverview}</span>
             </>
           )}
         </div>
 
         {/* Calendar scroll area */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
-          {!parseResult ? (
+          {!parseResult ?
             <div className="flex flex-col items-center justify-center h-full text-center px-8">
               <div className="w-12 h-[3px] bg-[#EB0000] mb-6" />
-              <h2 className="text-[16px] font-semibold text-[#222] mb-2">
-                {t.emptyTitle}
-              </h2>
-              <p className="text-[12px] text-[#888] max-w-sm leading-relaxed">
-                {t.emptyDesc}
-              </p>
+              <h2 className="text-[16px] font-semibold text-[#222] mb-2">{t.emptyTitle}</h2>
+              <p className="text-[12px] text-[#888] max-w-sm leading-relaxed">{t.emptyDesc}</p>
               <button
                 onClick={() => setShowHelp(true)}
                 className="mt-4 text-[12px] text-[#EB0000] hover:underline font-medium"
@@ -1300,9 +1301,13 @@ export default function Home() {
                 {t.emptyHelpLink}
               </button>
             </div>
-          ) : (
-            <CalendarGrid result={parseResult} viewStart={viewStart} viewEnd={viewEnd} weekStartsMonday={weekStartsMonday} />
-          )}
+          : <CalendarGrid
+              result={parseResult}
+              viewStart={viewStart}
+              viewEnd={viewEnd}
+              weekStartsMonday={weekStartsMonday}
+            />
+          }
         </div>
       </main>
     </div>

@@ -1,4 +1,4 @@
-import { resolveLocation } from "./countryData";
+import { resolveLocation } from './countryData';
 
 /**
  * Travel History Parser — using parser combinator style
@@ -40,11 +40,7 @@ export function tryParseDate(s: string): Date | null {
   const d = parseInt(s.slice(6, 8), 10);
   const date = new Date(y, m, d);
   // Verify the date is valid (e.g. month 13 or day 32 would roll over)
-  if (
-    date.getFullYear() !== y ||
-    date.getMonth() !== m ||
-    date.getDate() !== d
-  ) {
+  if (date.getFullYear() !== y || date.getMonth() !== m || date.getDate() !== d) {
     return null;
   }
   return date;
@@ -60,16 +56,16 @@ export function parseDate(s: string): Date {
 /** Format a Date to YYYYMMDD string. */
 export function formatDate(d: Date): string {
   const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
   return `${y}${m}${day}`;
 }
 
 /** Format a Date to YYYY-MM-DD for display. */
 export function formatDateDisplay(d: Date): string {
   const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
 }
 
@@ -88,28 +84,21 @@ export function daysBetween(start: Date, end: Date): number {
 
 /** Compare two dates by value (ignoring time). */
 export function dateEquals(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
 // ---------------------------------------------------------------------------
 // Parser combinator primitives
 // ---------------------------------------------------------------------------
 
-type ParseResult<T> =
-  | { ok: true; value: T; rest: string[] }
-  | { ok: false; error: string };
+type ParseResult<T> = { ok: true; value: T; rest: string[] } | { ok: false; error: string };
 
 type Parser<T> = (tokens: string[]) => ParseResult<T>;
 
 /** Consume one token that satisfies a predicate. */
 function satisfy(pred: (s: string) => boolean, label: string): Parser<string> {
   return (tokens) => {
-    if (tokens.length === 0)
-      return { ok: false, error: `Expected ${label} but got end of input` };
+    if (tokens.length === 0) return { ok: false, error: `Expected ${label} but got end of input` };
     const [head, ...rest] = tokens;
     if (pred(head)) return { ok: true, value: head, rest };
     return { ok: false, error: `Expected ${label} but got "${head}"` };
@@ -118,12 +107,12 @@ function satisfy(pred: (s: string) => boolean, label: string): Parser<string> {
 
 /** Consume a token that matches a YYYYMMDD date string (non-empty). */
 function dateToken(): Parser<string> {
-  return satisfy((s) => /^\d{8}$/.test(s), "YYYYMMDD date");
+  return satisfy((s) => /^\d{8}$/.test(s), 'YYYYMMDD date');
 }
 
 /** Consume a non-empty text token. */
 function textToken(): Parser<string> {
-  return satisfy((s) => s.trim().length > 0, "non-empty text");
+  return satisfy((s) => s.trim().length > 0, 'non-empty text');
 }
 
 /** Sequence two parsers. */
@@ -183,11 +172,7 @@ export interface TravelGroup {
  * Validate a date string and return the parsed Date plus any warning message.
  * Returns null for the date if it is invalid.
  */
-function validateDateStr(
-  s: string,
-  fieldName: string,
-  rowDesc: string
-): { date: Date | null; warning: string | null } {
+function validateDateStr(s: string, fieldName: string, rowDesc: string): { date: Date | null; warning: string | null } {
   if (!s.trim()) return { date: null, warning: null }; // empty is handled by caller
   if (!/^\d{8}$/.test(s.trim())) {
     return {
@@ -224,19 +209,16 @@ interface HeaderRowResult {
  * Returns ok:false only for fatal errors (unparseable group start/end or missing bigLocation).
  * Non-fatal issues are collected in warnings.
  */
-function parseHeaderRow(
-  tokens: string[],
-  rowDesc: string
-): ParseResult<HeaderRowResult> {
+function parseHeaderRow(tokens: string[], rowDesc: string): ParseResult<HeaderRowResult> {
   // Normalize to exactly 6 tokens
   const row = [...tokens];
-  while (row.length < 6) row.push("");
+  while (row.length < 6) row.push('');
   const [t0, t1, t2, t3, t4, t5] = row;
 
   const warnings: string[] = [];
 
   // ── groupStart (fatal if invalid) ────────────────────────────────────────
-  const gsResult = validateDateStr(t0, "groupStart", rowDesc);
+  const gsResult = validateDateStr(t0, 'groupStart', rowDesc);
   if (gsResult.warning) warnings.push(gsResult.warning);
   if (!gsResult.date) {
     return { ok: false, error: `[${rowDesc}] Invalid groupStart: "${t0}"` };
@@ -244,7 +226,7 @@ function parseHeaderRow(
   const groupStart = gsResult.date;
 
   // ── groupEnd (fatal if invalid) ───────────────────────────────────────────
-  const geResult = validateDateStr(t1, "groupEnd", rowDesc);
+  const geResult = validateDateStr(t1, 'groupEnd', rowDesc);
   if (geResult.warning) warnings.push(geResult.warning);
   if (!geResult.date) {
     return { ok: false, error: `[${rowDesc}] Invalid groupEnd: "${t1}"` };
@@ -254,7 +236,7 @@ function parseHeaderRow(
   // ── groupEnd must not be before groupStart ────────────────────────────────
   if (groupEnd < groupStart) {
     warnings.push(
-      `[${rowDesc}] groupEnd ${formatDateDisplay(groupEnd)} is before groupStart ${formatDateDisplay(groupStart)}`
+      `[${rowDesc}] groupEnd ${formatDateDisplay(groupEnd)} is before groupStart ${formatDateDisplay(groupStart)}`,
     );
   }
 
@@ -280,9 +262,9 @@ function parseHeaderRow(
       firstSub = { location: subLoc, startDate: groupStart, endDate: groupEnd };
     } else {
       // Type 1 header: explicit sub dates
-      const ssResult = validateDateStr(subStartStr, "subStart", rowDesc);
+      const ssResult = validateDateStr(subStartStr, 'subStart', rowDesc);
       if (ssResult.warning) warnings.push(ssResult.warning);
-      const seResult = validateDateStr(subEndStr, "subEnd", rowDesc);
+      const seResult = validateDateStr(subEndStr, 'subEnd', rowDesc);
       if (seResult.warning) warnings.push(seResult.warning);
 
       const subStart = ssResult.date ?? groupStart;
@@ -312,25 +294,25 @@ function validateSubEntry(
   subEnd: Date,
   groupStart: Date,
   groupEnd: Date,
-  rowDesc: string
+  rowDesc: string,
 ): string[] {
   const warnings: string[] = [];
 
   if (subEnd < subStart) {
     warnings.push(
-      `[${rowDesc}] Sub-location "${subLoc}": subEnd ${formatDateDisplay(subEnd)} is before subStart ${formatDateDisplay(subStart)}`
+      `[${rowDesc}] Sub-location "${subLoc}": subEnd ${formatDateDisplay(subEnd)} is before subStart ${formatDateDisplay(subStart)}`,
     );
   }
 
   if (subStart < groupStart) {
     warnings.push(
-      `[${rowDesc}] Sub-location "${subLoc}": subStart ${formatDateDisplay(subStart)} is before groupStart ${formatDateDisplay(groupStart)}`
+      `[${rowDesc}] Sub-location "${subLoc}": subStart ${formatDateDisplay(subStart)} is before groupStart ${formatDateDisplay(groupStart)}`,
     );
   }
 
   if (subEnd > groupEnd) {
     warnings.push(
-      `[${rowDesc}] Sub-location "${subLoc}": subEnd ${formatDateDisplay(subEnd)} is after groupEnd ${formatDateDisplay(groupEnd)}`
+      `[${rowDesc}] Sub-location "${subLoc}": subEnd ${formatDateDisplay(subEnd)} is after groupEnd ${formatDateDisplay(groupEnd)}`,
     );
   }
 
@@ -345,13 +327,13 @@ function parseContinuationRow(
   tokens: string[],
   groupStart: Date,
   groupEnd: Date,
-  rowDesc: string
+  rowDesc: string,
 ): ParseResult<{ entry: SubEntry; warnings: string[] }> {
   const row = [...tokens];
-  while (row.length < 6) row.push("");
+  while (row.length < 6) row.push('');
   const [t0, t1, t2, t3, t4, t5] = row;
 
-  if (t0 !== "" || t1 !== "" || t2 !== "") {
+  if (t0 !== '' || t1 !== '' || t2 !== '') {
     return {
       ok: false,
       error: `[${rowDesc}] Not a continuation row (first 3 tokens not empty)`,
@@ -367,9 +349,9 @@ function parseContinuationRow(
 
   const warnings: string[] = [];
 
-  const ssResult = validateDateStr(t4, "subStart", rowDesc);
+  const ssResult = validateDateStr(t4, 'subStart', rowDesc);
   if (ssResult.warning) warnings.push(ssResult.warning);
-  const seResult = validateDateStr(t5, "subEnd", rowDesc);
+  const seResult = validateDateStr(t5, 'subEnd', rowDesc);
   if (seResult.warning) warnings.push(seResult.warning);
 
   if (!ssResult.date || !seResult.date) {
@@ -399,18 +381,14 @@ function parseContinuationRow(
 /**
  * Parse a group of rows (header + optional continuation rows) into a TravelGroup.
  */
-function parseGroup(
-  rows: string[][],
-  groupIndex: number
-): ParseResult<{ group: TravelGroup; warnings: string[] }> {
-  if (rows.length === 0) return { ok: false, error: "Empty group" };
+function parseGroup(rows: string[][], groupIndex: number): ParseResult<{ group: TravelGroup; warnings: string[] }> {
+  if (rows.length === 0) return { ok: false, error: 'Empty group' };
 
   const rowDesc = `group ${groupIndex + 1}, row 1`;
   const headerResult = parseHeaderRow(rows[0], rowDesc);
   if (!headerResult.ok) return headerResult;
 
-  const { groupStart, groupEnd, bigLocation, firstSub, warnings } =
-    headerResult.value;
+  const { groupStart, groupEnd, bigLocation, firstSub, warnings } = headerResult.value;
   const subEntries: SubEntry[] = [];
 
   if (firstSub) subEntries.push(firstSub);
@@ -418,12 +396,7 @@ function parseGroup(
   // Parse continuation rows
   for (let i = 1; i < rows.length; i++) {
     const contDesc = `group ${groupIndex + 1}, row ${i + 1}`;
-    const contResult = parseContinuationRow(
-      rows[i],
-      groupStart,
-      groupEnd,
-      contDesc
-    );
+    const contResult = parseContinuationRow(rows[i], groupStart, groupEnd, contDesc);
     if (!contResult.ok) {
       warnings.push(`Skipped continuation row: ${contResult.error}`);
       continue;
@@ -457,7 +430,7 @@ function parseGroup(
  * otherwise comma. This allows both formats without mixing within a line.
  */
 function detectDelimiter(line: string): string {
-  return line.includes("\t") ? "\t" : ",";
+  return line.includes('\t') ? '\t' : ',';
 }
 
 function splitIntoGroups(text: string): string[][][] {
@@ -469,7 +442,7 @@ function splitIntoGroups(text: string): string[][][] {
     const delim = detectDelimiter(line);
     const tokens = line.split(delim);
     // Normalize to exactly 6 tokens
-    while (tokens.length < 6) tokens.push("");
+    while (tokens.length < 6) tokens.push('');
     const row = tokens.slice(0, 6);
 
     const isHeader = /^\d{8}$/.test(row[0].trim());
@@ -517,10 +490,7 @@ export interface TravelParseResult {
  * @param isDetailed  If true, use sub-locations; otherwise use big locations.
  * @returns TravelParseResult
  */
-export function parseTravelData(
-  dataText: string,
-  isDetailed: boolean
-): TravelParseResult {
+export function parseTravelData(dataText: string, isDetailed: boolean): TravelParseResult {
   const allWarnings: string[] = [];
   const rawGroups = splitIntoGroups(dataText);
   const groups: TravelGroup[] = [];
@@ -542,7 +512,7 @@ export function parseTravelData(
       endDate: today,
       dailyLocations: [[]],
       groups: [],
-      errors: allWarnings.length > 0 ? allWarnings : ["No valid groups found in input."],
+      errors: allWarnings.length > 0 ? allWarnings : ['No valid groups found in input.'],
     };
   }
 
@@ -555,10 +525,7 @@ export function parseTravelData(
   }
 
   const totalDays = daysBetween(minDate, maxDate) + 1;
-  const dailySets: Set<string>[] = Array.from(
-    { length: totalDays },
-    () => new Set<string>()
-  );
+  const dailySets: Set<string>[] = Array.from({ length: totalDays }, () => new Set<string>());
 
   for (const group of groups) {
     if (isDetailed) {
@@ -627,16 +594,9 @@ export function computeStats(result: TravelParseResult): CountryStat[] {
 /**
  * Slice a TravelParseResult to a custom date range.
  */
-export function sliceResult(
-  result: TravelParseResult,
-  customStart: Date,
-  customEnd: Date
-): TravelParseResult {
+export function sliceResult(result: TravelParseResult, customStart: Date, customEnd: Date): TravelParseResult {
   const startOffset = Math.max(0, daysBetween(result.startDate, customStart));
-  const endOffset = Math.min(
-    result.dailyLocations.length - 1,
-    daysBetween(result.startDate, customEnd)
-  );
+  const endOffset = Math.min(result.dailyLocations.length - 1, daysBetween(result.startDate, customEnd));
 
   const sliced = result.dailyLocations.slice(startOffset, endOffset + 1);
 

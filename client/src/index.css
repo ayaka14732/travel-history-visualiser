@@ -36,7 +36,10 @@
 :root {
   --radius: 0px;
   --font-sans: "SBB", "Helvetica Neue", Helvetica, Arial;
-  --font-cjk-sans: "Source Han Sans HC", "Source Han Sans K", "Noto Sans CJK KR", "Source Han Sans SC", "Noto Sans CJK SC", "Source Han Sans", "Noto Sans CJK JP", "Source Han Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans SC", "Noto Sans TC";
+  --font-cjk-sans:
+    "Source Han Sans HC", "Source Han Sans K", "Noto Sans CJK KR", "Source Han Sans SC", "Noto Sans CJK SC",
+    "Source Han Sans", "Noto Sans CJK JP", "Source Han Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans SC",
+    "Noto Sans TC";
   /* SBB Red */
   --primary: oklch(0.46 0.22 27);
   --primary-foreground: oklch(1 0 0);
@@ -51,7 +54,7 @@
   --secondary: oklch(0.95 0 0);
   --secondary-foreground: oklch(0.25 0 0);
   --muted: oklch(0.94 0 0);
-  --muted-foreground: oklch(0.50 0 0);
+  --muted-foreground: oklch(0.5 0 0);
   --accent: oklch(0.92 0 0);
   --accent-foreground: oklch(0.12 0 0);
   /* Destructive */
@@ -100,7 +103,7 @@
     @apply cursor-pointer;
   }
   .font-mono {
-    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-family: "IBM Plex Mono", "Courier New", monospace;
   }
 }
 
@@ -127,7 +130,7 @@
   background: oklch(0.94 0 0);
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.70 0 0);
+  background: oklch(0.7 0 0);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: oklch(0.46 0.22 27);
