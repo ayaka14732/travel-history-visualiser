@@ -78,10 +78,10 @@
     line-height: 1.4;
     -webkit-font-smoothing: antialiased;
   }
-  :lang(zh-TW) {
-    font-family: var(--font-sans), var(--font-cjk-sans), sans-serif;
-  }
-  :lang(en-GB) {
+  :lang(zh-TW),
+  :lang(en-GB),
+  :lang(fr-CH),
+  :lang(da-DK) {
     font-family: var(--font-sans), sans-serif;
   }
   /* Exclude Monaco Editor from :lang font overrides */
@@ -103,7 +103,7 @@
     @apply cursor-pointer;
   }
   .font-mono {
-    font-family: "IBM Plex Mono", "Courier New", monospace;
+    font-family: "IBM Plex Mono", "Courier New", var(--font-cjk-sans), monospace;
   }
 }
 

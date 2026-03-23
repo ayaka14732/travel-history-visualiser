@@ -657,7 +657,6 @@ function LocationChip({ location, locale }: { location: string; locale: CountryL
           backgroundColor: color.bg,
           color: color.text,
           border: `1px solid ${color.border}`,
-          fontFamily: "'IBM Plex Sans', sans-serif",
         }}
       >
         <span className="text-[14px] leading-none">{flag}</span>
@@ -672,7 +671,6 @@ function LocationChip({ location, locale }: { location: string; locale: CountryL
         backgroundColor: color.bg,
         color: color.text,
         border: `1px solid ${color.border}`,
-        fontFamily: "'IBM Plex Sans', sans-serif",
       }}
     >
       {displayName}
