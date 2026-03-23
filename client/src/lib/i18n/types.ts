@@ -13,9 +13,8 @@ export interface Translation {
   // ── Sidebar sections ──────────────────────────────────────────────────────
   languageSectionLabel: string; // "語言" / "Language"
   dataInputLabel: string;
-  dataInputPlaceholder: string;
   formatHelpBtn: string;
-  expandEditorBtn: string; // 放大編輯器按鈕
+  editDataBtn: string; // 編輯資料按鈕（開啟 Monaco Editor）
   editorDialogTitle: string; // Monaco 彈出視窗標題
   editorDialogApply: string; // 確認按鈕
   editorDialogCancel: string; // 取消按鈕

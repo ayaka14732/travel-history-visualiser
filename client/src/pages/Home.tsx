@@ -1061,7 +1061,7 @@ export default function Home() {
 
           {/* Data input */}
           <div className="px-3 py-2 border-b border-border">
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center justify-between">
               <label className="text-[13px] font-semibold text-[#555]">{t.dataInputLabel}</label>
               <button
                 onClick={() => {
@@ -1069,26 +1069,13 @@ export default function Home() {
                   setShowMonacoEditor(true);
                 }}
                 className="text-[12px] text-[#555] hover:text-[#EB0000] font-medium flex items-center gap-1"
-                title={t.expandEditorBtn}
               >
                 <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <path d="M1 6V1h5M10 1h5v5M15 10v5h-5M6 15H1v-5" />
+                  <path d="M11 2l3 3-8 8H3v-3l8-8z" />
                 </svg>
-                <span>{t.expandEditorBtn}</span>
+                <span>{t.editDataBtn}</span>
               </button>
             </div>
-            <textarea
-              className="w-full text-[13px] bg-[#fafafa] border border-border p-1.5 resize-none focus:outline-none focus:border-[#EB0000] text-[#333] leading-relaxed"
-              style={{ fontFamily: "'IBM Plex Mono', monospace", tabSize: 4 }}
-              rows={10}
-              value={dataText}
-              onChange={(e) => {
-                setDataText(e.target.value);
-                setUserEdited(true);
-              }}
-              placeholder={t.dataInputPlaceholder}
-              spellCheck={false}
-            />
           </div>
 
           {/* Mode toggle */}

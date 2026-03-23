@@ -8,8 +8,7 @@ const daDK: Translation = {
 
   // ── Sidebar ───────────────────────────────────────────────────────────────
   dataInputLabel: 'Rejsedata',
-  dataInputPlaceholder: 'Indsæt rejsedata her (tabulatorsepareret)…',
-  expandEditorBtn: 'Udvid editor',
+  editDataBtn: 'Rediger data',
   editorDialogTitle: 'Rediger rejseposter',
   editorDialogApply: 'Anvend',
   editorDialogCancel: 'Annuller',
