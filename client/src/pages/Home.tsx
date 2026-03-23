@@ -605,7 +605,7 @@ function LocationChip({ location, locale }: { location: string; locale: CountryL
   if (flag) {
     return (
       <span
-        className="inline-flex items-center gap-0.5 px-1 py-0 text-[12px] font-medium leading-[20px] whitespace-nowrap"
+        className="inline-flex items-center gap-1 px-1 py-0 text-[12px] font-medium leading-[20px] whitespace-nowrap"
         style={{
           backgroundColor: color.bg,
           color: color.text,
@@ -803,12 +803,12 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
 
   return (
     <div>
-      <div className="border-b border-border pb-1 mb-2">
+      <div className="border-border mb-1.5">
         <span className="text-[13px] font-semibold text-[#555]">
           {t.statsLabel}
         </span>
       </div>
-      <div className="flex gap-4 mb-3">
+      <div className="flex gap-4 pt-1 mb-3">
         {[
           { val: totalDays, label: t.statsTotalDays, red: true },
           { val: coveredDays, label: t.statsRecordedDays, red: false },
@@ -838,7 +838,7 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
                   ) : (
                     <span
                       className="inline-block flex-shrink-0"
-                      style={{ width: "1.1em", height: "1.1em", fontSize: "18px", backgroundColor: color.border, verticalAlign: "middle" }}
+                      style={{ width: "1.2em", height: "0.9em", borderRadius: "2px", fontSize: "18px", backgroundColor: color.border, verticalAlign: "middle" }}
                     />
                   );
                 })()}
@@ -1027,7 +1027,7 @@ export default function Home() {
               </label>
               <button
                   onClick={() => { setMonacoEditorText(dataText); setShowMonacoEditor(true); }}
-                  className="text-[12px] text-[#555] hover:text-[#EB0000] font-medium flex items-center gap-0.5"
+                  className="text-[12px] text-[#555] hover:text-[#EB0000] font-medium flex items-center gap-1"
                   title={t.expandEditorBtn}
                 >
                   <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
