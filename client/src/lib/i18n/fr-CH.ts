@@ -16,8 +16,8 @@ const frCH: Translation = {
   formatHelpBtn: 'Guide de format ?',
 
   displayModeLabel: "Mode d'affichage",
-  modeDetailed: 'Mode sous-lieu',
-  modeOverview: 'Mode lieu principal',
+  modeDetailed: 'Mode petit lieu',
+  modeOverview: 'Mode grand lieu',
 
   weekStartLabel: 'Début de semaine',
   weekStartSun: 'Dimanche',
@@ -58,7 +58,7 @@ const frCH: Translation = {
   // ── Calendar empty state ──────────────────────────────────────────────────
   emptyTitle: 'Collez vos données et cliquez sur « Analyser et afficher »',
   emptyDesc:
-    "Trois formats sont pris en charge : groupes multi-lignes (lieu principal + sous-lieux), ligne unique avec sous-lieu, et ligne unique lieu principal uniquement. Des données d'exemple sont préchargées à gauche.",
+    "Trois formats sont pris en charge : groupes multi-lignes (grand lieu + petits lieux), ligne unique avec petit lieu, et ligne unique grand lieu uniquement. Des données d'exemple sont préchargées à gauche.",
   emptyHelpLink: 'Voir le guide de format →',
 
   // ── Weekdays (Sun–Sat) ────────────────────────────────────────────────────
@@ -81,34 +81,34 @@ const frCH: Translation = {
   helpIntroCont: ' pour séparer 6 champs par ligne. Trois formats sont pris en charge :',
   helpEmptyCell: 'vide',
 
-  helpType1Title: 'Format 1 : Groupe multi-lignes (lieu principal + sous-lieux)',
+  helpType1Title: 'Format 1 : Groupe multi-lignes (grand lieu + petits lieux)',
   helpType1Desc:
-    'La première ligne contient les dates de début/fin globales, le nom du lieu principal et le premier sous-lieu. Les lignes suivantes commencent par trois champs vides et listent les sous-lieux supplémentaires.',
-  helpType1ColHeader: 'Champs : [Début groupe] [Fin groupe] [Lieu principal] [Sous-lieu] [Début sous] [Fin sous]',
+    'La première ligne contient les dates de début/fin globales, le nom du grand lieu et le premier petit lieu. Les lignes suivantes commencent par trois champs vides et listent les petits lieux supplémentaires.',
+  helpType1ColHeader: 'Champs : [Début groupe] [Fin groupe] [Grand lieu] [Petit lieu] [Début petit] [Fin petit]',
   helpType1Note:
-    "Cela signifie du 29 au 30 juin 2024 dans l'Espace Schengen (lieu principal) ; sous-lieux : Suisse et France le 29 juin, Suisse du 29 au 30 juin.",
+    "Cela signifie du 29 au 30 juin 2024 dans l'Espace Schengen (grand lieu) ; petits lieux : Suisse et France le 29 juin, Suisse du 29 au 30 juin.",
 
-  helpType2Title: 'Format 2 : Ligne unique avec lieu principal et sous-lieu',
+  helpType2Title: 'Format 2 : Ligne unique avec grand lieu et petit lieu',
   helpType2Desc:
-    'Une seule ligne. Le champ 4 contient le sous-lieu ; les champs 5 et 6 sont vides. La plage de dates du sous-lieu correspond à celle du lieu principal.',
-  helpType2ColHeader: 'Champs : [Début] [Fin] [Lieu principal] [Sous-lieu] [vide] [vide]',
+    'Une seule ligne. Le champ 4 contient le petit lieu ; les champs 5 et 6 sont vides. La plage de dates du petit lieu correspond à celle du grand lieu.',
+  helpType2ColHeader: 'Champs : [Début] [Fin] [Grand lieu] [Petit lieu] [vide] [vide]',
   helpType2Note:
-    'Cela signifie du 30 juin au 5 juillet 2024 au Royaume-Uni (lieu principal), sous-lieu Angleterre, même plage de dates.',
+    'Cela signifie du 30 juin au 5 juillet 2024 au Royaume-Uni (grand lieu), petit lieu Angleterre, même plage de dates.',
 
-  helpType3Title: 'Format 3 : Ligne unique, lieu principal uniquement',
+  helpType3Title: 'Format 3 : Ligne unique, grand lieu uniquement',
   helpType3Desc:
-    'Une seule ligne. Les champs 4, 5 et 6 sont tous vides. Le sous-lieu prend par défaut la même valeur que le lieu principal.',
-  helpType3ColHeader: 'Champs : [Début] [Fin] [Lieu principal] [vide] [vide] [vide]',
+    'Une seule ligne. Les champs 4, 5 et 6 sont tous vides. Le petit lieu prend par défaut la même valeur que le grand lieu.',
+  helpType3ColHeader: 'Champs : [Début] [Fin] [Grand lieu] [vide] [vide] [vide]',
   helpType3Note:
-    'Cela signifie du 18 au 21 juillet 2024 en Chine ; le lieu principal et le sous-lieu sont tous deux la Chine.',
+    'Cela signifie du 18 au 21 juillet 2024 en Chine ; le grand lieu et le petit lieu sont tous deux la Chine.',
 
   helpNotesTitle: 'Remarques',
   helpNote1: 'Le format de date est AAAAMMJJ (8 chiffres, sans séparateurs).',
   helpNote2:
     'Les champs sont séparés par Tab (\u21e5) ou virgule (,) — les deux fonctionnent, mais ne mélangez pas les deux sur la même ligne.',
   helpNote3:
-    "Si le même jour apparaît dans plusieurs enregistrements de sous-lieux (ex. 20240224 Danemark), il n'est compté qu'une seule fois.",
-  helpNote4: 'Le « Mode sous-lieu » utilise les sous-lieux ; le « Mode lieu principal » utilise les lieux principaux.',
+    "Si le même jour apparaît dans plusieurs enregistrements de petits lieux (ex. 20240224 Danemark), il n'est compté qu'une seule fois.",
+  helpNote4: 'Le « Mode petit lieu » utilise les petits lieux ; le « Mode grand lieu » utilise les grands lieux.',
   helpNote5: 'Les lignes vides entre les enregistrements sont ignorées.',
 
   helpExampleTitle: 'Exemple complet',

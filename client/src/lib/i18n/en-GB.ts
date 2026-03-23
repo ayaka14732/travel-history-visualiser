@@ -16,7 +16,7 @@ const enGB: Translation = {
   formatHelpBtn: 'Format Help ?',
 
   displayModeLabel: 'Display Mode',
-  modeDetailed: 'Sub-location Mode',
+  modeDetailed: 'Minor Location Mode',
   modeOverview: 'Major Location Mode',
 
   weekStartLabel: 'Week Starts On',
@@ -58,7 +58,7 @@ const enGB: Translation = {
   // ── Calendar empty state ──────────────────────────────────────────────────
   emptyTitle: 'Paste your travel records and click "Parse & Display"',
   emptyDesc:
-    'Three formats are supported: multi-line groups (region + sub-locations), single-line with sub-location, and single-line region only. Sample data is pre-loaded on the left.',
+    'Three formats are supported: multi-line groups (major location + minor locations), single-line with minor location, and single-line major location only. Sample data is pre-loaded on the left.',
   emptyHelpLink: 'View format guide \u2192',
 
   // ── Weekdays (Sun\u2013Sat) ────────────────────────────────────────────────────
@@ -81,31 +81,31 @@ const enGB: Translation = {
   helpIntroCont: ' to separate 6 fields per line. Three formats are supported:',
   helpEmptyCell: 'Empty',
 
-  helpType1Title: 'Format 1: Multi-line group (region + sub-locations)',
+  helpType1Title: 'Format 1: Multi-line group (major location + minor locations)',
   helpType1Desc:
-    'The first line contains the overall start/end dates, the region name, and the first sub-location. Subsequent lines begin with three empty fields and list additional sub-locations.',
-  helpType1ColHeader: 'Fields: [Group Start] [Group End] [Region] [Sub-location] [Sub Start] [Sub End]',
+    'The first line contains the overall start/end dates, the major location name, and the first minor location. Subsequent lines begin with three empty fields and list additional minor locations.',
+  helpType1ColHeader: 'Fields: [Group Start] [Group End] [Major Location] [Minor Location] [Minor Start] [Minor End]',
   helpType1Note:
-    'This means 2024-06-29 to 2024-06-30 in the Schengen Area (region); sub-locations: Switzerland and France on 29 Jun, Switzerland on 29\u201330 Jun.',
+    'This means 2024-06-29 to 2024-06-30 in the Schengen Area (major location); minor locations: Switzerland and France on 29 Jun, Switzerland on 29\u201330 Jun.',
 
-  helpType2Title: 'Format 2: Single line with region and sub-location',
+  helpType2Title: 'Format 2: Single line with major location and minor location',
   helpType2Desc:
-    'One line only. Field 4 contains the sub-location; fields 5 and 6 are empty. The sub-location date range matches the region.',
-  helpType2ColHeader: 'Fields: [Start] [End] [Region] [Sub-location] [Empty] [Empty]',
-  helpType2Note: 'This means 2024-06-30 to 2024-07-05 in the UK (region), sub-location England, same date range.',
+    'One line only. Field 4 contains the minor location; fields 5 and 6 are empty. The minor location date range matches the major location.',
+  helpType2ColHeader: 'Fields: [Start] [End] [Major Location] [Minor Location] [Empty] [Empty]',
+  helpType2Note: 'This means 2024-06-30 to 2024-07-05 in the UK (major location), minor location England, same date range.',
 
-  helpType3Title: 'Format 3: Single line, region only',
+  helpType3Title: 'Format 3: Single line, major location only',
   helpType3Desc:
-    'One line only. Fields 4, 5, and 6 are all empty. The sub-location defaults to the same as the region.',
-  helpType3ColHeader: 'Fields: [Start] [End] [Region] [Empty] [Empty] [Empty]',
-  helpType3Note: 'This means 2024-07-18 to 2024-07-21 in China; both region and sub-location are China.',
+    'One line only. Fields 4, 5, and 6 are all empty. The minor location defaults to the same as the major location.',
+  helpType3ColHeader: 'Fields: [Start] [End] [Major Location] [Empty] [Empty] [Empty]',
+  helpType3Note: 'This means 2024-07-18 to 2024-07-21 in China; both major location and minor location are China.',
 
   helpNotesTitle: 'Notes',
   helpNote1: 'Date format is YYYYMMDD (8 digits, no separators).',
   helpNote2: 'Fields are separated by Tab (\u21e5) or comma (,) — either works, but do not mix both in the same line.',
   helpNote3:
-    'If the same day appears in multiple sub-location records (e.g. 20240224 Denmark), it is counted only once.',
-  helpNote4: '"Sub-location Mode" uses sub-locations; "Region Mode" uses regions.',
+    'If the same day appears in multiple minor location records (e.g. 20240224 Denmark), it is counted only once.',
+  helpNote4: '"Minor Location Mode" uses minor locations; "Major Location Mode" uses major locations.',
   helpNote5: 'Blank lines between records are ignored.',
 
   helpExampleTitle: 'Full Example',

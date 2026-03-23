@@ -2,7 +2,7 @@ import type { Translation } from './types';
 
 const daDK: Translation = {
   // ── Meta ──────────────────────────────────────────────────────────────────
-  appTitle: 'Rejsehistorik',
+  appTitle: 'Visualisering af rejsehistorik',
   langLabel: 'Dansk',
   languageSectionLabel: 'Sprog',
 
@@ -16,8 +16,8 @@ const daDK: Translation = {
   formatHelpBtn: 'Formathjælp ?',
 
   displayModeLabel: 'Visningstilstand',
-  modeDetailed: 'Understed-tilstand',
-  modeOverview: 'Hovedsted-tilstand',
+  modeDetailed: 'Lille sted-tilstand',
+  modeOverview: 'Stort sted-tilstand',
 
   weekStartLabel: 'Uge starter på',
   weekStartSun: 'Søndag',
@@ -58,7 +58,7 @@ const daDK: Translation = {
   // ── Calendar empty state ──────────────────────────────────────────────────
   emptyTitle: 'Indsæt rejsedata og klik "Analysér og vis"',
   emptyDesc:
-    'Tre formater understøttes: flerlinjegrupper (region + understeder), enkeltlinje med understed og enkeltlinje kun med region. Eksempeldata er forudindlæst til venstre.',
+    'Tre formater understøttes: flerlinjegrupper (stort sted + små steder), enkeltlinje med lille sted og enkeltlinje kun med stort sted. Eksempeldata er forudindlæst til venstre.',
   emptyHelpLink: 'Se formatguide →',
 
   // ── Weekdays (Sun–Sat) ────────────────────────────────────────────────────
@@ -81,29 +81,29 @@ const daDK: Translation = {
   helpIntroCont: ' til at adskille 6 felter pr. linje. Tre formater understøttes:',
   helpEmptyCell: 'Tom',
 
-  helpType1Title: 'Format 1: Flerlinjegruppe (region + understeder)',
+  helpType1Title: 'Format 1: Flerlinjegruppe (stort sted + små steder)',
   helpType1Desc:
-    'Første linje indeholder de overordnede start-/slutdatoer, regionnavnet og det første understed. Efterfølgende linjer begynder med tre tomme felter og angiver yderligere understeder.',
-  helpType1ColHeader: 'Felter: [Gruppestart] [Gruppeslut] [Region] [Understed] [Understart] [Underslut]',
+    'Første linje indeholder de overordnede start-/slutdatoer, det store steds navn og det første lille sted. Efterfølgende linjer begynder med tre tomme felter og angiver yderligere små steder.',
+  helpType1ColHeader: 'Felter: [Gruppestart] [Gruppeslut] [Stort sted] [Lille sted] [Lille start] [Lille slut]',
   helpType1Note:
-    'Dette betyder 2024-06-29 til 2024-06-30 i Schengenområdet (region); understeder: Schweiz og Frankrig den 29. jun, Schweiz den 29.–30. jun.',
+    'Dette betyder 2024-06-29 til 2024-06-30 i Schengenområdet (stort sted); små steder: Schweiz og Frankrig den 29. jun, Schweiz den 29.–30. jun.',
 
-  helpType2Title: 'Format 2: Enkeltlinje med region og understed',
+  helpType2Title: 'Format 2: Enkeltlinje med stort sted og lille sted',
   helpType2Desc:
-    'Kun én linje. Felt 4 indeholder understedet; felt 5 og 6 er tomme. Understedets datointerval svarer til regionens.',
-  helpType2ColHeader: 'Felter: [Start] [Slut] [Region] [Understed] [Tom] [Tom]',
-  helpType2Note: 'Dette betyder 2024-06-30 til 2024-07-05 i UK (region), understed England, samme datointerval.',
+    'Kun én linje. Felt 4 indeholder det lille sted; felt 5 og 6 er tomme. Det lille steds datointerval svarer til det store steds.',
+  helpType2ColHeader: 'Felter: [Start] [Slut] [Stort sted] [Lille sted] [Tom] [Tom]',
+  helpType2Note: 'Dette betyder 2024-06-30 til 2024-07-05 i UK (stort sted), lille sted England, samme datointerval.',
 
-  helpType3Title: 'Format 3: Enkeltlinje, kun region',
-  helpType3Desc: 'Kun én linje. Felt 4, 5 og 6 er alle tomme. Understedet er som standard det samme som regionen.',
-  helpType3ColHeader: 'Felter: [Start] [Slut] [Region] [Tom] [Tom] [Tom]',
-  helpType3Note: 'Dette betyder 2024-07-18 til 2024-07-21 i Kina; både region og understed er Kina.',
+  helpType3Title: 'Format 3: Enkeltlinje, kun stort sted',
+  helpType3Desc: 'Kun én linje. Felt 4, 5 og 6 er alle tomme. Det lille sted er som standard det samme som det store sted.',
+  helpType3ColHeader: 'Felter: [Start] [Slut] [Stort sted] [Tom] [Tom] [Tom]',
+  helpType3Note: 'Dette betyder 2024-07-18 til 2024-07-21 i Kina; både stort sted og lille sted er Kina.',
 
   helpNotesTitle: 'Bemærkninger',
   helpNote1: 'Datoformat er YYYYMMDD (8 cifre, ingen separatorer).',
   helpNote2: 'Felter adskilles af Tab (\u21e5) eller komma (,) — begge virker, men bland dem ikke på samme linje.',
-  helpNote3: 'Hvis samme dag optræder i flere understeds-poster (f.eks. 20240224 Danmark), tælles den kun én gang.',
-  helpNote4: '"Understed-tilstand" bruger understeder; "Hovedsted-tilstand" bruger regioner.',
+  helpNote3: 'Hvis samme dag optræder i flere lille sted-poster (f.eks. 20240224 Danmark), tælles den kun én gang.',
+  helpNote4: '"Lille sted-tilstand" bruger små steder; "Stort sted-tilstand" bruger store steder.',
   helpNote5: 'Tomme linjer mellem poster ignoreres.',
 
   helpExampleTitle: 'Fuldt eksempel',
