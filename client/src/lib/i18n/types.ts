@@ -24,6 +24,10 @@ export interface Translation {
   modeDetailed: string;   // 小地點模式
   modeOverview: string;   // 大地點模式
 
+  weekStartLabel: string;   // 週起始
+  weekStartSun: string;     // 星期日
+  weekStartMon: string;     // 星期一
+
   parseBtn: string;
   showCalendarBtn: string; // mobile only
 

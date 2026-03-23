@@ -20,6 +20,10 @@ const frCH: Translation = {
   modeDetailed: "Mode sous-lieu",
   modeOverview: "Mode lieu principal",
 
+  weekStartLabel: "Début de semaine",
+  weekStartSun: "Dimanche",
+  weekStartMon: "Lundi",
+
   parseBtn: "Analyser et afficher",
   showCalendarBtn: "Afficher le calendrier",
 

@@ -20,6 +20,10 @@ const zhTW: Translation = {
   modeDetailed: "小地點模式",
   modeOverview: "大地點模式",
 
+  weekStartLabel: "週起始",
+  weekStartSun: "週日",
+  weekStartMon: "週一",
+
   parseBtn: "解析並顯示",
   showCalendarBtn: "顯示日曆",
 
@@ -41,7 +45,7 @@ const zhTW: Translation = {
   statsTotalDays: "總天數",
   statsRecordedDays: "有記錄",
   statsLocations: "地點數",
-  statsDaysSuffix: "天",
+  statsDaysSuffix: " 天",
 
   // ── Errors ────────────────────────────────────────────────────────────────
   errorsLabel: "錯誤",
@@ -50,7 +54,7 @@ const zhTW: Translation = {
 
   // ── Calendar top bar ──────────────────────────────────────────────────────
   calendarLabel: "日曆",
-  calendarDaysSuffix: "天",
+  calendarDaysSuffix: " 天",
 
   // ── Calendar empty state ──────────────────────────────────────────────────
   emptyTitle: "貼上旅行記錄，點擊「解析並顯示」",

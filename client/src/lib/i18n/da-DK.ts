@@ -20,6 +20,10 @@ const daDK: Translation = {
   modeDetailed: "Understed-tilstand",
   modeOverview: "Hovedsted-tilstand",
 
+  weekStartLabel: "Uge starter på",
+  weekStartSun: "Søndag",
+  weekStartMon: "Mandag",
+
   parseBtn: "Analysér og vis",
   showCalendarBtn: "Vis kalender",
 

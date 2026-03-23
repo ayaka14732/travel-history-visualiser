@@ -20,6 +20,10 @@ const enGB: Translation = {
   modeDetailed: "Sub-location Mode",
   modeOverview: "Major Location Mode",
 
+  weekStartLabel: "Week Starts On",
+  weekStartSun: "Sunday",
+  weekStartMon: "Monday",
+
   parseBtn: "Parse & Display",
   showCalendarBtn: "Show Calendar",
 

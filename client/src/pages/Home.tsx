@@ -426,10 +426,11 @@ interface CalendarPopupProps {
   viewStart: Date;
   viewEnd: Date;
   isDetailed: boolean;
+  weekStartsMonday: boolean;
   onClose: () => void;
 }
 
-function CalendarPopup({ result, viewStart, viewEnd, isDetailed, onClose }: CalendarPopupProps) {
+function CalendarPopup({ result, viewStart, viewEnd, isDetailed, weekStartsMonday, onClose }: CalendarPopupProps) {
   const { t } = useLocale();
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-white">
@@ -453,7 +454,7 @@ function CalendarPopup({ result, viewStart, viewEnd, isDetailed, onClose }: Cale
         </button>
       </div>
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <CalendarGrid result={result} viewStart={viewStart} viewEnd={viewEnd} />
+        <CalendarGrid result={result} viewStart={viewStart} viewEnd={viewEnd} weekStartsMonday={weekStartsMonday} />
       </div>
     </div>
   );
@@ -672,9 +673,9 @@ function DayCell({ date, locations, isToday, isWeekend, isFirstOfMonth }: DayCel
         >
           {String(dayNum).padStart(2, "0")}
         </span>
-        <span className="text-[11px] text-[#ccc] leading-none">
+        {/* <span className="text-[11px] text-[#ccc] leading-none">
           {t.weekdays[date.getDay()]}
-        </span>
+        </span> */}
       </div>
       {isEmpty ? (
         <span className="text-[12px] text-[#ddd] mt-1">
@@ -698,9 +699,10 @@ interface CalendarGridProps {
   result: TravelParseResult;
   viewStart: Date;
   viewEnd: Date;
+  weekStartsMonday: boolean;
 }
 
-function CalendarGrid({ result, viewStart, viewEnd }: CalendarGridProps) {
+function CalendarGrid({ result, viewStart, viewEnd, weekStartsMonday }: CalendarGridProps) {
   const { t } = useLocale();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -718,7 +720,10 @@ function CalendarGrid({ result, viewStart, viewEnd }: CalendarGridProps) {
     days.push({ date, locations });
   }
 
-  const startDow = viewStart.getDay();
+  // weekStartsMonday: Sun=0→6, Mon=1→0, …, Sat=6→5; else use getDay() directly
+  const startDow = weekStartsMonday
+    ? (viewStart.getDay() + 6) % 7
+    : viewStart.getDay();
   const paddedDays: Array<{ date: Date | null; locations: string[] }> = [
     ...Array.from({ length: startDow }, () => ({ date: null as Date | null, locations: [] as string[] })),
     ...days,
@@ -736,15 +741,20 @@ function CalendarGrid({ result, viewStart, viewEnd }: CalendarGridProps) {
     weeks.push(paddedDays.slice(i, i + 7));
   }
 
+  const orderedWeekdays = weekStartsMonday
+    ? [...t.weekdays.slice(1), t.weekdays[0]]
+    : [...t.weekdays];
+  const weekendCols = weekStartsMonday ? [5, 6] : [0, 6];
+
   return (
     <div className="w-full">
       <div className="grid grid-cols-7 border-t border-l border-border sticky top-0 z-10 bg-white">
-        {t.weekdays.map((d, i) => (
+        {orderedWeekdays.map((d, i) => (
           <div
             key={d}
             className={[
               "border-b border-r border-border px-1 py-1.5 text-center text-[12px] font-semibold",
-              i === 0 || i === 6 ? "text-[#999] bg-[#fafafa]" : "text-[#555]",
+              weekendCols.includes(i) ? "text-[#999] bg-[#fafafa]" : "text-[#555]",
             ].join(" ")}
           >
             {d}
@@ -883,6 +893,7 @@ export default function Home() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
   const [isDetailed, setIsDetailed] = useState(true);
+  const [weekStartsMonday, setWeekStartsMonday] = useState(true);
   const [parseResult, setParseResult] = useState<TravelParseResult | null>(null);
   const [parseError, setParseError] = useState<string[] | null>(null);
   const [showHelp, setShowHelp] = useState(false);
@@ -995,6 +1006,7 @@ export default function Home() {
           viewStart={viewStart}
           viewEnd={viewEnd}
           isDetailed={isDetailed}
+          weekStartsMonday={weekStartsMonday}
           onClose={() => setShowCalendarPopup(false)}
         />
       )}
@@ -1077,6 +1089,37 @@ export default function Home() {
                 ].join(" ")}
               >
                 {t.modeOverview}
+              </button>
+            </div>
+          </div>
+
+          {/* Week start toggle */}
+          <div className="px-3 py-2 border-b border-border">
+            <label className="block text-[13px] font-semibold text-[#555] mb-1.5">
+              {t.weekStartLabel}
+            </label>
+            <div className="flex">
+              <button
+                onClick={() => setWeekStartsMonday(false)}
+                className={[
+                  "flex-1 py-1.5 text-[13px] font-medium border",
+                  !weekStartsMonday
+                    ? "bg-[#EB0000] text-white border-[#EB0000]"
+                    : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
+                ].join(" ")}
+              >
+                {t.weekStartSun}
+              </button>
+              <button
+                onClick={() => setWeekStartsMonday(true)}
+                className={[
+                  "flex-1 py-1.5 text-[13px] font-medium border-t border-b border-r",
+                  weekStartsMonday
+                    ? "bg-[#EB0000] text-white border-[#EB0000]"
+                    : "bg-white text-[#555] border-border hover:bg-[#f5f5f5]",
+                ].join(" ")}
+              >
+                {t.weekStartMon}
               </button>
             </div>
           </div>
@@ -1258,7 +1301,7 @@ export default function Home() {
               </button>
             </div>
           ) : (
-            <CalendarGrid result={parseResult} viewStart={viewStart} viewEnd={viewEnd} />
+            <CalendarGrid result={parseResult} viewStart={viewStart} viewEnd={viewEnd} weekStartsMonday={weekStartsMonday} />
           )}
         </div>
       </main>
