@@ -21,9 +21,12 @@ const enGB: Translation = {
   builtWith: 'Built with',
   builtWithSep: ', ',
   builtWithSuffix: ' and ❤️',
-  sponsorLabel: 'Sponsor',
-  sponsorDesc1: 'Travel History Visualiser helps you keep a precise record of the days you have spent in each country and region, including Schengen Area calculations, so you can plan your trips with confidence and never accidentally exceed your permitted stay.',
-  sponsorDesc2: 'This tool was built using vibe coding together with careful manual debugging. vibe coding relies on AI assistance, which means real token costs with every iteration. Manual debugging, meanwhile, demands time and patience at every step. If this app has been useful to you, I would be genuinely grateful for your support. Even a small tip, enough for a coffee, means a lot and helps keep the project going.',
+  sponsorLabel: 'Sponsor Me',
+  sponsorDesc1:
+    'Travel History Visualiser helps you keep a precise record of the days you have spent in each country and region, including Schengen Area calculations, so you can plan your trips with confidence and never accidentally exceed your permitted stay.',
+  sponsorDesc2:
+    'This tool was built using vibe coding together with careful manual debugging. Vibe coding relies on AI assistance, which means real token costs with every iteration. Manual debugging, meanwhile, demands time and patience at every step. If this app has been useful to you, I would be genuinely grateful for your support. Even a small tip, enough for a cup of tea, means a lot and helps keep the project going.',
+  sponsorDesc3: 'Thank you for your support.',
 
   displayModeLabel: 'Display Mode',
   modeDetailed: 'Minor Location Mode',

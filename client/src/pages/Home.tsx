@@ -304,7 +304,7 @@ function AboutPopup({ onClose }: { onClose: () => void }) {
                 rel="noopener noreferrer"
                 className="text-[#EB0000] hover:underline"
               >
-                github.com/ayaka14732/travel-history-visualiser-manus
+                https://github.com/ayaka14732/travel-history-visualiser-manus
               </a>
             </div>
           </div>
@@ -313,6 +313,7 @@ function AboutPopup({ onClose }: { onClose: () => void }) {
             <div className="text-[12px] font-semibold text-[#222]">{t.sponsorLabel}</div>
             <p className="text-[12px] text-[#555] leading-relaxed">{t.sponsorDesc1}</p>
             <p className="text-[12px] text-[#555] leading-relaxed">{t.sponsorDesc2}</p>
+            <p className="text-[12px] text-[#555] leading-relaxed">{t.sponsorDesc3}</p>
             <div className="flex gap-4 justify-center pt-1">
               <div className="flex flex-col items-center gap-1">
                 <img
@@ -1197,61 +1198,57 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Mode toggle */}
+          {/* Mode radio */}
           <div className="px-3 py-2 border-b border-border">
-            <label className="block text-[13px] font-semibold text-[#555] mb-1.5">{t.displayModeLabel}</label>
-            <div className="flex">
-              <button
-                onClick={() => setIsDetailed(true)}
-                className={[
-                  'flex-1 py-1.5 text-[13px] font-medium border',
-                  isDetailed ?
-                    'bg-[#EB0000] text-white border-[#EB0000]'
-                  : 'bg-white text-[#555] border-border hover:bg-[#f5f5f5]',
-                ].join(' ')}
-              >
+            <span className="block text-[13px] font-semibold text-[#555] mb-1.5">{t.displayModeLabel}</span>
+            <div className="grid grid-cols-2">
+              <label className="flex items-center gap-1.5 text-[13px] text-[#555] cursor-pointer">
+                <input
+                  type="radio"
+                  name="displayMode"
+                  checked={isDetailed}
+                  onChange={() => setIsDetailed(true)}
+                  className="accent-[#EB0000]"
+                />
                 {t.modeDetailed}
-              </button>
-              <button
-                onClick={() => setIsDetailed(false)}
-                className={[
-                  'flex-1 py-1.5 text-[13px] font-medium border-t border-b border-r',
-                  !isDetailed ?
-                    'bg-[#EB0000] text-white border-[#EB0000]'
-                  : 'bg-white text-[#555] border-border hover:bg-[#f5f5f5]',
-                ].join(' ')}
-              >
+              </label>
+              <label className="flex items-center gap-1.5 text-[13px] text-[#555] cursor-pointer">
+                <input
+                  type="radio"
+                  name="displayMode"
+                  checked={!isDetailed}
+                  onChange={() => setIsDetailed(false)}
+                  className="accent-[#EB0000]"
+                />
                 {t.modeOverview}
-              </button>
+              </label>
             </div>
           </div>
 
-          {/* Week start toggle */}
+          {/* Week start radio */}
           <div className="px-3 py-2 border-b border-border">
-            <label className="block text-[13px] font-semibold text-[#555] mb-1.5">{t.weekStartLabel}</label>
-            <div className="flex">
-              <button
-                onClick={() => setWeekStartsMonday(false)}
-                className={[
-                  'flex-1 py-1.5 text-[13px] font-medium border',
-                  !weekStartsMonday ?
-                    'bg-[#EB0000] text-white border-[#EB0000]'
-                  : 'bg-white text-[#555] border-border hover:bg-[#f5f5f5]',
-                ].join(' ')}
-              >
+            <span className="block text-[13px] font-semibold text-[#555] mb-1.5">{t.weekStartLabel}</span>
+            <div className="grid grid-cols-2">
+              <label className="flex items-center gap-1.5 text-[13px] text-[#555] cursor-pointer">
+                <input
+                  type="radio"
+                  name="weekStart"
+                  checked={!weekStartsMonday}
+                  onChange={() => setWeekStartsMonday(false)}
+                  className="accent-[#EB0000]"
+                />
                 {t.weekStartSun}
-              </button>
-              <button
-                onClick={() => setWeekStartsMonday(true)}
-                className={[
-                  'flex-1 py-1.5 text-[13px] font-medium border-t border-b border-r',
-                  weekStartsMonday ?
-                    'bg-[#EB0000] text-white border-[#EB0000]'
-                  : 'bg-white text-[#555] border-border hover:bg-[#f5f5f5]',
-                ].join(' ')}
-              >
+              </label>
+              <label className="flex items-center gap-1.5 text-[13px] text-[#555] cursor-pointer">
+                <input
+                  type="radio"
+                  name="weekStart"
+                  checked={weekStartsMonday}
+                  onChange={() => setWeekStartsMonday(true)}
+                  className="accent-[#EB0000]"
+                />
                 {t.weekStartMon}
-              </button>
+              </label>
             </div>
           </div>
 

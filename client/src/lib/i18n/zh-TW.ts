@@ -21,9 +21,12 @@ const zhTW: Translation = {
   builtWith: '使用',
   builtWithSep: '、',
   builtWithSuffix: ' 與 ❤️ 製作',
-  sponsorLabel: '打賞',
-  sponsorDesc1: '旅行記錄視覺化器幫助你精確追蹤在各國家和地區停留的天數，包括申根區域的日數計算，讓你能夠從容規劃行程，避免不小心超出允許的停留時限。',
-  sponsorDesc2: '這個工具採用氛圍編程（vibe coding）結合手動 debug 的方式開發而成。氛圍編程每一次迭代都需要消耗 AI token，是實實在在的金錢成本；手動 debug 則需要投入大量時間與精力，每一個細節都要反覆推敲。若這個工具對你有所幫助，非常期待你的支持，哪怕是請我喝杯咖啡，都是對這個項目莫大的鼓勵。',
+  sponsorLabel: '給我打賞',
+  sponsorDesc1:
+    '旅行記錄視覺化器幫助您精確追蹤在各國家和地區停留的天數，包括申根區域的日數計算，讓您能夠從容規劃行程，避免不小心超出允許的停留時限。',
+  sponsorDesc2:
+    '這個工具採用氛圍編程（vibe coding）結合手動除錯（debug）的方式開發而成。氛圍編程每一次迭代都需要消耗 AI token，是實實在在的金錢成本；手動除錯則需要投入大量時間與精力，每一個細節都要反覆推敲。若這個工具對您有所幫助，非常期待您的支持，哪怕是請我喝杯奶茶，都是對這個項目莫大的鼓勵。',
+  sponsorDesc3: '謝謝您的支持。',
 
   displayModeLabel: '顯示模式',
   modeDetailed: '小地點模式',

@@ -18,12 +18,13 @@ export interface Translation {
   aboutBtn: string;
   aboutTitle: string;
   aboutDescription: string; // short app description shown in About popup
-  builtWith: string;     // prefix: "Built with" / "使用"
-  builtWithSep: string;  // connector between the two links: " & " / "、"
+  builtWith: string; // prefix: "Built with" / "使用"
+  builtWithSep: string; // connector between the two links: " & " / "、"
   builtWithSuffix: string; // trailing text: "" / " 和❤️製作"
   sponsorLabel: string; // "打賞" / "Sponsor"
   sponsorDesc1: string; // paragraph about the app's usefulness
   sponsorDesc2: string; // paragraph about development effort + donation ask
+  sponsorDesc3: string; // closing thank-you
   editDataBtn: string; // 編輯資料按鈕（開啟 Monaco Editor）
   editorDialogTitle: string; // Monaco 彈出視窗標題
   editorDialogApply: string; // 確認按鈕

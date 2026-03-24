@@ -21,9 +21,12 @@ const daDK: Translation = {
   builtWith: 'Bygget med',
   builtWithSep: ', ',
   builtWithSuffix: ' og ❤️',
-  sponsorLabel: 'Støt projektet',
-  sponsorDesc1: 'Travel History Visualiser hjælper dig med at holde præcist styr på de dage, du har tilbragt i hvert land og region, herunder beregninger for Schengen-området, så du kan planlægge dine rejser med ro i sindet og undgå utilsigtet at overskride din tilladte opholdstid.',
-  sponsorDesc2: 'Dette værktøj er bygget med vibe coding kombineret med omhyggelig manuel fejlretning. vibe coding er afhængig af AI-assistance, hvilket medfører reelle token-udgifter ved hver iteration. Manuel fejlretning kræver tid og tålmodighed ved hvert trin. Hvis det har været nyttigt for dig, ville jeg være meget taknemmelig for din støtte. Selv et lille bidrag, nok til en kop kaffe, betyder meget og holder projektet i live.',
+  sponsorLabel: 'Støt mig',
+  sponsorDesc1:
+    'Visualisering af rejsehistorik hjælper dig med at holde præcist styr på de dage, du har tilbragt i hvert land og region, herunder beregninger for Schengen-området, så du kan planlægge dine rejser med ro i sindet og undgå utilsigtet at overskride din tilladte opholdstid.',
+  sponsorDesc2:
+    'Dette værktøj er bygget med vibe coding kombineret med omhyggelig manuel fejlretning. Vibe coding er afhængig af AI-assistance, hvilket medfører reelle token-udgifter ved hver iteration. Manuel fejlretning kræver tid og tålmodighed ved hvert trin. Hvis det har været nyttigt for dig, ville jeg være meget taknemmelig for din støtte. Selv et lille bidrag, nok til en kop kaffe, betyder meget og holder projektet i live.',
+  sponsorDesc3: 'Tak for din støtte.',
 
   displayModeLabel: 'Visningstilstand',
   modeDetailed: 'Lille sted-tilstand',
