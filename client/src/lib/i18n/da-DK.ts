@@ -58,6 +58,9 @@ const daDK: Translation = {
   statsLocations: 'Steder',
   statsDaysSuffix: 'd',
 
+  // ── Toast notifications ───────────────────────────────────────────────────
+  parseSuccess: (days: number) => `Analyse lykkedes: ${days} dage`,
+
   // ── Errors ────────────────────────────────────────────────────────────────
   errorsLabel: 'Fejl',
   errorDialogTitle: 'Analysefejl',

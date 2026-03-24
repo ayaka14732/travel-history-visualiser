@@ -21,6 +21,7 @@ import { getLocationColor } from '@/lib/countryColors';
 import { getDisplayName, getFlagEmoji, type CountryLocale } from '@/lib/countryData';
 import { useLocale } from '@/contexts/LocaleContext';
 import { LOCALES, type Locale } from '@/lib/i18n';
+import { toast } from 'sonner';
 
 // (Sample data is now per-locale, stored in t.defaultSampleData)
 
@@ -1060,6 +1061,7 @@ export default function Home() {
       setParseResult(result);
       setParseError(null);
       if (isNewData) {
+        toast.success(t.parseSuccess(result.dailyLocations.length));
         setCustomStartStr(toInputDate(result.startDate));
         setCustomEndStr(toInputDate(result.endDate));
         setRangeMode('start-end');

@@ -58,6 +58,9 @@ const zhTW: Translation = {
   statsLocations: '地點數',
   statsDaysSuffix: ' 天',
 
+  // ── Toast notifications ───────────────────────────────────────────────────
+  parseSuccess: (days: number) => `解析成功：${days} 天記錄`,
+
   // ── Errors ────────────────────────────────────────────────────────────────
   errorsLabel: '錯誤',
   errorDialogTitle: '解析錯誤',

@@ -58,6 +58,9 @@ const frCH: Translation = {
   statsLocations: 'Lieux',
   statsDaysSuffix: 'j',
 
+  // ── Toast notifications ───────────────────────────────────────────────────
+  parseSuccess: (days: number) => `Analyse réussie : ${days} jours`,
+
   // ── Errors ────────────────────────────────────────────────────────────────
   errorsLabel: 'Erreurs',
   errorDialogTitle: "Erreur d'analyse",

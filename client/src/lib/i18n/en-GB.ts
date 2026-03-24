@@ -58,6 +58,9 @@ const enGB: Translation = {
   statsLocations: 'Locations',
   statsDaysSuffix: 'd',
 
+  // ── Toast notifications ───────────────────────────────────────────────────
+  parseSuccess: (days: number) => `Parsed successfully: ${days} days`,
+
   // ── Warnings ──────────────────────────────────────────────────────────────
   errorsLabel: 'Errors',
   errorDialogTitle: 'Parse Error',

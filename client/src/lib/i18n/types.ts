@@ -60,6 +60,9 @@ export interface Translation {
   statsLocations: string;
   statsDaysSuffix: string; // "天" / "d"
 
+  // ── Toast notifications ───────────────────────────────────────────────────
+  parseSuccess: (days: number) => string;
+
   // ── Errors ──────────────────────────────────────────────────────────────
   errorsLabel: string;
   errorDialogTitle: string;
