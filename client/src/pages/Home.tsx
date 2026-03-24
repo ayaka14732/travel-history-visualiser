@@ -277,7 +277,7 @@ function AboutPopup({ onClose }: { onClose: () => void }) {
 
           <div className="border-t border-border pt-4 text-[12px] text-[#555] space-y-1">
             <div>
-              Built with{' '}
+              {t.builtWith}{' '}
               <a
                 href="https://manus.im"
                 target="_blank"
@@ -285,8 +285,8 @@ function AboutPopup({ onClose }: { onClose: () => void }) {
                 className="text-[#EB0000] hover:underline font-medium"
               >
                 Manus
-              </a>{' '}
-              and{' '}
+              </a>
+              {t.builtWithSep}
               <a
                 href="https://claude.ai/code"
                 target="_blank"
@@ -295,6 +295,7 @@ function AboutPopup({ onClose }: { onClose: () => void }) {
               >
                 Claude Code
               </a>
+              {t.builtWithSuffix}
             </div>
             <div>
               <a
@@ -305,6 +306,30 @@ function AboutPopup({ onClose }: { onClose: () => void }) {
               >
                 github.com/ayaka14732/travel-history-visualiser-manus
               </a>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-4 space-y-3">
+            <div className="text-[12px] font-semibold text-[#222]">{t.sponsorLabel}</div>
+            <p className="text-[12px] text-[#555] leading-relaxed">{t.sponsorDesc1}</p>
+            <p className="text-[12px] text-[#555] leading-relaxed">{t.sponsorDesc2}</p>
+            <div className="flex gap-4 justify-center pt-1">
+              <div className="flex flex-col items-center gap-1">
+                <img
+                  src="https://ayaka14732.github.io/sponsor/alipay.jpg"
+                  alt="Alipay"
+                  className="w-28 h-28 object-contain border border-border"
+                />
+                <span className="text-[11px] text-[#555]">Alipay</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <img
+                  src="https://ayaka14732.github.io/sponsor/wechat.png"
+                  alt="WeChat Pay"
+                  className="w-28 h-28 object-contain border border-border"
+                />
+                <span className="text-[11px] text-[#555]">WeChat Pay</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1342,7 +1367,7 @@ export default function Home() {
               className="text-[11px] text-[#666] leading-tight"
               style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
             >
-              Built with{' '}
+              {t.builtWith}{' '}
               <a
                 href="https://manus.im"
                 target="_blank"
@@ -1350,8 +1375,8 @@ export default function Home() {
                 className="text-[#555] hover:text-[#EB0000] transition-colors font-medium"
               >
                 Manus
-              </a>{' '}
-              &amp;{' '}
+              </a>
+              {t.builtWithSep}
               <a
                 href="https://claude.ai/code"
                 target="_blank"
@@ -1360,6 +1385,7 @@ export default function Home() {
               >
                 Claude Code
               </a>
+              {t.builtWithSuffix}
             </span>
             <div className="flex items-center gap-1 flex-shrink-0">
               <button

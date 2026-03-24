@@ -17,6 +17,12 @@ const frCH: Translation = {
   helpBtn: 'Aide',
   aboutBtn: 'À propos',
   aboutTitle: 'À propos',
+  builtWith: 'Construit avec',
+  builtWithSep: ', ',
+  builtWithSuffix: ' et ❤️',
+  sponsorLabel: 'Soutenir',
+  sponsorDesc1: "Travel History Visualiser vous aide à tenir un relevé précis des jours passés dans chaque pays et région, y compris les calculs pour l'espace Schengen, afin de planifier vos voyages en toute sérénité et d'éviter de dépasser la durée de séjour autorisée.",
+  sponsorDesc2: "Cet outil a été développé grâce au vibe coding combiné à un débogage manuel minutieux. Le vibe coding repose sur l'assistance de l'IA, ce qui engendre des coûts réels en tokens à chaque itération. Le débogage manuel, quant à lui, exige du temps et de la patience à chaque étape. S'il vous a été utile, je vous serais sincèrement reconnaissant de votre soutien. Même un petit geste, de quoi offrir un café, compte beaucoup et aide le projet à vivre.",
 
   displayModeLabel: "Mode d'affichage",
   modeDetailed: 'Mode petit lieu',
