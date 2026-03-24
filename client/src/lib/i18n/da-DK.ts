@@ -77,7 +77,7 @@ const daDK: Translation = {
   helpTitle: 'Formatguide',
   helpCloseBtn: 'Luk',
   helpIntro: 'Hver post består af én eller flere linjer, hvor felter er adskilt af',
-  helpTabNote: 'Tab (⇥)',
+  helpTabNote: 'Tab (⇥) eller komma (,)',
   helpIntroCont: ' til at adskille 6 felter pr. linje. Tre formater understøttes:',
   helpEmptyCell: 'Tom',
 

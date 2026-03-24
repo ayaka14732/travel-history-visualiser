@@ -77,7 +77,7 @@ const enGB: Translation = {
   helpTitle: 'Record Format Guide',
   helpCloseBtn: 'Close',
   helpIntro: 'Each record consists of one or more lines, with fields separated by',
-  helpTabNote: 'Tab (\u21e5)',
+  helpTabNote: 'Tab (\u21e5) or comma (,)',
   helpIntroCont: ' to separate 6 fields per line. Three formats are supported:',
   helpEmptyCell: 'Empty',
 

@@ -3,7 +3,7 @@ import type { Translation } from './types';
 const zhTW: Translation = {
   // ── Meta ──────────────────────────────────────────────────────────────────
   appTitle: '旅行記錄視覺化器',
-  langLabel: '中文（繁體）',
+  langLabel: '中文',
   languageSectionLabel: '語言',
 
   // ── Sidebar ───────────────────────────────────────────────────────────────
@@ -35,7 +35,7 @@ const zhTW: Translation = {
   startDateLabel: '開始日期',
   endDateLabel: '結束日期',
   durationLabel: '天數（預設 180）',
-  displayRangeInfo: (start, end, days) => `顯示：${start} — ${end}（${days} 天）`,
+  displayRangeInfo: (start, end, days) => `顯示：${start} — ${end}（${days} 天）`,
   prevDayTitle: '前一天',
   nextDayTitle: '後一天',
 
@@ -76,7 +76,7 @@ const zhTW: Translation = {
   helpTitle: '記錄格式說明',
   helpCloseBtn: '關閉',
   helpIntro: '每一筆記錄由若干行組成，每行以',
-  helpTabNote: 'Tab（⇥）',
+  helpTabNote: 'Tab（⇥）或逗號（,）',
   helpIntroCont: '分隔為 6 個欄位。共有三種格式：',
   helpEmptyCell: '空',
 

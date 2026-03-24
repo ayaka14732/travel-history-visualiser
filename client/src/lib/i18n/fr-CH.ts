@@ -77,7 +77,7 @@ const frCH: Translation = {
   helpTitle: "Guide du format d'enregistrement",
   helpCloseBtn: 'Fermer',
   helpIntro: "Chaque enregistrement est composé d'une ou plusieurs lignes, avec des champs séparés par",
-  helpTabNote: 'Tab (⇥)',
+  helpTabNote: 'Tab (⇥) ou virgule (,)',
   helpIntroCont: ' pour séparer 6 champs par ligne. Trois formats sont pris en charge :',
   helpEmptyCell: 'vide',
 

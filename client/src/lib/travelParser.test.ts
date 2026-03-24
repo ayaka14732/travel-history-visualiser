@@ -84,13 +84,13 @@ describe('Type 3 — single row, big location only', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Type 2: single row with sub-location, no sub dates
+// Type 2: single row with minor location, no minor dates
 // ---------------------------------------------------------------------------
 
-describe('Type 2 — single row with sub-location, no sub dates', () => {
+describe('Type 2 — single row with minor location, no minor dates', () => {
   const input = data(row('20240630', '20240705', '英國', '英格蘭', '', ''));
 
-  it('detailed mode: uses sub-location for entire range', () => {
+  it('detailed mode: uses minor location for entire range', () => {
     const result = parseTravelData(input, true);
     expect(result.errors).toHaveLength(0);
     expect(result.dailyLocations).toHaveLength(6); // 30 Jun – 5 Jul
@@ -151,7 +151,7 @@ describe('Type 1 — multi-row group', () => {
     }
   });
 
-  it('deduplication: 20240224 丹麥 appears in two sub-entries but counts as 1 day', () => {
+  it('deduplication: 20240224 丹麥 appears in two minor entries but counts as 1 day', () => {
     const result = parseTravelData(input, true);
     // Day 3 (20240224) should have 丹麥 exactly once
     const day3 = result.dailyLocations[3];
@@ -212,10 +212,10 @@ describe('Mixed groups — full sample data', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Validation: subEnd after groupEnd (the 20250526 typo scenario)
+// Validation: minorEnd after groupEnd (the 20250526 typo scenario)
 // ---------------------------------------------------------------------------
 
-describe('Validation — subEnd after groupEnd', () => {
+describe('Validation — minorEnd after groupEnd', () => {
   // Simulates the typo: 20250526 instead of 20260526
   const input = data(
     row('20260521', '20260525', '英國', '英格蘭', '', ''),
@@ -223,10 +223,10 @@ describe('Validation — subEnd after groupEnd', () => {
     row('', '', '', '法羅羣島', '20260526', '20260604'),
   );
 
-  it('emits a warning about subEnd before groupStart (year typo)', () => {
+  it('emits a warning about minorEnd before groupStart (year typo)', () => {
     const result = parseTravelData(input, true);
     const hasWarning = result.errors.some(
-      (w) => w.includes('DK') && (w.includes('before groupStart') || w.includes('subEnd')),
+      (w) => w.includes('DK') && (w.includes('before groupStart') || w.includes('minorEnd')),
     );
     expect(hasWarning).toBe(true);
   });
@@ -250,15 +250,15 @@ describe('Validation — subEnd after groupEnd', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Validation: subStart before groupStart
+// Validation: minorStart before groupStart
 // ---------------------------------------------------------------------------
 
-describe('Validation — subStart before groupStart', () => {
+describe('Validation — minorStart before groupStart', () => {
   const input = data(
-    row('20240601', '20240610', '英國', '英格蘭', '20240531', '20240605'), // subStart 1 day early
+    row('20240601', '20240610', '英國', '英格蘭', '20240531', '20240605'), // minorStart 1 day early
   );
 
-  it('emits a warning about subStart before groupStart', () => {
+  it('emits a warning about minorStart before groupStart', () => {
     const result = parseTravelData(input, true);
     const hasWarning = result.errors.some((w) => w.includes('GB-ENG') && w.includes('before groupStart'));
     expect(hasWarning).toBe(true);
@@ -266,17 +266,17 @@ describe('Validation — subStart before groupStart', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Validation: subEnd before subStart
+// Validation: minorEnd before minorStart
 // ---------------------------------------------------------------------------
 
-describe('Validation — subEnd before subStart', () => {
+describe('Validation — minorEnd before minorStart', () => {
   const input = data(
     row('20240601', '20240610', '英國', '英格蘭', '20240605', '20240603'), // end before start
   );
 
-  it('emits a warning about subEnd before subStart', () => {
+  it('emits a warning about minorEnd before minorStart', () => {
     const result = parseTravelData(input, true);
-    const hasWarning = result.errors.some((w) => w.includes('GB-ENG') && w.includes('before subStart'));
+    const hasWarning = result.errors.some((w) => w.includes('GB-ENG') && w.includes('before minorStart'));
     expect(hasWarning).toBe(true);
   });
 });
@@ -302,7 +302,7 @@ describe('Validation — groupEnd before groupStart', () => {
 // ---------------------------------------------------------------------------
 
 describe('Validation — invalid date strings', () => {
-  it('warns about non-8-digit date in sub-entry', () => {
+  it('warns about non-8-digit date in minor entry', () => {
     const input = data(row('20240601', '20240610', '英國', '英格蘭', '2024060X', '20240605'));
     const result = parseTravelData(input, true);
     const hasWarning = result.errors.some((w) => w.includes('2024060X'));
@@ -345,7 +345,7 @@ describe('Validation — continuation row with invalid dates', () => {
   it('skips continuation row with invalid date and warns', () => {
     const input = data(
       row('20240601', '20240610', '申根區域', '法國', '20240601', '20240605'),
-      row('', '', '', '德國', '20240606', '2024XXXX'), // invalid subEnd
+      row('', '', '', '德國', '20240606', '2024XXXX'), // invalid minorEnd
     );
     const result = parseTravelData(input, true);
     const hasWarning = result.errors.some((w) => w.includes('DE') || w.includes('Skipped continuation'));
@@ -406,7 +406,7 @@ describe('Edge cases', () => {
 // ---------------------------------------------------------------------------
 
 describe('computeStats deduplication', () => {
-  it('20240224 丹麥 in two sub-entries counts as 1 day', async () => {
+  it('20240224 丹麥 in two minor entries counts as 1 day', async () => {
     const input = data(
       row('20240221', '20240226', '申根區域', '希臘', '20240221', '20240221'),
       row('', '', '', '丹麥', '20240221', '20240224'),
@@ -502,7 +502,7 @@ describe('Comma-separated input', () => {
     expect(result.dailyLocations[0]).toEqual(['CN']);
   });
 
-  it('Type 2 with commas: single row with sub-location', () => {
+  it('Type 2 with commas: single row with minor location', () => {
     const result = parseTravelData('20240630,20240705,英國,英格蘭,,', true);
     expect(result.errors).toHaveLength(0);
     expect(result.dailyLocations[0]).toEqual(['GB-ENG']);

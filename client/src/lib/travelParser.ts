@@ -6,25 +6,25 @@ import { resolveLocation } from './countryData';
  * Data format (tab- or comma-separated, 6 columns per row):
  * Each line is split by Tab if it contains a Tab character, otherwise by comma.
  *
- * Type 1 — Multi-row group (big location + multiple small locations):
+ * Type 1 — Multi-row group (major location + multiple minor locations):
  *   20240221\t20240226\t申根區域\t希臘\t20240221\t20240221
  *   \t\t\t丹麥\t20240221\t20240224
  *   \t\t\t瑞典\t20240224\t20240224
  *   \t\t\t丹麥\t20240224\t20240226
  *
- * Type 2 — Single row with both big + small location (no sub dates):
+ * Type 2 — Single row with both major + minor location (no minor dates):
  *   20240630\t20240705\t英國\t英格蘭\t\t
  *
- * Type 3 — Single row with big location only (small = big):
+ * Type 3 — Single row with major location only (minor = major):
  *   20240219\t20240221\t新加坡\t\t\t
  *
  * Validation performed:
  *   - Date strings must be 8 digits and represent a valid calendar date
  *   - groupEnd must not be before groupStart
- *   - subEnd must not be before subStart
- *   - subStart must not be before groupStart
- *   - subEnd must not be after groupEnd
- *   - Sub-entries that fall entirely outside the group range are skipped with a warning
+ *   - minorEnd must not be before minorStart
+ *   - minorStart must not be before groupStart
+ *   - minorEnd must not be after groupEnd
+ *   - Minor entries that fall entirely outside the group range are skipped with a warning
  *   - Gaps and overlaps between consecutive groups are reported as warnings
  */
 
@@ -145,8 +145,8 @@ void textToken;
 // Domain types
 // ---------------------------------------------------------------------------
 
-/** A single sub-location entry within a group. */
-export interface SubEntry {
+/** A single minor-location entry within a group. */
+export interface MinorEntry {
   location: string;
   startDate: Date;
   endDate: Date;
@@ -158,10 +158,10 @@ export interface TravelGroup {
   groupStart: Date;
   /** Overall end date of the group. */
   groupEnd: Date;
-  /** Big location (e.g. "申根區域", "英國", "新加坡"). */
-  bigLocation: string;
-  /** Sub-location entries. If none given, defaults to bigLocation for the whole range. */
-  subEntries: SubEntry[];
+  /** Major location (e.g. "申根區域", "英國", "新加坡"). */
+  majorLocation: string;
+  /** Minor location entries. If none given, defaults to majorLocation for the whole range. */
+  minorEntries: MinorEntry[];
 }
 
 // ---------------------------------------------------------------------------
@@ -197,16 +197,16 @@ function validateDateStr(s: string, fieldName: string, rowDesc: string): { date:
 interface HeaderRowResult {
   groupStart: Date;
   groupEnd: Date;
-  bigLocation: string;
-  firstSub: SubEntry | null;
+  majorLocation: string;
+  firstMinor: MinorEntry | null;
   warnings: string[];
 }
 
 /**
  * Parse a "header row" of a group:
- *   groupStart \t groupEnd \t bigLocation \t subLocation \t subStart \t subEnd
+ *   groupStart \t groupEnd \t majorLocation \t minorLocation \t minorStart \t minorEnd
  *
- * Returns ok:false only for fatal errors (unparseable group start/end or missing bigLocation).
+ * Returns ok:false only for fatal errors (unparseable group start/end or missing majorLocation).
  * Non-fatal issues are collected in warnings.
  */
 function parseHeaderRow(tokens: string[], rowDesc: string): ParseResult<HeaderRowResult> {
@@ -240,79 +240,79 @@ function parseHeaderRow(tokens: string[], rowDesc: string): ParseResult<HeaderRo
     );
   }
 
-  // ── bigLocation (fatal if empty) ──────────────────────────────────────────
-  const bigLocationRaw = t2.trim();
-  if (!bigLocationRaw) {
-    return { ok: false, error: `[${rowDesc}] bigLocation is empty` };
+  // ── majorLocation (fatal if empty) ──────────────────────────────────────────
+  const majorLocationRaw = t2.trim();
+  if (!majorLocationRaw) {
+    return { ok: false, error: `[${rowDesc}] majorLocation is empty` };
   }
-  const bigLocationEntry = resolveLocation(bigLocationRaw);
-  const bigLocation = bigLocationEntry ? bigLocationEntry.code : bigLocationRaw;
+  const majorLocationEntry = resolveLocation(majorLocationRaw);
+  const majorLocation = majorLocationEntry ? majorLocationEntry.code : majorLocationRaw;
 
-  // ── firstSub ─────────────────────────────────────────────────────────────
-  let firstSub: SubEntry | null = null;
-  const subLocRaw = t3.trim();
-  const subLocEntry = subLocRaw ? resolveLocation(subLocRaw) : null;
-  const subLoc = subLocEntry ? subLocEntry.code : subLocRaw;
-  const subStartStr = t4.trim();
-  const subEndStr = t5.trim();
+  // ── firstMinor ─────────────────────────────────────────────────────────────
+  let firstMinor: MinorEntry | null = null;
+  const minorLocRaw = t3.trim();
+  const minorLocEntry = minorLocRaw ? resolveLocation(minorLocRaw) : null;
+  const minorLoc = minorLocEntry ? minorLocEntry.code : minorLocRaw;
+  const minorStartStr = t4.trim();
+  const minorEndStr = t5.trim();
 
-  if (subLoc) {
-    if (!subStartStr && !subEndStr) {
-      // Type 2: sub dates inherit from group
-      firstSub = { location: subLoc, startDate: groupStart, endDate: groupEnd };
+  if (minorLoc) {
+    if (!minorStartStr && !minorEndStr) {
+      // Type 2: minor dates inherit from group
+      firstMinor = { location: minorLoc, startDate: groupStart, endDate: groupEnd };
     } else {
-      // Type 1 header: explicit sub dates
-      const ssResult = validateDateStr(subStartStr, 'subStart', rowDesc);
+      // Type 1 header: explicit minor dates
+      const ssResult = validateDateStr(minorStartStr, 'minorStart', rowDesc);
       if (ssResult.warning) warnings.push(ssResult.warning);
-      const seResult = validateDateStr(subEndStr, 'subEnd', rowDesc);
+      const seResult = validateDateStr(minorEndStr, 'minorEnd', rowDesc);
       if (seResult.warning) warnings.push(seResult.warning);
 
-      const subStart = ssResult.date ?? groupStart;
-      const subEnd = seResult.date ?? groupEnd;
+      const minorStart = ssResult.date ?? groupStart;
+      const minorEnd = seResult.date ?? groupEnd;
 
-      const subWarnings = validateSubEntry(subLoc, subStart, subEnd, groupStart, groupEnd, rowDesc);
-      warnings.push(...subWarnings);
+      const minorWarnings = validateMinorEntry(minorLoc, minorStart, minorEnd, groupStart, groupEnd, rowDesc);
+      warnings.push(...minorWarnings);
 
-      firstSub = { location: subLoc, startDate: subStart, endDate: subEnd };
+      firstMinor = { location: minorLoc, startDate: minorStart, endDate: minorEnd };
     }
   }
 
   return {
     ok: true,
-    value: { groupStart, groupEnd, bigLocation, firstSub, warnings },
+    value: { groupStart, groupEnd, majorLocation, firstMinor, warnings },
     rest: [],
   };
 }
 
 /**
- * Validate a sub-entry's dates against the group range.
+ * Validate a minor entry's dates against the group range.
  * Returns an array of warning strings (empty if all OK).
  */
-function validateSubEntry(
-  subLoc: string,
-  subStart: Date,
-  subEnd: Date,
+function validateMinorEntry(
+  minorLoc: string,
+  minorStart: Date,
+  minorEnd: Date,
   groupStart: Date,
   groupEnd: Date,
   rowDesc: string,
 ): string[] {
   const warnings: string[] = [];
 
-  if (subEnd < subStart) {
+  if (minorEnd < minorStart) {
     warnings.push(
-      `[${rowDesc}] Sub-location "${subLoc}": subEnd ${formatDateDisplay(subEnd)} is before subStart ${formatDateDisplay(subStart)}`,
+      `[${rowDesc}] Minor location "${minorLoc}": minorEnd ${formatDateDisplay(minorEnd)} is before minorStart ${formatDateDisplay(minorStart)}`,
     );
   }
 
-  if (subStart < groupStart) {
+  if (minorStart < groupStart) {
     warnings.push(
-      `[${rowDesc}] Sub-location "${subLoc}": subStart ${formatDateDisplay(subStart)} is before groupStart ${formatDateDisplay(groupStart)}`,
+      `[${rowDesc}] Minor location "${minorLoc}": minorStart ${formatDateDisplay(minorStart)} is before groupStart ${formatDateDisplay(groupStart)}`,
     );
   }
 
-  if (subEnd > groupEnd) {
+  if (minorEnd > groupEnd) {
     warnings.push(
-      `[${rowDesc}] Sub-location "${subLoc}": subEnd ${formatDateDisplay(subEnd)} is after groupEnd ${formatDateDisplay(groupEnd)}`,
+      `[${rowDesc}] Minor location "${minorLoc}": minorEnd ${formatDateDisplay(minorEnd)} is after groupEnd ${formatDateDisplay(groupEnd)}`,
     );
   }
 
@@ -321,14 +321,14 @@ function validateSubEntry(
 
 /**
  * Parse a "continuation row" (starts with 3 empty tokens):
- *   \t \t \t subLocation \t subStart \t subEnd
+ *   \t \t \t minorLocation \t minorStart \t minorEnd
  */
 function parseContinuationRow(
   tokens: string[],
   groupStart: Date,
   groupEnd: Date,
   rowDesc: string,
-): ParseResult<{ entry: SubEntry; warnings: string[] }> {
+): ParseResult<{ entry: MinorEntry; warnings: string[] }> {
   const row = [...tokens];
   while (row.length < 6) row.push('');
   const [t0, t1, t2, t3, t4, t5] = row;
@@ -340,36 +340,36 @@ function parseContinuationRow(
     };
   }
 
-  const subLocRaw = t3.trim();
-  if (!subLocRaw) {
-    return { ok: false, error: `[${rowDesc}] Continuation row has empty sub-location` };
+  const minorLocRaw = t3.trim();
+  if (!minorLocRaw) {
+    return { ok: false, error: `[${rowDesc}] Continuation row has empty minor location` };
   }
-  const subLocEntry = resolveLocation(subLocRaw);
-  const subLoc = subLocEntry ? subLocEntry.code : subLocRaw;
+  const minorLocEntry = resolveLocation(minorLocRaw);
+  const minorLoc = minorLocEntry ? minorLocEntry.code : minorLocRaw;
 
   const warnings: string[] = [];
 
-  const ssResult = validateDateStr(t4, 'subStart', rowDesc);
+  const ssResult = validateDateStr(t4, 'minorStart', rowDesc);
   if (ssResult.warning) warnings.push(ssResult.warning);
-  const seResult = validateDateStr(t5, 'subEnd', rowDesc);
+  const seResult = validateDateStr(t5, 'minorEnd', rowDesc);
   if (seResult.warning) warnings.push(seResult.warning);
 
   if (!ssResult.date || !seResult.date) {
     return {
       ok: false,
-      error: `[${rowDesc}] Continuation row for "${subLoc}" has invalid or missing dates: "${t4}", "${t5}"`,
+      error: `[${rowDesc}] Continuation row for "${minorLoc}" has invalid or missing dates: "${t4}", "${t5}"`,
     };
   }
 
-  const subStart = ssResult.date;
-  const subEnd = seResult.date;
+  const minorStart = ssResult.date;
+  const minorEnd = seResult.date;
 
-  const subWarnings = validateSubEntry(subLoc, subStart, subEnd, groupStart, groupEnd, rowDesc);
-  warnings.push(...subWarnings);
+  const minorWarnings = validateMinorEntry(minorLoc, minorStart, minorEnd, groupStart, groupEnd, rowDesc);
+  warnings.push(...minorWarnings);
 
   return {
     ok: true,
-    value: { entry: { location: subLoc, startDate: subStart, endDate: subEnd }, warnings },
+    value: { entry: { location: minorLoc, startDate: minorStart, endDate: minorEnd }, warnings },
     rest: [],
   };
 }
@@ -388,10 +388,10 @@ function parseGroup(rows: string[][], groupIndex: number): ParseResult<{ group: 
   const headerResult = parseHeaderRow(rows[0], rowDesc);
   if (!headerResult.ok) return headerResult;
 
-  const { groupStart, groupEnd, bigLocation, firstSub, warnings } = headerResult.value;
-  const subEntries: SubEntry[] = [];
+  const { groupStart, groupEnd, majorLocation, firstMinor, warnings } = headerResult.value;
+  const minorEntries: MinorEntry[] = [];
 
-  if (firstSub) subEntries.push(firstSub);
+  if (firstMinor) minorEntries.push(firstMinor);
 
   // Parse continuation rows
   for (let i = 1; i < rows.length; i++) {
@@ -402,13 +402,13 @@ function parseGroup(rows: string[][], groupIndex: number): ParseResult<{ group: 
       continue;
     }
     warnings.push(...contResult.value.warnings);
-    subEntries.push(contResult.value.entry);
+    minorEntries.push(contResult.value.entry);
   }
 
-  // If no sub entries at all, default to bigLocation for the whole group range
-  if (subEntries.length === 0) {
-    subEntries.push({
-      location: bigLocation,
+  // If no minor entries at all, default to majorLocation for the whole group range
+  if (minorEntries.length === 0) {
+    minorEntries.push({
+      location: majorLocation,
       startDate: groupStart,
       endDate: groupEnd,
     });
@@ -416,7 +416,7 @@ function parseGroup(rows: string[][], groupIndex: number): ParseResult<{ group: 
 
   return {
     ok: true,
-    value: { group: { groupStart, groupEnd, bigLocation, subEntries }, warnings },
+    value: { group: { groupStart, groupEnd, majorLocation, minorEntries }, warnings },
     rest: [],
   };
 }
@@ -486,8 +486,8 @@ export interface TravelParseResult {
 /**
  * Parse travel history text data.
  *
- * @param dataText    Raw tab-separated travel data text.
- * @param isDetailed  If true, use sub-locations; otherwise use big locations.
+ * @param dataText    Raw tab- or comma-separated travel data text.
+ * @param isDetailed  If true, use minor locations; otherwise use major locations.
  * @returns TravelParseResult
  */
 export function parseTravelData(dataText: string, isDetailed: boolean): TravelParseResult {
@@ -529,13 +529,13 @@ export function parseTravelData(dataText: string, isDetailed: boolean): TravelPa
 
   for (const group of groups) {
     if (isDetailed) {
-      // Use sub-entries; skip any that fall entirely outside the overall range
-      for (const sub of group.subEntries) {
-        const startOffset = daysBetween(minDate, sub.startDate);
-        const endOffset = daysBetween(minDate, sub.endDate);
+      // Use minor entries; skip any that fall entirely outside the overall range
+      for (const entry of group.minorEntries) {
+        const startOffset = daysBetween(minDate, entry.startDate);
+        const endOffset = daysBetween(minDate, entry.endDate);
         for (let i = startOffset; i <= endOffset; i++) {
           if (i >= 0 && i < totalDays) {
-            dailySets[i].add(sub.location);
+            dailySets[i].add(entry.location);
           }
         }
       }
@@ -545,7 +545,7 @@ export function parseTravelData(dataText: string, isDetailed: boolean): TravelPa
       const endOffset = daysBetween(minDate, group.groupEnd);
       for (let i = startOffset; i <= endOffset; i++) {
         if (i >= 0 && i < totalDays) {
-          dailySets[i].add(group.bigLocation);
+          dailySets[i].add(group.majorLocation);
         }
       }
     }
@@ -573,7 +573,7 @@ export interface CountryStat {
 
 /**
  * Compute per-location day counts from a TravelParseResult.
- * Each day is counted at most once per location, even if it appears in multiple sub-entries.
+ * Each day is counted at most once per location, even if it appears in multiple minor entries.
  */
 export function computeStats(result: TravelParseResult): CountryStat[] {
   const counts = new Map<string, number>();
