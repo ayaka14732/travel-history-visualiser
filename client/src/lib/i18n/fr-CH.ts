@@ -14,6 +14,16 @@ const frCH: Translation = {
   editorDialogCancel: 'Annuler',
 
   formatHelpBtn: 'Guide de format ?',
+  helpBtn: 'Aide',
+  aboutBtn: 'À propos',
+  aboutTitle: 'À propos',
+  aboutDescription: "Un visualiseur de l'historique de voyage personnel basé sur un calendrier.",
+  builtWith: 'Construit avec',
+  builtWithSep: ', ',
+  builtWithSuffix: ' et ❤️',
+  sponsorLabel: 'Soutenir',
+  sponsorDesc1: "Travel History Visualiser vous aide à tenir un relevé précis des jours passés dans chaque pays et région, y compris les calculs pour l'espace Schengen, afin de planifier vos voyages en toute sérénité et d'éviter de dépasser la durée de séjour autorisée.",
+  sponsorDesc2: "Cet outil a été développé grâce au vibe coding combiné à un débogage manuel minutieux. Le vibe coding repose sur l'assistance de l'IA, ce qui engendre des coûts réels en tokens à chaque itération. Le débogage manuel, quant à lui, exige du temps et de la patience à chaque étape. S'il vous a été utile, je vous serais sincèrement reconnaissant de votre soutien. Même un petit geste, de quoi offrir un café, compte beaucoup et aide le projet à vivre.",
 
   displayModeLabel: "Mode d'affichage",
   modeDetailed: 'Mode petit lieu',
@@ -23,7 +33,6 @@ const frCH: Translation = {
   weekStartSun: 'Dimanche',
   weekStartMon: 'Lundi',
 
-  parseBtn: 'Analyser et afficher',
   showCalendarBtn: 'Afficher le calendrier',
 
   // ── Range ─────────────────────────────────────────────────────────────────
@@ -56,9 +65,9 @@ const frCH: Translation = {
   calendarDaysSuffix: ' jours',
 
   // ── Calendar empty state ──────────────────────────────────────────────────
-  emptyTitle: 'Collez vos données et cliquez sur « Analyser et afficher »',
+  emptyTitle: 'Collez vos données pour les visualiser',
   emptyDesc:
-    "Trois formats sont pris en charge : groupes multi-lignes (grand lieu + petits lieux), ligne unique avec petit lieu, et ligne unique grand lieu uniquement. Des données d'exemple sont préchargées à gauche.",
+    "Trois formats sont pris en charge : groupes multi-lignes (grand lieu + petits lieux), ligne unique avec petit lieu, et ligne unique grand lieu uniquement. Des données d'exemple sont préchargées et se mettent à jour automatiquement lors de la saisie.",
   emptyHelpLink: 'Voir le guide de format →',
 
   // ── Weekdays (Sun–Sat) ────────────────────────────────────────────────────

@@ -14,6 +14,16 @@ const daDK: Translation = {
   editorDialogCancel: 'Annuller',
 
   formatHelpBtn: 'Formathjælp ?',
+  helpBtn: 'Hjælp',
+  aboutBtn: 'Om',
+  aboutTitle: 'Om',
+  aboutDescription: 'Et kalenderbaseret visualiseringsværktøj til personlige rejsehistorikker.',
+  builtWith: 'Bygget med',
+  builtWithSep: ', ',
+  builtWithSuffix: ' og ❤️',
+  sponsorLabel: 'Støt projektet',
+  sponsorDesc1: 'Travel History Visualiser hjælper dig med at holde præcist styr på de dage, du har tilbragt i hvert land og region, herunder beregninger for Schengen-området, så du kan planlægge dine rejser med ro i sindet og undgå utilsigtet at overskride din tilladte opholdstid.',
+  sponsorDesc2: 'Dette værktøj er bygget med vibe coding kombineret med omhyggelig manuel fejlretning. vibe coding er afhængig af AI-assistance, hvilket medfører reelle token-udgifter ved hver iteration. Manuel fejlretning kræver tid og tålmodighed ved hvert trin. Hvis det har været nyttigt for dig, ville jeg være meget taknemmelig for din støtte. Selv et lille bidrag, nok til en kop kaffe, betyder meget og holder projektet i live.',
 
   displayModeLabel: 'Visningstilstand',
   modeDetailed: 'Lille sted-tilstand',
@@ -23,7 +33,6 @@ const daDK: Translation = {
   weekStartSun: 'Søndag',
   weekStartMon: 'Mandag',
 
-  parseBtn: 'Analysér og vis',
   showCalendarBtn: 'Vis kalender',
 
   // ── Range ─────────────────────────────────────────────────────────────────
@@ -56,9 +65,9 @@ const daDK: Translation = {
   calendarDaysSuffix: ' dage',
 
   // ── Calendar empty state ──────────────────────────────────────────────────
-  emptyTitle: 'Indsæt rejsedata og klik "Analysér og vis"',
+  emptyTitle: 'Indsæt rejsedata for at visualisere',
   emptyDesc:
-    'Tre formater understøttes: flerlinjegrupper (stort sted + små steder), enkeltlinje med lille sted og enkeltlinje kun med stort sted. Eksempeldata er forudindlæst til venstre.',
+    'Tre formater understøttes: flerlinjegrupper (stort sted + små steder), enkeltlinje med lille sted og enkeltlinje kun med stort sted. Eksempeldata er forudindlæst og opdateres automatisk, når du redigerer.',
   emptyHelpLink: 'Se formatguide →',
 
   // ── Weekdays (Sun–Sat) ────────────────────────────────────────────────────
@@ -95,7 +104,8 @@ const daDK: Translation = {
   helpType2Note: 'Dette betyder 2024-06-30 til 2024-07-05 i UK (stort sted), lille sted England, samme datointerval.',
 
   helpType3Title: 'Format 3: Enkeltlinje, kun stort sted',
-  helpType3Desc: 'Kun én linje. Felt 4, 5 og 6 er alle tomme. Det lille sted er som standard det samme som det store sted.',
+  helpType3Desc:
+    'Kun én linje. Felt 4, 5 og 6 er alle tomme. Det lille sted er som standard det samme som det store sted.',
   helpType3ColHeader: 'Felter: [Start] [Slut] [Stort sted] [Tom] [Tom] [Tom]',
   helpType3Note: 'Dette betyder 2024-07-18 til 2024-07-21 i Kina; både stort sted og lille sted er Kina.',
 

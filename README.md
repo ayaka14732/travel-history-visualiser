@@ -10,7 +10,7 @@ An interactive calendar-based tool for visualising travel history. Enter your tr
 - **Statistics panel** — total days travelled, number of locations, per-location breakdowns
 - **Date range controls** — Start–End, Start+Days, and End+Days modes with long-press navigation
 - **Monaco Editor** — full-screen code editor for comfortable data entry
-- **Internationalisation** — Traditional Chinese, English (UK), French (Switzerland), and Danish; auto-detected from browser language
+- **Internationalisation** — Chinese, English, French, and Danish; auto-detected from browser language
 - **200+ countries and territories** — ISO 3166-1 codes with multi-language aliases; special support for Schengen Area and UK subdivisions
 
 ## Data Format

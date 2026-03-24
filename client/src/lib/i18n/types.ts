@@ -14,6 +14,16 @@ export interface Translation {
   languageSectionLabel: string; // "語言" / "Language"
   dataInputLabel: string;
   formatHelpBtn: string;
+  helpBtn: string;
+  aboutBtn: string;
+  aboutTitle: string;
+  aboutDescription: string; // short app description shown in About popup
+  builtWith: string;     // prefix: "Built with" / "使用"
+  builtWithSep: string;  // connector between the two links: " & " / "、"
+  builtWithSuffix: string; // trailing text: "" / " 和❤️製作"
+  sponsorLabel: string; // "打賞" / "Sponsor"
+  sponsorDesc1: string; // paragraph about the app's usefulness
+  sponsorDesc2: string; // paragraph about development effort + donation ask
   editDataBtn: string; // 編輯資料按鈕（開啟 Monaco Editor）
   editorDialogTitle: string; // Monaco 彈出視窗標題
   editorDialogApply: string; // 確認按鈕
@@ -27,7 +37,6 @@ export interface Translation {
   weekStartSun: string; // 星期日
   weekStartMon: string; // 星期一
 
-  parseBtn: string;
   showCalendarBtn: string; // mobile only
 
   // ── Range controls ────────────────────────────────────────────────────────

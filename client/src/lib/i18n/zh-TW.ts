@@ -14,6 +14,16 @@ const zhTW: Translation = {
   editorDialogCancel: '取消',
 
   formatHelpBtn: '格式說明 ?',
+  helpBtn: '說明',
+  aboutBtn: '關於',
+  aboutTitle: '關於此工具',
+  aboutDescription: '以日曆為基礎，視覺化呈現個人旅行記錄的工具。',
+  builtWith: '使用',
+  builtWithSep: '、',
+  builtWithSuffix: ' 與 ❤️ 製作',
+  sponsorLabel: '打賞',
+  sponsorDesc1: '旅行記錄視覺化器幫助你精確追蹤在各國家和地區停留的天數，包括申根區域的日數計算，讓你能夠從容規劃行程，避免不小心超出允許的停留時限。',
+  sponsorDesc2: '這個工具採用氛圍編程（vibe coding）結合手動 debug 的方式開發而成。氛圍編程每一次迭代都需要消耗 AI token，是實實在在的金錢成本；手動 debug 則需要投入大量時間與精力，每一個細節都要反覆推敲。若這個工具對你有所幫助，非常期待你的支持，哪怕是請我喝杯咖啡，都是對這個項目莫大的鼓勵。',
 
   displayModeLabel: '顯示模式',
   modeDetailed: '小地點模式',
@@ -23,7 +33,6 @@ const zhTW: Translation = {
   weekStartSun: '週日',
   weekStartMon: '週一',
 
-  parseBtn: '解析並顯示',
   showCalendarBtn: '顯示日曆',
 
   // ── Range ─────────────────────────────────────────────────────────────────
@@ -56,8 +65,8 @@ const zhTW: Translation = {
   calendarDaysSuffix: ' 天',
 
   // ── Calendar empty state ──────────────────────────────────────────────────
-  emptyTitle: '貼上旅行記錄，點擊「解析並顯示」',
-  emptyDesc: '支援三種格式：多行群組（大地點 + 小地點）、單行雙地點、單行單地點。左側已預載範例資料，可直接點擊解析。',
+  emptyTitle: '貼上旅行記錄即可自動顯示',
+  emptyDesc: '支援三種格式：多行群組（大地點 + 小地點）、單行雙地點、單行單地點。已預載範例資料，修改後自動更新。',
   emptyHelpLink: '查看格式說明 →',
 
   // ── Weekdays (Sun–Sat) ────────────────────────────────────────────────────

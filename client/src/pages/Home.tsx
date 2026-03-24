@@ -20,7 +20,7 @@ import {
 import { getLocationColor } from '@/lib/countryColors';
 import { getDisplayName, getFlagEmoji, type CountryLocale } from '@/lib/countryData';
 import { useLocale } from '@/contexts/LocaleContext';
-import { LOCALES, LOCALE_ORDER, type Locale } from '@/lib/i18n';
+import { LOCALES, type Locale } from '@/lib/i18n';
 
 // (Sample data is now per-locale, stored in t.defaultSampleData)
 
@@ -221,6 +221,115 @@ function FormatHelpPopup({ onClose }: { onClose: () => void }) {
               style={{ fontFamily: "'IBM Plex Mono', monospace" }}
             >
               {t.helpExampleData}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-3 border-t border-border flex justify-end flex-shrink-0">
+          <button
+            onClick={onClose}
+            className="px-4 py-1.5 bg-[#EB0000] text-white text-[12px] font-semibold hover:bg-[#c00000]"
+          >
+            {t.helpCloseBtn}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// About Popup
+// ---------------------------------------------------------------------------
+function AboutPopup({ onClose }: { onClose: () => void }) {
+  const { t } = useLocale();
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="bg-white border border-border w-full max-w-sm flex flex-col"
+        style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-[#EB0000] flex-shrink-0">
+          <h2 className="text-[14px] font-bold text-white">{t.aboutTitle}</h2>
+          <button
+            onClick={onClose}
+            className="text-white/80 hover:text-white text-[18px] leading-none font-light"
+            aria-label={t.helpCloseBtn}
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="px-5 py-5 space-y-4 text-[13px] text-[#222] leading-relaxed">
+          <div>
+            <div className="text-[15px] font-bold text-[#EB0000] mb-1">{t.appTitle}</div>
+            <p className="text-[12px] text-[#555]">{t.aboutDescription}</p>
+          </div>
+
+          <div className="border-t border-border pt-4 text-[12px] text-[#555] space-y-1">
+            <div>
+              {t.builtWith}{' '}
+              <a
+                href="https://manus.im"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#EB0000] hover:underline font-medium"
+              >
+                Manus
+              </a>
+              {t.builtWithSep}
+              <a
+                href="https://claude.ai/code"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#EB0000] hover:underline font-medium"
+              >
+                Claude Code
+              </a>
+              {t.builtWithSuffix}
+            </div>
+            <div>
+              <a
+                href="https://github.com/ayaka14732/travel-history-visualiser-manus"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#EB0000] hover:underline"
+              >
+                github.com/ayaka14732/travel-history-visualiser-manus
+              </a>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-4 space-y-3">
+            <div className="text-[12px] font-semibold text-[#222]">{t.sponsorLabel}</div>
+            <p className="text-[12px] text-[#555] leading-relaxed">{t.sponsorDesc1}</p>
+            <p className="text-[12px] text-[#555] leading-relaxed">{t.sponsorDesc2}</p>
+            <div className="flex gap-4 justify-center pt-1">
+              <div className="flex flex-col items-center gap-1">
+                <img
+                  src="https://ayaka14732.github.io/sponsor/alipay.jpg"
+                  alt="Alipay"
+                  className="w-28 h-28 object-contain border border-border"
+                />
+                <span className="text-[11px] text-[#555]">Alipay</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <img
+                  src="https://ayaka14732.github.io/sponsor/wechat.png"
+                  alt="WeChat Pay"
+                  className="w-28 h-28 object-contain border border-border"
+                />
+                <span className="text-[11px] text-[#555]">WeChat Pay</span>
+              </div>
             </div>
           </div>
         </div>
@@ -924,6 +1033,7 @@ export default function Home() {
   const [parseResult, setParseResult] = useState<TravelParseResult | null>(null);
   const [parseError, setParseError] = useState<string[] | null>(null);
   const [showHelp, setShowHelp] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   const [showCalendarPopup, setShowCalendarPopup] = useState(false);
   const [showMonacoEditor, setShowMonacoEditor] = useState(false);
   const [monacoEditorText, setMonacoEditorText] = useState('');
@@ -934,7 +1044,11 @@ export default function Home() {
   const [customEndStr, setCustomEndStr] = useState('');
   const [durationDays, setDurationDays] = useState(180);
 
-  const handleParse = useCallback(() => {
+  const prevDataTextRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const isNewData = prevDataTextRef.current !== dataText;
+    prevDataTextRef.current = dataText;
     try {
       const result = parseTravelData(dataText, isDetailed);
       if (result.errors.length > 0) {
@@ -944,10 +1058,12 @@ export default function Home() {
       }
       setParseResult(result);
       setParseError(null);
-      setCustomStartStr(toInputDate(result.startDate));
-      setCustomEndStr(toInputDate(result.endDate));
-      setRangeMode('start-end');
-      setDurationDays(daysBetween(result.startDate, result.endDate) + 1);
+      if (isNewData) {
+        setCustomStartStr(toInputDate(result.startDate));
+        setCustomEndStr(toInputDate(result.endDate));
+        setRangeMode('start-end');
+        setDurationDays(daysBetween(result.startDate, result.endDate) + 1);
+      }
     } catch (e: unknown) {
       setParseError([e instanceof Error ? e.message : String(e)]);
       setParseResult(null);
@@ -1016,6 +1132,9 @@ export default function Home() {
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Format help popup */}
       {showHelp && <FormatHelpPopup onClose={() => setShowHelp(false)} />}
+
+      {/* About popup */}
+      {showAbout && <AboutPopup onClose={() => setShowAbout(false)} />}
 
       {/* Monaco Editor popup */}
       {showMonacoEditor && (
@@ -1136,16 +1255,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Parse button */}
-          <div className="px-3 py-2 border-b border-border">
-            <button
-              onClick={handleParse}
-              className="w-full py-2 bg-[#EB0000] text-white text-[14px] font-semibold hover:bg-[#c00000] active:bg-[#a00000]"
-            >
-              {t.parseBtn}
-            </button>
-          </div>
-
           {/* Mobile: show calendar button */}
           {parseResult && (
             <div className="px-3 py-2 border-b border-border md:hidden">
@@ -1250,6 +1359,50 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {/* Sidebar footer */}
+        <div className="flex-shrink-0 border-t border-border px-3 py-2 bg-white">
+          <div className="flex items-center justify-between gap-2">
+            <span
+              className="text-[11px] text-[#666] leading-tight"
+              style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
+            >
+              {t.builtWith}{' '}
+              <a
+                href="https://manus.im"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#555] hover:text-[#EB0000] transition-colors font-medium"
+              >
+                Manus
+              </a>
+              {t.builtWithSep}
+              <a
+                href="https://claude.ai/code"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#555] hover:text-[#EB0000] transition-colors font-medium"
+              >
+                Claude Code
+              </a>
+              {t.builtWithSuffix}
+            </span>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button
+                onClick={() => setShowAbout(true)}
+                className="text-[11px] text-[#555] hover:text-[#EB0000] px-2 py-1 border border-border hover:border-[#EB0000] bg-white transition-colors"
+              >
+                {t.aboutBtn}
+              </button>
+              <button
+                onClick={() => setShowHelp(true)}
+                className="text-[11px] text-[#555] hover:text-[#EB0000] px-2 py-1 border border-border hover:border-[#EB0000] bg-white transition-colors"
+              >
+                {t.helpBtn}
+              </button>
+            </div>
+          </div>
+        </div>
       </aside>
 
       {/* ── Main calendar area — hidden on mobile ── */}
@@ -1279,12 +1432,6 @@ export default function Home() {
               <div className="w-12 h-[3px] bg-[#EB0000] mb-6" />
               <h2 className="text-[16px] font-semibold text-[#222] mb-2">{t.emptyTitle}</h2>
               <p className="text-[12px] text-[#888] max-w-sm leading-relaxed">{t.emptyDesc}</p>
-              <button
-                onClick={() => setShowHelp(true)}
-                className="mt-4 text-[12px] text-[#EB0000] hover:underline font-medium"
-              >
-                {t.emptyHelpLink}
-              </button>
             </div>
           : <CalendarGrid
               result={parseResult}
