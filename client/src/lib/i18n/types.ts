@@ -17,6 +17,7 @@ export interface Translation {
   helpBtn: string;
   aboutBtn: string;
   aboutTitle: string;
+  aboutDescription: string; // short app description shown in About popup
   builtWith: string;     // prefix: "Built with" / "使用"
   builtWithSep: string;  // connector between the two links: " & " / "、"
   builtWithSuffix: string; // trailing text: "" / " 和❤️製作"

@@ -272,7 +272,7 @@ function AboutPopup({ onClose }: { onClose: () => void }) {
         <div className="px-5 py-5 space-y-4 text-[13px] text-[#222] leading-relaxed">
           <div>
             <div className="text-[15px] font-bold text-[#EB0000] mb-1">{t.appTitle}</div>
-            <p className="text-[12px] text-[#555]">A calendar-based visualiser for personal travel history records.</p>
+            <p className="text-[12px] text-[#555]">{t.aboutDescription}</p>
           </div>
 
           <div className="border-t border-border pt-4 text-[12px] text-[#555] space-y-1">

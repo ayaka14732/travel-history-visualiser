@@ -17,6 +17,7 @@ const zhTW: Translation = {
   helpBtn: '說明',
   aboutBtn: '關於',
   aboutTitle: '關於此工具',
+  aboutDescription: '以日曆為基礎，視覺化呈現個人旅行記錄的工具。',
   builtWith: '使用',
   builtWithSep: '、',
   builtWithSuffix: ' 與 ❤️ 製作',

@@ -17,6 +17,7 @@ const daDK: Translation = {
   helpBtn: 'Hjælp',
   aboutBtn: 'Om',
   aboutTitle: 'Om',
+  aboutDescription: 'Et kalenderbaseret visualiseringsværktøj til personlige rejsehistorikker.',
   builtWith: 'Bygget med',
   builtWithSep: ', ',
   builtWithSuffix: ' og ❤️',
