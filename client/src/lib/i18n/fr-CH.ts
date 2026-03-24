@@ -14,6 +14,9 @@ const frCH: Translation = {
   editorDialogCancel: 'Annuler',
 
   formatHelpBtn: 'Guide de format ?',
+  helpBtn: 'Aide',
+  aboutBtn: 'À propos',
+  aboutTitle: 'À propos',
 
   displayModeLabel: "Mode d'affichage",
   modeDetailed: 'Mode petit lieu',
@@ -23,7 +26,6 @@ const frCH: Translation = {
   weekStartSun: 'Dimanche',
   weekStartMon: 'Lundi',
 
-  parseBtn: 'Analyser et afficher',
   showCalendarBtn: 'Afficher le calendrier',
 
   // ── Range ─────────────────────────────────────────────────────────────────
@@ -56,9 +58,9 @@ const frCH: Translation = {
   calendarDaysSuffix: ' jours',
 
   // ── Calendar empty state ──────────────────────────────────────────────────
-  emptyTitle: 'Collez vos données et cliquez sur « Analyser et afficher »',
+  emptyTitle: 'Collez vos données pour les visualiser',
   emptyDesc:
-    "Trois formats sont pris en charge : groupes multi-lignes (grand lieu + petits lieux), ligne unique avec petit lieu, et ligne unique grand lieu uniquement. Des données d'exemple sont préchargées à gauche.",
+    "Trois formats sont pris en charge : groupes multi-lignes (grand lieu + petits lieux), ligne unique avec petit lieu, et ligne unique grand lieu uniquement. Des données d'exemple sont préchargées et se mettent à jour automatiquement lors de la saisie.",
   emptyHelpLink: 'Voir le guide de format →',
 
   // ── Weekdays (Sun–Sat) ────────────────────────────────────────────────────

@@ -14,6 +14,9 @@ export interface Translation {
   languageSectionLabel: string; // "語言" / "Language"
   dataInputLabel: string;
   formatHelpBtn: string;
+  helpBtn: string;
+  aboutBtn: string;
+  aboutTitle: string;
   editDataBtn: string; // 編輯資料按鈕（開啟 Monaco Editor）
   editorDialogTitle: string; // Monaco 彈出視窗標題
   editorDialogApply: string; // 確認按鈕
@@ -27,7 +30,6 @@ export interface Translation {
   weekStartSun: string; // 星期日
   weekStartMon: string; // 星期一
 
-  parseBtn: string;
   showCalendarBtn: string; // mobile only
 
   // ── Range controls ────────────────────────────────────────────────────────

@@ -14,6 +14,9 @@ const zhTW: Translation = {
   editorDialogCancel: '取消',
 
   formatHelpBtn: '格式說明 ?',
+  helpBtn: '說明',
+  aboutBtn: '關於',
+  aboutTitle: '關於此工具',
 
   displayModeLabel: '顯示模式',
   modeDetailed: '小地點模式',
@@ -23,7 +26,6 @@ const zhTW: Translation = {
   weekStartSun: '週日',
   weekStartMon: '週一',
 
-  parseBtn: '解析並顯示',
   showCalendarBtn: '顯示日曆',
 
   // ── Range ─────────────────────────────────────────────────────────────────
@@ -56,8 +58,8 @@ const zhTW: Translation = {
   calendarDaysSuffix: ' 天',
 
   // ── Calendar empty state ──────────────────────────────────────────────────
-  emptyTitle: '貼上旅行記錄，點擊「解析並顯示」',
-  emptyDesc: '支援三種格式：多行群組（大地點 + 小地點）、單行雙地點、單行單地點。左側已預載範例資料，可直接點擊解析。',
+  emptyTitle: '貼上旅行記錄即可自動顯示',
+  emptyDesc: '支援三種格式：多行群組（大地點 + 小地點）、單行雙地點、單行單地點。已預載範例資料，修改後自動更新。',
   emptyHelpLink: '查看格式說明 →',
 
   // ── Weekdays (Sun–Sat) ────────────────────────────────────────────────────

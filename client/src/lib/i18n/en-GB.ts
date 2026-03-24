@@ -14,6 +14,9 @@ const enGB: Translation = {
   editorDialogCancel: 'Cancel',
 
   formatHelpBtn: 'Format Help ?',
+  helpBtn: 'Help',
+  aboutBtn: 'About',
+  aboutTitle: 'About',
 
   displayModeLabel: 'Display Mode',
   modeDetailed: 'Minor Location Mode',
@@ -23,7 +26,6 @@ const enGB: Translation = {
   weekStartSun: 'Sunday',
   weekStartMon: 'Monday',
 
-  parseBtn: 'Parse & Display',
   showCalendarBtn: 'Show Calendar',
 
   // ── Range ─────────────────────────────────────────────────────────────────
@@ -56,9 +58,9 @@ const enGB: Translation = {
   calendarDaysSuffix: ' days',
 
   // ── Calendar empty state ──────────────────────────────────────────────────
-  emptyTitle: 'Paste your travel records and click "Parse & Display"',
+  emptyTitle: 'Paste your travel records to visualise',
   emptyDesc:
-    'Three formats are supported: multi-line groups (major location + minor locations), single-line with minor location, and single-line major location only. Sample data is pre-loaded on the left.',
+    'Three formats are supported: multi-line groups (major location + minor locations), single-line with minor location, and single-line major location only. Sample data is pre-loaded and updates automatically as you edit.',
   emptyHelpLink: 'View format guide \u2192',
 
   // ── Weekdays (Sun\u2013Sat) ────────────────────────────────────────────────────
@@ -92,7 +94,8 @@ const enGB: Translation = {
   helpType2Desc:
     'One line only. Field 4 contains the minor location; fields 5 and 6 are empty. The minor location date range matches the major location.',
   helpType2ColHeader: 'Fields: [Start] [End] [Major Location] [Minor Location] [Empty] [Empty]',
-  helpType2Note: 'This means 2024-06-30 to 2024-07-05 in the UK (major location), minor location England, same date range.',
+  helpType2Note:
+    'This means 2024-06-30 to 2024-07-05 in the UK (major location), minor location England, same date range.',
 
   helpType3Title: 'Format 3: Single line, major location only',
   helpType3Desc:
