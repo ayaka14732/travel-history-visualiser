@@ -57,13 +57,13 @@ describe('tryParseDate', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Type 3: single row, big location only
+// Type 3: single row, major location only
 // ---------------------------------------------------------------------------
 
-describe('Type 3 — single row, big location only', () => {
+describe('Type 3 — single row, major location only', () => {
   const input = data(row('20240718', '20240721', '中國', '', '', ''));
 
-  it('detailed mode: small location defaults to big location', () => {
+  it('detailed mode: minor location defaults to major location', () => {
     const result = parseTravelData(input, true);
     expect(result.errors).toHaveLength(0);
     expect(formatDateDisplay(result.startDate)).toBe('2024-07-18');
@@ -75,7 +75,7 @@ describe('Type 3 — single row, big location only', () => {
     }
   });
 
-  it('overview mode: uses big location', () => {
+  it('overview mode: uses major location', () => {
     const result = parseTravelData(input, false);
     for (const day of result.dailyLocations) {
       expect(day).toEqual(['CN']);
@@ -99,7 +99,7 @@ describe('Type 2 — single row with minor location, no minor dates', () => {
     }
   });
 
-  it('overview mode: uses big location', () => {
+  it('overview mode: uses major location', () => {
     const result = parseTravelData(input, false);
     for (const day of result.dailyLocations) {
       expect(day).toEqual(['GB']);
@@ -493,7 +493,7 @@ describe('Location normalisation', () => {
 // ---------------------------------------------------------------------------
 
 describe('Comma-separated input', () => {
-  it('Type 3 with commas: single row big location only', () => {
+  it('Type 3 with commas: single row major location only', () => {
     const result = parseTravelData('20240718,20240721,中國,,,', false);
     expect(result.errors).toHaveLength(0);
     expect(formatDateDisplay(result.startDate)).toBe('2024-07-18');

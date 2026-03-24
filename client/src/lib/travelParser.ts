@@ -540,7 +540,7 @@ export function parseTravelData(dataText: string, isDetailed: boolean): TravelPa
         }
       }
     } else {
-      // Use big location for the whole group range
+      // Use major location for the whole group range
       const startOffset = daysBetween(minDate, group.groupStart);
       const endOffset = daysBetween(minDate, group.groupEnd);
       for (let i = startOffset; i <= endOffset; i++) {

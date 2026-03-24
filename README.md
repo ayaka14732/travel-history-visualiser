@@ -5,8 +5,8 @@ An interactive calendar-based tool for visualising travel history. Enter your tr
 ## Features
 
 - **Interactive calendar** — colour-coded daily view of visited locations
-- **Flexible data format** — tab or comma-separated entries supporting countries, regions, and sub-locations (cities, provinces)
-- **Overview and detail modes** — toggle between big locations (e.g. United Kingdom) and sub-locations (e.g. England, Scotland)
+- **Flexible data format** — tab or comma-separated entries supporting countries, regions, and minor locations (cities, provinces)
+- **Overview and detail modes** — toggle between major locations (e.g. United Kingdom) and minor locations (e.g. England, Scotland)
 - **Statistics panel** — total days travelled, number of locations, per-location breakdowns
 - **Date range controls** — Start–End, Start+Days, and End+Days modes with long-press navigation
 - **Monaco Editor** — full-screen code editor for comfortable data entry
@@ -18,20 +18,20 @@ An interactive calendar-based tool for visualising travel history. Enter your tr
 Each line describes a location visit. Fields are separated by tabs or commas.
 
 ```
-# Type 1 — group with sub-locations
+# Type 1 — group with minor locations
 20240101  20240115  France
           20240101  20240107  Paris
           20240108  20240115  Lyon
 
-# Type 2 — big location with sub-location on one row
+# Type 2 — major location with minor location on one row
 20240201  20240210  United Kingdom  England
 
-# Type 3 — big location only
+# Type 3 — major location only
 20240301  20240315  Japan
 ```
 
 - Dates are `YYYYMMDD`
-- Sub-location dates must fall within the group's date range
+- Minor location dates must fall within the group's date range
 - Location names are matched case-insensitively in all supported languages
 
 ## Getting Started
