@@ -17,6 +17,7 @@ const enGB: Translation = {
   helpBtn: 'Help',
   aboutBtn: 'About',
   aboutTitle: 'About',
+  aboutDescription: 'A calendar-based visualiser for personal travel history records.',
   builtWith: 'Built with',
   builtWithSep: ', ',
   builtWithSuffix: ' and ❤️',

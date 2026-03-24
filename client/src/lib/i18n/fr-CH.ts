@@ -17,6 +17,7 @@ const frCH: Translation = {
   helpBtn: 'Aide',
   aboutBtn: 'À propos',
   aboutTitle: 'À propos',
+  aboutDescription: "Un visualiseur de l'historique de voyage personnel basé sur un calendrier.",
   builtWith: 'Construit avec',
   builtWithSep: ', ',
   builtWithSuffix: ' et ❤️',
