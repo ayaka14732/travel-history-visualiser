@@ -48,8 +48,7 @@ pnpm dev          # Dev server at http://localhost:3000
 | Command | Description |
 |---|---|
 | `pnpm dev` | Start development server |
-| `pnpm build` | Build client and server to `dist/` |
-| `pnpm start` | Run production server (requires build) |
+| `pnpm build` | Build static client to `dist/public/` |
 | `pnpm preview` | Preview production build locally |
 | `pnpm check` | TypeScript type check |
 | `pnpm format` | Format code with Prettier |
@@ -61,7 +60,6 @@ pnpm dev          # Dev server at http://localhost:3000
 - **React 19** + TypeScript, **Vite 7**
 - **Tailwind CSS 4**, **Radix UI**, **shadcn/ui**
 - **Monaco Editor** (data entry)
-- **Express.js** (production static file server)
 - **Vitest** (test cases for the parser)
 
 ## Deployment
@@ -69,12 +67,3 @@ pnpm dev          # Dev server at http://localhost:3000
 ### GitHub Pages
 
 The project is deployed automatically to [https://ayaka14732.github.io/travel-history-visualiser-manus/](https://ayaka14732.github.io/travel-history-visualiser-manus/) on every push to `main` via GitHub Actions.
-
-### Self-hosted
-
-```bash
-pnpm build
-pnpm start        # Listens on PORT env var (default 3000)
-```
-
-The build outputs a self-contained Express server in `dist/` that serves the SPA.
