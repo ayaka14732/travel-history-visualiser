@@ -66,4 +66,4 @@ pnpm dev          # Dev server at http://localhost:3000
 
 ### GitHub Pages
 
-The project is deployed automatically to [https://ayaka14732.github.io/travel-history-visualiser-manus/](https://ayaka14732.github.io/travel-history-visualiser-manus/) on every push to `main` via GitHub Actions.
+The project is deployed automatically to [https://ayaka14732.github.io/travel-history-visualiser/](https://ayaka14732.github.io/travel-history-visualiser/) on every push to `main` via GitHub Actions.
