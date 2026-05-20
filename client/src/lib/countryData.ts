@@ -80,6 +80,7 @@ export const COUNTRIES: CountryEntry[] = [
   c('BO', '玻利維亞', 'Bolivia', 'Bolivie', 'Bolivia', ['玻利维亚']),
   c('BA', '波士尼亞與赫塞哥維納', 'Bosnia and Herzegovina', 'Bosnie-Herzégovine', 'Bosnien-Hercegovina', [
     '波斯尼亚和黑塞哥维那',
+    '波斯尼亞和黑塞哥維那',
     '波黑',
     '波士尼亞',
   ]),
