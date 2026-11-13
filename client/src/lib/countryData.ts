@@ -6,20 +6,18 @@
  * - `names`   : canonical display names per locale
  * - `aliases` : all recognised input strings (case-insensitive) that map to this code
  *
- * Parsing strategy (in travelParser.ts):
- *   1. Normalise input: trim + lower-case
- *   2. Look up in ALIAS_MAP (built at module load)
- *   3. If found → use code; if not → keep original string as-is
+ * Parsing strategy (resolveLocation):
+ *   1. Look up the lower-cased input in ALIAS_MAP (built at module load)
+ *   2. If found → use code; if not → keep original string as-is
  *
- * To add a new locale: add a key to `names` in each entry, then add
- * the locale key to the `CountryLocale` type.
+ * To add a new locale: add a key to `names` in each entry.
  */
 
-export type CountryLocale = 'zh-TW' | 'en-GB' | 'fr-CH' | 'da-DK';
+import type { Locale } from './i18n/types';
 
 export interface CountryEntry {
   code: string;
-  names: Record<CountryLocale, string>;
+  names: Record<Locale, string>;
   /** Lower-cased aliases used for input matching */
   aliases: string[];
 }
@@ -441,13 +439,13 @@ export const COUNTRIES: CountryEntry[] = [
 // Build lookup maps at module load time
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** alias (lower-cased) → CountryEntry */
-export const ALIAS_MAP: Map<string, CountryEntry> = new Map();
-/** code (upper-cased) → CountryEntry */
-export const CODE_MAP: Map<string, CountryEntry> = new Map();
+/** alias (lower-cased, includes the lower-cased code) → CountryEntry */
+const ALIAS_MAP = new Map<string, CountryEntry>();
+/** code → CountryEntry */
+const CODE_MAP = new Map<string, CountryEntry>();
 
 for (const entry of COUNTRIES) {
-  CODE_MAP.set(entry.code.toUpperCase(), entry);
+  CODE_MAP.set(entry.code, entry);
   for (const alias of entry.aliases) {
     // First writer wins; more specific entries should come first in the list
     if (!ALIAS_MAP.has(alias)) {
@@ -456,58 +454,31 @@ for (const entry of COUNTRIES) {
   }
 }
 
-/**
- * Resolve a raw location string to a CountryEntry (or null if unknown).
- * Tries:
- *   1. Exact alias match (case-insensitive)
- *   2. ISO code match (upper-cased)
- */
-export function resolveLocation(raw: string): CountryEntry | null {
-  const lower = raw.trim().toLowerCase();
-  if (!lower) return null;
-  const byAlias = ALIAS_MAP.get(lower);
-  if (byAlias) return byAlias;
-  const byCode = CODE_MAP.get(raw.trim().toUpperCase());
-  if (byCode) return byCode;
-  return null;
+/** Resolve a raw location string to its code (case-insensitive), or return it unchanged if unknown. */
+export function resolveLocation(raw: string): string {
+  return ALIAS_MAP.get(raw.toLowerCase())?.code ?? raw;
 }
 
-/**
- * Get the display name for a resolved code in the given locale.
- * Falls back to en-GB, then the code itself.
- */
-export function getDisplayName(code: string, locale: CountryLocale): string {
-  const entry = CODE_MAP.get(code.toUpperCase());
-  if (!entry) return code;
-  return entry.names[locale] ?? entry.names['en-GB'] ?? code;
+/** Get the display name for a resolved code in the given locale; unknown locations are shown as-is. */
+export function getDisplayName(code: string, locale: Locale): string {
+  return CODE_MAP.get(code)?.names[locale] ?? code;
 }
+
+/** GB subdivisions that have a Unicode Tag Sequence flag (GB-NIR has none). */
+const SUBDIVISION_FLAGS = new Set(['GB-ENG', 'GB-SCT', 'GB-WLS']);
 
 /**
  * Convert an ISO 3166-1 alpha-2 code to a flag emoji.
- * Also handles GB subdivision codes (GB-ENG, GB-SCT, GB-WLS) via Unicode Tag Sequences.
+ * Also handles GB subdivision codes via Unicode Tag Sequences (🏴 + tag chars + cancel tag).
  * Returns null for codes that have no known flag (e.g. SCHENGEN, GB-NIR).
  */
 export function getFlagEmoji(code: string): string | null {
-  const upper = code.trim().toUpperCase();
-
-  // Unicode Tag Sequence flags for GB subdivisions
-  // Format: 🏴 + tag chars (U+E0000 + char code) + U+E007F (cancel tag)
-  const TAG_BASE = 0xe0000;
-  const TAG_END = 0xe007f;
-  const BLACK_FLAG = '\u{1F3F4}';
-  const makeTagFlag = (suffix: string) =>
-    BLACK_FLAG +
-    Array.from(suffix.toLowerCase())
-      .map((c) => String.fromCodePoint(TAG_BASE + c.charCodeAt(0)))
-      .join('') +
-    String.fromCodePoint(TAG_END);
-
-  if (upper === 'GB-ENG') return makeTagFlag('gbeng');
-  if (upper === 'GB-SCT') return makeTagFlag('gbsct');
-  if (upper === 'GB-WLS') return makeTagFlag('gbwls');
-
-  // Standard ISO 3166-1 alpha-2: must be exactly 2 ASCII letters A-Z
-  if (!/^[A-Z]{2}$/.test(upper)) return null;
-  const [a, b] = upper.split('');
-  return String.fromCodePoint(0x1f1a5 + a.charCodeAt(0)) + String.fromCodePoint(0x1f1a5 + b.charCodeAt(0));
+  if (SUBDIVISION_FLAGS.has(code)) {
+    const tags = Array.from(code.replace('-', '').toLowerCase(), (c) =>
+      String.fromCodePoint(0xe0000 + c.charCodeAt(0)),
+    );
+    return '\u{1F3F4}' + tags.join('') + '\u{E007F}';
+  }
+  if (!/^[A-Z]{2}$/.test(code)) return null;
+  return String.fromCodePoint(...Array.from(code, (c) => 0x1f1a5 + c.charCodeAt(0)));
 }

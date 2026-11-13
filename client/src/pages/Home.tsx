@@ -1,53 +1,46 @@
 /**
  * Travel History Visualiser — Main Page
  * Design:
- * - Desktop: Left sidebar (296px) + Right calendar
+ * - Desktop: Left sidebar (360px) + Right calendar
  * - Mobile: Sidebar only; calendar opens as full-screen popup via "Show Calendar" button
  * - i18n: all UI strings via useLocale() hook
  */
 
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect, type ReactNode } from 'react';
 import Editor from '@monaco-editor/react';
 import {
   parseTravelData,
   computeStats,
-  sliceResult,
+  sliceDays,
   addDays,
   daysBetween,
   formatDateDisplay,
+  tryParseDate,
   type TravelParseResult,
 } from '@/lib/travelParser';
 import { getLocationColor } from '@/lib/countryColors';
-import { getDisplayName, getFlagEmoji, type CountryLocale } from '@/lib/countryData';
+import { getDisplayName, getFlagEmoji } from '@/lib/countryData';
 import { useLocale } from '@/contexts/LocaleContext';
 import { LOCALES, type Locale } from '@/lib/i18n';
 import { toast } from 'sonner';
-
-// (Sample data is now per-locale, stored in t.defaultSampleData)
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 type RangeMode = 'start-end' | 'start-duration' | 'end-duration';
 
-function toInputDate(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+/** Parse the YYYY-MM-DD value of an <input type="date"> (empty when cleared). */
+function fromInputDate(s: string): Date | null {
+  return tryParseDate(s.replaceAll('-', ''));
 }
 
-function fromInputDate(s: string): Date | null {
-  if (!s) return null;
-  const parts = s.split('-');
-  if (parts.length !== 3) return null;
-  const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-  if (isNaN(d.getTime())) return null;
-  return d;
-}
+const RED_BUTTON = 'px-4 py-1.5 bg-[#EB0000] text-white text-[12px] font-semibold hover:bg-[#c00000]';
 
 // ---------------------------------------------------------------------------
 // Language selector dropdown
 // ---------------------------------------------------------------------------
 function LangSelector() {
-  const { locale, setLocale, localeOrder } = useLocale();
+  const { locale, setLocale } = useLocale();
   const [open, setOpen] = useState(false);
 
   return (
@@ -65,7 +58,7 @@ function LangSelector() {
           {/* backdrop */}
           <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-full mt-0.5 z-40 bg-white border border-border shadow-sm min-w-full">
-            {(localeOrder as Locale[]).map((l) => (
+            {(Object.keys(LOCALES) as Locale[]).map((l) => (
               <button
                 key={l}
                 onClick={() => {
@@ -88,269 +81,137 @@ function LangSelector() {
 }
 
 // ---------------------------------------------------------------------------
+// Popup shell: dimmed overlay, red title bar, body, footer. Closes on Escape or backdrop click.
+// ---------------------------------------------------------------------------
+interface PopupProps {
+  title: string;
+  closeLabel: string;
+  onClose: () => void;
+  panelClassName: string;
+  panelStyle?: React.CSSProperties;
+  footer: ReactNode;
+  children: ReactNode;
+}
+
+function Popup({ title, closeLabel, onClose, panelClassName, panelStyle, footer, children }: PopupProps) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
+      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className={`bg-white border border-border flex flex-col ${panelClassName}`} style={panelStyle}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-[#EB0000] flex-shrink-0">
+          <h2 className="text-[14px] font-bold text-white">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-white/80 hover:text-white text-[18px] leading-none font-light px-1"
+            aria-label={closeLabel}
+          >
+            ×
+          </button>
+        </div>
+        {children}
+        <div className="px-5 py-3 border-t border-border flex justify-end gap-2 flex-shrink-0">{footer}</div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Format Help Popup
 // ---------------------------------------------------------------------------
 function FormatHelpPopup({ onClose }: { onClose: () => void }) {
   const { t } = useLocale();
+  const empty = `[${t.helpEmptyCell}]`;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-0"
-      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <Popup
+      title={t.helpTitle}
+      closeLabel={t.helpCloseBtn}
+      onClose={onClose}
+      panelClassName="w-full max-w-2xl max-h-[92vh] overflow-y-auto"
+      footer={
+        <button onClick={onClose} className={RED_BUTTON}>
+          {t.helpCloseBtn}
+        </button>
+      }
     >
-      <div
-        className="bg-white border border-border w-full max-w-2xl max-h-[92vh] overflow-y-auto flex flex-col"
-        style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-[#EB0000] flex-shrink-0">
-          <h2 className="text-[14px] font-bold text-white">{t.helpTitle}</h2>
-          <button
-            onClick={onClose}
-            className="text-white/80 hover:text-white text-[18px] leading-none font-light"
-            aria-label={t.helpCloseBtn}
-          >
-            ×
-          </button>
+      <div className="px-5 py-4 space-y-5 text-[12px] text-[#222] leading-relaxed">
+        <p>
+          {t.helpIntro} <strong>{t.helpTabNote}</strong>
+          {t.helpIntroCont}
+        </p>
+
+        <HelpSection
+          title={t.helpType1Title}
+          desc={t.helpType1Desc}
+          colHeader={t.helpType1ColHeader}
+          note={t.helpType1Note}
+          rows={[
+            {
+              cols: ['20240629', '20240630', t.helpExSchengen, t.helpExSwitzerland, '20240629', '20240629'],
+              highlight: [0, 1, 2, 3],
+            },
+            { cols: [empty, empty, empty, t.helpExFrance, '20240629', '20240629'], highlight: [3] },
+            { cols: [empty, empty, empty, t.helpExSwitzerland, '20240629', '20240630'], highlight: [3] },
+          ]}
+        />
+
+        <HelpSection
+          title={t.helpType2Title}
+          desc={t.helpType2Desc}
+          colHeader={t.helpType2ColHeader}
+          note={t.helpType2Note}
+          rows={[
+            { cols: ['20240630', '20240705', t.helpExUK, t.helpExEngland, empty, empty], highlight: [0, 1, 2, 3] },
+          ]}
+        />
+
+        <HelpSection
+          title={t.helpType3Title}
+          desc={t.helpType3Desc}
+          colHeader={t.helpType3ColHeader}
+          note={t.helpType3Note}
+          rows={[{ cols: ['20240718', '20240721', t.helpExChina, empty, empty, empty], highlight: [0, 1, 2] }]}
+        />
+
+        <div className="border-t border-border pt-4">
+          <div className="font-semibold text-[13px] mb-2">{t.helpNotesTitle}</div>
+          <ul className="space-y-1 text-[#555] list-none">
+            {[t.helpNote1, t.helpNote2, t.helpNote3, t.helpNote4, t.helpNote5].map((note, i) => (
+              <li key={i} className="flex gap-2">
+                <span className="text-[#EB0000] font-bold">·</span>
+                <span>{note}</span>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="px-5 py-4 space-y-5 text-[12px] text-[#222] leading-relaxed">
-          <p>
-            {t.helpIntro} <strong>{t.helpTabNote}</strong>
-            {t.helpIntroCont}
-          </p>
-
-          {/* Type 1 */}
-          <HelpSection
-            title={t.helpType1Title}
-            desc={t.helpType1Desc}
-            colHeader={t.helpType1ColHeader}
-            note={t.helpType1Note}
-            rows={[
-              {
-                cols: ['20240629', '20240630', t.helpExSchengen, t.helpExSwitzerland, '20240629', '20240629'],
-                highlight: [0, 1, 2, 3],
-              },
-              {
-                cols: [
-                  `[${t.helpEmptyCell}]`,
-                  `[${t.helpEmptyCell}]`,
-                  `[${t.helpEmptyCell}]`,
-                  t.helpExFrance,
-                  '20240629',
-                  '20240629',
-                ],
-                highlight: [3],
-              },
-              {
-                cols: [
-                  `[${t.helpEmptyCell}]`,
-                  `[${t.helpEmptyCell}]`,
-                  `[${t.helpEmptyCell}]`,
-                  t.helpExSwitzerland,
-                  '20240629',
-                  '20240630',
-                ],
-                highlight: [3],
-              },
-            ]}
-          />
-
-          {/* Type 2 */}
-          <HelpSection
-            title={t.helpType2Title}
-            desc={t.helpType2Desc}
-            colHeader={t.helpType2ColHeader}
-            note={t.helpType2Note}
-            rows={[
-              {
-                cols: [
-                  '20240630',
-                  '20240705',
-                  t.helpExUK,
-                  t.helpExEngland,
-                  `[${t.helpEmptyCell}]`,
-                  `[${t.helpEmptyCell}]`,
-                ],
-                highlight: [0, 1, 2, 3],
-              },
-            ]}
-          />
-
-          {/* Type 3 */}
-          <HelpSection
-            title={t.helpType3Title}
-            desc={t.helpType3Desc}
-            colHeader={t.helpType3ColHeader}
-            note={t.helpType3Note}
-            rows={[
-              {
-                cols: [
-                  '20240718',
-                  '20240721',
-                  t.helpExChina,
-                  `[${t.helpEmptyCell}]`,
-                  `[${t.helpEmptyCell}]`,
-                  `[${t.helpEmptyCell}]`,
-                ],
-                highlight: [0, 1, 2],
-              },
-            ]}
-          />
-
-          {/* Notes */}
-          <div className="border-t border-border pt-4">
-            <div className="font-semibold text-[13px] mb-2">{t.helpNotesTitle}</div>
-            <ul className="space-y-1 text-[#555] list-none">
-              {[t.helpNote1, t.helpNote2, t.helpNote3, t.helpNote4, t.helpNote5].map((note, i) => (
-                <li key={i} className="flex gap-2">
-                  <span className="text-[#EB0000] font-bold">·</span>
-                  <span>{note}</span>
-                </li>
-              ))}
-            </ul>
+        <div className="border-t border-border pt-4">
+          <div className="font-semibold text-[13px] mb-2">{t.helpExampleTitle}</div>
+          <div className="bg-[#fafafa] border border-border p-3 text-[11px] leading-[1.8] overflow-x-auto whitespace-pre font-mono">
+            {t.helpExampleData}
           </div>
-
-          {/* Full example */}
-          <div className="border-t border-border pt-4">
-            <div className="font-semibold text-[13px] mb-2">{t.helpExampleTitle}</div>
-            <div
-              className="bg-[#fafafa] border border-border p-3 text-[11px] leading-[1.8] overflow-x-auto whitespace-pre"
-              style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-            >
-              {t.helpExampleData}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="px-5 py-3 border-t border-border flex justify-end flex-shrink-0">
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 bg-[#EB0000] text-white text-[12px] font-semibold hover:bg-[#c00000]"
-          >
-            {t.helpCloseBtn}
-          </button>
         </div>
       </div>
-    </div>
+    </Popup>
   );
 }
 
-// ---------------------------------------------------------------------------
-// About Popup
-// ---------------------------------------------------------------------------
-function AboutPopup({ onClose }: { onClose: () => void }) {
-  const { t } = useLocale();
+// Colour of each highlighted column in the help examples: dates, major location, minor location
+const HELP_COLUMN_COLORS = ['text-[#EB0000]', 'text-[#EB0000]', 'text-blue-700', 'text-green-700'];
 
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div
-        className="bg-white border border-border w-full max-w-sm flex flex-col"
-        style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-[#EB0000] flex-shrink-0">
-          <h2 className="text-[14px] font-bold text-white">{t.aboutTitle}</h2>
-          <button
-            onClick={onClose}
-            className="text-white/80 hover:text-white text-[18px] leading-none font-light"
-            aria-label={t.helpCloseBtn}
-          >
-            ×
-          </button>
-        </div>
-
-        <div className="px-5 py-5 space-y-4 text-[13px] text-[#222] leading-relaxed">
-          <div>
-            <div className="text-[15px] font-bold text-[#EB0000] mb-1">{t.appTitle}</div>
-            <p className="text-[12px] text-[#555]">{t.aboutDescription}</p>
-          </div>
-
-          <div className="border-t border-border pt-4 text-[12px] text-[#555] space-y-1">
-            <div>
-              {t.builtWith}{' '}
-              <a
-                href="https://manus.im"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#EB0000] hover:underline font-medium"
-              >
-                Manus
-              </a>
-              {t.builtWithSep}
-              <a
-                href="https://claude.ai/code"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#EB0000] hover:underline font-medium"
-              >
-                Claude Code
-              </a>
-              {t.builtWithSuffix}
-            </div>
-            <div>
-              <a
-                href="https://github.com/ayaka14732/travel-history-visualiser-manus"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#EB0000] hover:underline"
-              >
-                https://github.com/ayaka14732/travel-history-visualiser-manus
-              </a>
-            </div>
-          </div>
-
-          <div className="border-t border-border pt-4 space-y-3">
-            <div className="text-[12px] font-semibold text-[#222]">{t.sponsorLabel}</div>
-            <p className="text-[12px] text-[#555] leading-relaxed">{t.sponsorDesc1}</p>
-            <p className="text-[12px] text-[#555] leading-relaxed">{t.sponsorDesc2}</p>
-            <p className="text-[12px] text-[#555] leading-relaxed">{t.sponsorDesc3}</p>
-            <div className="flex gap-4 justify-center pt-1">
-              <div className="flex flex-col items-center gap-1">
-                <img
-                  src="https://ayaka14732.github.io/sponsor/alipay.jpg"
-                  alt="Alipay"
-                  className="w-28 h-28 object-contain border border-border"
-                />
-                <span className="text-[11px] text-[#555]">Alipay</span>
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <img
-                  src="https://ayaka14732.github.io/sponsor/wechat.png"
-                  alt="WeChat Pay"
-                  className="w-28 h-28 object-contain border border-border"
-                />
-                <span className="text-[11px] text-[#555]">WeChat Pay</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="px-5 py-3 border-t border-border flex justify-end flex-shrink-0">
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 bg-[#EB0000] text-white text-[12px] font-semibold hover:bg-[#c00000]"
-          >
-            {t.helpCloseBtn}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Helper sub-component for format help sections
 interface HelpSectionProps {
   title: string;
   desc: string;
@@ -367,36 +228,107 @@ function HelpSection({ title, desc, colHeader, note, rows }: HelpSectionProps) {
         <span className="font-semibold text-[13px]">{title}</span>
       </div>
       <p className="mb-2 text-[#555]">{desc}</p>
-      <div
-        className="bg-[#fafafa] border border-border p-3 text-[11px] leading-[1.8] overflow-x-auto"
-        style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-      >
+      <div className="bg-[#fafafa] border border-border p-3 text-[11px] leading-[1.8] overflow-x-auto font-mono">
         <div className="text-[#888] mb-1">{colHeader}</div>
         {rows.map((row, ri) => (
           <div key={ri} className={ri > 0 ? 'text-[#aaa]' : ''}>
-            {row.cols.map((col, ci) => {
-              const isDate = ci < 2 && row.highlight.includes(ci);
-              const isRegion = ci === 2 && row.highlight.includes(ci);
-              const isSub = ci === 3 && row.highlight.includes(ci);
-              return (
-                <span
-                  key={ci}
-                  className={[
-                    ci > 0 ? 'ml-2' : '',
-                    isDate ? 'text-[#EB0000]' : '',
-                    isRegion ? 'text-blue-700' : '',
-                    isSub ? 'text-green-700' : '',
-                  ].join(' ')}
-                >
-                  {col}
-                </span>
-              );
-            })}
+            {row.cols.map((col, ci) => (
+              <span
+                key={ci}
+                className={[ci > 0 ? 'ml-2' : '', row.highlight.includes(ci) ? HELP_COLUMN_COLORS[ci] : ''].join(' ')}
+              >
+                {col}
+              </span>
+            ))}
           </div>
         ))}
       </div>
       <p className="mt-2 text-[#555]">{note}</p>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// "Built with Manus, Claude Code and ❤️" credit line
+// ---------------------------------------------------------------------------
+function BuiltWith({ linkClassName }: { linkClassName: string }) {
+  const { t } = useLocale();
+  return (
+    <>
+      {t.builtWith}{' '}
+      <a href="https://manus.im" target="_blank" rel="noopener noreferrer" className={linkClassName}>
+        Manus
+      </a>
+      {t.builtWithSep}
+      <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" className={linkClassName}>
+        Claude Code
+      </a>
+      {t.builtWithSuffix}
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// About Popup
+// ---------------------------------------------------------------------------
+function AboutPopup({ onClose }: { onClose: () => void }) {
+  const { t } = useLocale();
+
+  return (
+    <Popup
+      title={t.aboutTitle}
+      closeLabel={t.helpCloseBtn}
+      onClose={onClose}
+      panelClassName="w-full max-w-sm"
+      footer={
+        <button onClick={onClose} className={RED_BUTTON}>
+          {t.helpCloseBtn}
+        </button>
+      }
+    >
+      <div className="px-5 py-5 space-y-4 text-[13px] text-[#222] leading-relaxed">
+        <div>
+          <div className="text-[15px] font-bold text-[#EB0000] mb-1">{t.appTitle}</div>
+          <p className="text-[12px] text-[#555]">{t.aboutDescription}</p>
+        </div>
+
+        <div className="border-t border-border pt-4 text-[12px] text-[#555] space-y-1">
+          <div>
+            <BuiltWith linkClassName="text-[#EB0000] hover:underline font-medium" />
+          </div>
+          <div>
+            <a
+              href="https://github.com/ayaka14732/travel-history-visualiser-manus"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#EB0000] hover:underline"
+            >
+              https://github.com/ayaka14732/travel-history-visualiser-manus
+            </a>
+          </div>
+        </div>
+
+        <div className="border-t border-border pt-4 space-y-3">
+          <div className="text-[12px] font-semibold text-[#222]">{t.sponsorLabel}</div>
+          {[t.sponsorDesc1, t.sponsorDesc2, t.sponsorDesc3].map((p) => (
+            <p key={p} className="text-[12px] text-[#555] leading-relaxed">
+              {p}
+            </p>
+          ))}
+          <div className="flex gap-4 justify-center pt-1">
+            {[
+              { src: 'https://ayaka14732.github.io/sponsor/alipay.jpg', name: 'Alipay' },
+              { src: 'https://ayaka14732.github.io/sponsor/wechat.png', name: 'WeChat Pay' },
+            ].map(({ src, name }) => (
+              <div key={name} className="flex flex-col items-center gap-1">
+                <img src={src} alt={name} className="w-28 h-28 object-contain border border-border" />
+                <span className="text-[11px] text-[#555]">{name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Popup>
   );
 }
 
@@ -415,89 +347,58 @@ function MonacoEditorPopup({
   const { t } = useLocale();
   const [editorValue, setEditorValue] = useState(initialValue);
 
-  // Close on Escape
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onClose]);
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div
-        className="bg-white border border-border flex flex-col"
-        style={{ width: 'min(96vw, 900px)', height: 'min(90vh, 680px)' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-[#EB0000] flex-shrink-0">
-          <h2 className="text-[13px] font-bold text-white tracking-wide">{t.editorDialogTitle}</h2>
-          <button
-            onClick={onClose}
-            className="text-white/80 hover:text-white text-[18px] leading-none font-light px-1"
-            aria-label={t.editorDialogCancel}
-          >
-            ×
-          </button>
-        </div>
-
-        {/* Monaco Editor */}
-        <div className="flex-1 overflow-hidden">
-          <Editor
-            height="100%"
-            defaultLanguage="plaintext"
-            value={editorValue}
-            onChange={(val) => setEditorValue(val ?? '')}
-            options={{
-              fontFamily: "'IBM Plex Mono', 'Cascadia Code', 'Fira Code', monospace",
-              fontSize: 13,
-              lineHeight: 22,
-              minimap: { enabled: false },
-              scrollBeyondLastLine: false,
-              wordWrap: 'off',
-              renderWhitespace: 'boundary',
-              tabSize: 4,
-              insertSpaces: false,
-              lineNumbers: 'on',
-              folding: false,
-              glyphMargin: false,
-              overviewRulerLanes: 0,
-              hideCursorInOverviewRuler: true,
-              scrollbar: {
-                verticalScrollbarSize: 8,
-                horizontalScrollbarSize: 8,
-              },
-              padding: { top: 10, bottom: 10 },
-            }}
-            theme="light"
-          />
-        </div>
-
-        {/* Footer */}
-        <div className="px-4 py-2.5 border-t border-border flex justify-end gap-2 flex-shrink-0 bg-[#fafafa]">
+    <Popup
+      title={t.editorDialogTitle}
+      closeLabel={t.editorDialogCancel}
+      onClose={onClose}
+      panelClassName=""
+      panelStyle={{ width: 'min(96vw, 900px)', height: 'min(90vh, 680px)' }}
+      footer={
+        <>
           <button
             onClick={onClose}
             className="px-4 py-1.5 border border-border text-[12px] font-medium text-[#555] hover:bg-[#f0f0f0]"
           >
             {t.editorDialogCancel}
           </button>
-          <button
-            onClick={() => onApply(editorValue)}
-            className="px-5 py-1.5 bg-[#EB0000] text-white text-[12px] font-semibold hover:bg-[#c00000]"
-          >
+          <button onClick={() => onApply(editorValue)} className={RED_BUTTON}>
             {t.editorDialogApply}
           </button>
-        </div>
+        </>
+      }
+    >
+      <div className="flex-1 overflow-hidden">
+        <Editor
+          height="100%"
+          defaultLanguage="plaintext"
+          value={editorValue}
+          onChange={(val) => setEditorValue(val ?? '')}
+          options={{
+            fontFamily: "'IBM Plex Mono', 'Cascadia Code', 'Fira Code', monospace",
+            fontSize: 13,
+            lineHeight: 22,
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
+            wordWrap: 'off',
+            renderWhitespace: 'boundary',
+            tabSize: 4,
+            insertSpaces: false,
+            lineNumbers: 'on',
+            folding: false,
+            glyphMargin: false,
+            overviewRulerLanes: 0,
+            hideCursorInOverviewRuler: true,
+            scrollbar: {
+              verticalScrollbarSize: 8,
+              horizontalScrollbarSize: 8,
+            },
+            padding: { top: 10, bottom: 10 },
+          }}
+          theme="light"
+        />
       </div>
-    </div>
+    </Popup>
   );
 }
 
@@ -513,50 +414,31 @@ function ErrorDialog({ errors, onClose }: { errors: string[]; onClose: () => voi
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-md border-t-4 border-[#EB0000] shadow-lg"
+        className="bg-white w-full max-w-md border-t-4 border-[#EB0000] shadow-lg font-mono"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
-          <span
-            className="text-[13px] font-bold text-[#EB0000] uppercase tracking-wide"
-            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-          >
-            {t.errorDialogTitle}
-          </span>
+          <span className="text-[13px] font-bold text-[#EB0000] uppercase tracking-wide">{t.errorDialogTitle}</span>
           <button
             onClick={onClose}
             className="text-[#888] hover:text-[#222] text-[18px] leading-none font-light px-1"
-            aria-label="Close"
+            aria-label={t.errorDialogClose}
           >
             ×
           </button>
         </div>
-        {/* Error list */}
         <div className="px-4 py-3 max-h-64 overflow-y-auto">
           {errors.map((err, i) => (
             <div key={i} className="flex gap-2 py-1 border-b border-border last:border-0">
-              <span
-                className="text-[#EB0000] font-bold text-[11px] flex-shrink-0 mt-0.5"
-                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-              >
-                ✕
-              </span>
-              <span
-                className="text-[11px] text-[#222] leading-relaxed"
-                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-              >
-                {err}
-              </span>
+              <span className="text-[#EB0000] font-bold text-[11px] flex-shrink-0 mt-0.5">✕</span>
+              <span className="text-[11px] text-[#222] leading-relaxed">{err}</span>
             </div>
           ))}
         </div>
-        {/* Footer */}
         <div className="px-4 py-2.5 border-t border-border flex justify-end">
           <button
             onClick={onClose}
             className="px-4 py-1.5 bg-[#EB0000] text-white text-[11px] font-medium hover:bg-[#c00000] transition-colors"
-            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
           >
             {t.errorDialogClose}
           </button>
@@ -584,7 +466,7 @@ function CalendarPopup({ result, viewStart, viewEnd, isDetailed, weekStartsMonda
     <div className="fixed inset-0 z-40 flex flex-col bg-white">
       <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-[#EB0000] flex-shrink-0">
         <div className="flex-1 min-w-0">
-          <span className="text-[11px] text-white/80" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+          <span className="text-[11px] text-white/80 font-mono">
             {formatDateDisplay(viewStart)} — {formatDateDisplay(viewEnd)}
             &nbsp;·&nbsp;{daysBetween(viewStart, viewEnd) + 1}
             {t.calendarDaysSuffix}
@@ -614,8 +496,8 @@ function useLongPress(callback: () => void, { delay = 400, interval = 80 } = {})
   useEffect(() => {
     cbRef.current = callback;
   });
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
   const start = useCallback(() => {
     cbRef.current(); // fire immediately
@@ -625,14 +507,8 @@ function useLongPress(callback: () => void, { delay = 400, interval = 80 } = {})
   }, [delay, interval]);
 
   const stop = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+    clearTimeout(timerRef.current);
+    clearInterval(intervalRef.current);
   }, []);
 
   return {
@@ -648,59 +524,34 @@ function useLongPress(callback: () => void, { delay = 400, interval = 80 } = {})
 }
 
 // ---------------------------------------------------------------------------
-// Date stepper: input + − / + buttons
+// Stepper: label + [−] input [+], with long-press repeat on the buttons
 // ---------------------------------------------------------------------------
-interface DateStepperProps {
+interface StepperProps {
   label: string;
-  value: string;
-  min: string;
-  max: string;
-  onChange: (v: string) => void;
+  onStep: (delta: number) => void;
+  prevTitle?: string;
+  nextTitle?: string;
+  children: ReactNode;
 }
 
-function DateStepper({ label, value, min, max, onChange }: DateStepperProps) {
-  const { t } = useLocale();
-  const step = (delta: number) => {
-    const d = fromInputDate(value);
-    if (!d) return;
-    const nd = addDays(d, delta);
-    const minD = fromInputDate(min);
-    const maxD = fromInputDate(max);
-    if (minD && nd < minD) return;
-    if (maxD && nd > maxD) return;
-    onChange(toInputDate(nd));
-  };
+const STEP_BUTTON =
+  'w-7 flex-shrink-0 border border-border bg-[#f5f5f5] hover:bg-[#eee] active:bg-[#e0e0e0] text-[#444] text-[13px] font-semibold flex items-center justify-center select-none';
+const STEPPER_INPUT =
+  'flex-1 min-w-0 text-[13px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000] font-mono';
 
-  const prevPress = useLongPress(() => step(-1));
-  const nextPress = useLongPress(() => step(1));
+function Stepper({ label, onStep, prevTitle, nextTitle, children }: StepperProps) {
+  const prevPress = useLongPress(() => onStep(-1));
+  const nextPress = useLongPress(() => onStep(1));
 
   return (
     <div>
       <label className="block text-[12px] text-[#555] mb-0.5">{label}</label>
       <div className="flex">
-        <button
-          {...prevPress}
-          onClick={undefined}
-          className="w-7 flex-shrink-0 border border-r-0 border-border bg-[#f5f5f5] hover:bg-[#eee] active:bg-[#e0e0e0] text-[#444] text-[13px] font-semibold flex items-center justify-center select-none"
-          title={t.prevDayTitle}
-        >
+        <button {...prevPress} className={`${STEP_BUTTON} border-r-0`} title={prevTitle}>
           −
         </button>
-        <input
-          type="date"
-          className="flex-1 min-w-0 text-[13px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
-          style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-          value={value}
-          min={min}
-          max={max}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        <button
-          {...nextPress}
-          onClick={undefined}
-          className="w-7 flex-shrink-0 border border-l-0 border-border bg-[#f5f5f5] hover:bg-[#eee] active:bg-[#e0e0e0] text-[#444] text-[13px] font-semibold flex items-center justify-center select-none"
-          title={t.nextDayTitle}
-        >
+        {children}
+        <button {...nextPress} className={`${STEP_BUTTON} border-l-0`} title={nextTitle}>
           +
         </button>
       </div>
@@ -708,46 +559,86 @@ function DateStepper({ label, value, min, max, onChange }: DateStepperProps) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Duration stepper
-// ---------------------------------------------------------------------------
-interface DurationStepperProps {
+interface DateStepperProps {
   label: string;
-  value: number;
-  onChange: (v: number) => void;
+  value: string;
+  min: Date;
+  max: Date;
+  onChange: (v: string) => void;
 }
 
-function DurationStepper({ label, value, onChange }: DurationStepperProps) {
-  const prevPress = useLongPress(() => onChange(Math.max(1, value - 1)));
-  const nextPress = useLongPress(() => onChange(Math.min(3650, value + 1)));
+function DateStepper({ label, value, min, max, onChange }: DateStepperProps) {
+  const { t } = useLocale();
+  const step = (delta: number) => {
+    const d = fromInputDate(value);
+    if (!d) return; // input was cleared
+    const nd = addDays(d, delta);
+    if (nd >= min && nd <= max) onChange(formatDateDisplay(nd));
+  };
 
   return (
-    <div>
-      <label className="block text-[12px] text-[#555] mb-0.5">{label}</label>
-      <div className="flex">
-        <button
-          {...prevPress}
-          onClick={undefined}
-          className="w-7 flex-shrink-0 border border-r-0 border-border bg-[#f5f5f5] hover:bg-[#eee] active:bg-[#e0e0e0] text-[#444] text-[13px] font-semibold flex items-center justify-center select-none"
-        >
-          −
-        </button>
-        <input
-          type="number"
-          className="flex-1 min-w-0 text-[13px] border border-border px-1.5 py-1 bg-white focus:outline-none focus:border-[#EB0000]"
-          style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-          value={value}
-          min={1}
-          max={3650}
-          onChange={(e) => onChange(Math.max(1, parseInt(e.target.value) || 180))}
-        />
-        <button
-          {...nextPress}
-          onClick={undefined}
-          className="w-7 flex-shrink-0 border border-l-0 border-border bg-[#f5f5f5] hover:bg-[#eee] active:bg-[#e0e0e0] text-[#444] text-[13px] font-semibold flex items-center justify-center select-none"
-        >
-          +
-        </button>
+    <Stepper label={label} onStep={step} prevTitle={t.prevDayTitle} nextTitle={t.nextDayTitle}>
+      <input
+        type="date"
+        className={STEPPER_INPUT}
+        value={value}
+        min={formatDateDisplay(min)}
+        max={formatDateDisplay(max)}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </Stepper>
+  );
+}
+
+const MAX_DURATION = 3650;
+
+function DurationStepper({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
+  return (
+    <Stepper label={label} onStep={(delta) => onChange(Math.min(MAX_DURATION, Math.max(1, value + delta)))}>
+      <input
+        type="number"
+        className={STEPPER_INPUT}
+        value={value}
+        min={1}
+        max={MAX_DURATION}
+        onChange={(e) => onChange(Math.max(1, parseInt(e.target.value) || 180))}
+      />
+    </Stepper>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Radio pair (two mutually exclusive options)
+// ---------------------------------------------------------------------------
+function RadioPair<T>({
+  label,
+  name,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  name: string;
+  value: T;
+  options: [{ value: T; label: string }, { value: T; label: string }];
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="px-3 py-2 border-b border-border">
+      <span className="block text-[13px] font-semibold text-[#555] mb-1.5">{label}</span>
+      <div className="grid grid-cols-2">
+        {options.map((o) => (
+          <label key={o.label} className="flex items-center gap-1.5 text-[13px] text-[#555] cursor-pointer">
+            <input
+              type="radio"
+              name={name}
+              checked={value === o.value}
+              onChange={() => onChange(o.value)}
+              className="accent-[#EB0000]"
+            />
+            {o.label}
+          </label>
+        ))}
       </div>
     </div>
   );
@@ -756,35 +647,21 @@ function DurationStepper({ label, value, onChange }: DurationStepperProps) {
 // ---------------------------------------------------------------------------
 // Location chip
 // ---------------------------------------------------------------------------
-function LocationChip({ location, locale }: { location: string; locale: CountryLocale }) {
-  const displayName = getDisplayName(location, locale);
+function LocationChip({ location }: { location: string }) {
+  const { locale } = useLocale();
   const flag = getFlagEmoji(location);
   const color = getLocationColor(location);
-  if (flag) {
-    return (
-      <span
-        className="inline-flex items-center gap-1 px-1 py-0 text-[12px] font-medium leading-[20px] whitespace-nowrap"
-        style={{
-          backgroundColor: color.bg,
-          color: color.text,
-          border: `1px solid ${color.border}`,
-        }}
-      >
-        <span className="text-[14px] leading-none">{flag}</span>
-        <span>{displayName}</span>
-      </span>
-    );
-  }
   return (
     <span
-      className="inline-flex items-center px-1 py-0 text-[12px] font-medium leading-[20px] whitespace-nowrap"
+      className="inline-flex items-center gap-1 px-1 py-0 text-[12px] font-medium leading-[20px] whitespace-nowrap"
       style={{
         backgroundColor: color.bg,
         color: color.text,
         border: `1px solid ${color.border}`,
       }}
     >
-      {displayName}
+      {flag && <span className="text-[14px] leading-none">{flag}</span>}
+      <span>{getDisplayName(location, locale)}</span>
     </span>
   );
 }
@@ -796,14 +673,11 @@ interface DayCellProps {
   date: Date;
   locations: string[];
   isToday: boolean;
-  isWeekend: boolean;
-  isFirstOfMonth: boolean;
 }
 
-function DayCell({ date, locations, isToday, isWeekend, isFirstOfMonth }: DayCellProps) {
-  const { t, locale } = useLocale();
-  const dayNum = date.getDate();
-  const isEmpty = locations.length === 0;
+function DayCell({ date, locations, isToday }: DayCellProps) {
+  const { t } = useLocale();
+  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
 
   return (
     <div
@@ -813,32 +687,26 @@ function DayCell({ date, locations, isToday, isWeekend, isFirstOfMonth }: DayCel
         isToday ? 'outline outline-1 outline-[#EB0000] outline-offset-[-1px]' : '',
       ].join(' ')}
     >
-      {isFirstOfMonth && (
+      {date.getDate() === 1 && (
         <span className="text-[11px] text-[#EB0000] font-semibold leading-none mb-0.5">
           {t.months[date.getMonth()]}
         </span>
       )}
-      <div className="flex items-start justify-between gap-1">
-        <span
-          className={[
-            'text-[13px] font-semibold leading-none',
-            isToday ? 'text-[#EB0000]'
-            : isWeekend ? 'text-[#999]'
-            : 'text-[#222]',
-          ].join(' ')}
-          style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-        >
-          {String(dayNum).padStart(2, '0')}
-        </span>
-        {/* <span className="text-[11px] text-[#ccc] leading-none">
-          {t.weekdays[date.getDay()]}
-        </span> */}
-      </div>
-      {isEmpty ?
+      <span
+        className={[
+          'text-[13px] font-semibold leading-none font-mono',
+          isToday ? 'text-[#EB0000]'
+          : isWeekend ? 'text-[#999]'
+          : 'text-[#222]',
+        ].join(' ')}
+      >
+        {String(date.getDate()).padStart(2, '0')}
+      </span>
+      {locations.length === 0 ?
         <span className="text-[12px] text-[#ddd] mt-1">—</span>
       : <div className="flex flex-wrap gap-[2px] mt-1">
           {locations.map((loc) => (
-            <LocationChip key={loc} location={loc} locale={locale as CountryLocale} />
+            <LocationChip key={loc} location={loc} />
           ))}
         </div>
       }
@@ -861,36 +729,15 @@ function CalendarGrid({ result, viewStart, viewEnd, weekStartsMonday }: Calendar
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const totalDays = daysBetween(viewStart, viewEnd) + 1;
-  const days: Array<{ date: Date; locations: string[] }> = [];
-
-  for (let i = 0; i < totalDays; i++) {
-    const date = addDays(viewStart, i);
-    const offset = daysBetween(result.startDate, date);
-    const locations = offset >= 0 && offset < result.dailyLocations.length ? result.dailyLocations[offset] : [];
-    days.push({ date, locations });
-  }
-
   // weekStartsMonday: Sun=0→6, Mon=1→0, …, Sat=6→5; else use getDay() directly
   const startDow = weekStartsMonday ? (viewStart.getDay() + 6) % 7 : viewStart.getDay();
-  const paddedDays: Array<{ date: Date | null; locations: string[] }> = [
-    ...Array.from({ length: startDow }, () => ({ date: null as Date | null, locations: [] as string[] })),
-    ...days,
+  const cells: ({ date: Date; locations: string[] } | null)[] = [
+    ...Array<null>(startDow).fill(null),
+    ...sliceDays(result, viewStart, viewEnd).map((locations, i) => ({ date: addDays(viewStart, i), locations })),
   ];
+  while (cells.length % 7 !== 0) cells.push(null);
 
-  const remainder = paddedDays.length % 7;
-  if (remainder !== 0) {
-    for (let i = 0; i < 7 - remainder; i++) {
-      paddedDays.push({ date: null, locations: [] });
-    }
-  }
-
-  const weeks: (typeof paddedDays)[] = [];
-  for (let i = 0; i < paddedDays.length; i += 7) {
-    weeks.push(paddedDays.slice(i, i + 7));
-  }
-
-  const orderedWeekdays = weekStartsMonday ? [...t.weekdays.slice(1), t.weekdays[0]] : [...t.weekdays];
+  const orderedWeekdays = weekStartsMonday ? [...t.weekdays.slice(1), t.weekdays[0]] : t.weekdays;
   const weekendCols = weekStartsMonday ? [5, 6] : [0, 6];
 
   return (
@@ -908,28 +755,18 @@ function CalendarGrid({ result, viewStart, viewEnd, weekStartsMonday }: Calendar
           </div>
         ))}
       </div>
-      {weeks.map((week, wi) => (
-        <div key={wi} className="grid grid-cols-7 border-l border-border">
-          {week.map((cell, di) => {
-            if (!cell.date) {
-              return <div key={di} className="border-b border-r border-border min-h-[56px] bg-[#f5f5f5]" />;
-            }
-            const isToday = cell.date.getTime() === today.getTime();
-            const isWeekend = cell.date.getDay() === 0 || cell.date.getDay() === 6;
-            const isFirstOfMonth = cell.date.getDate() === 1;
-            return (
-              <DayCell
-                key={di}
-                date={cell.date}
-                locations={cell.locations}
-                isToday={isToday}
-                isWeekend={isWeekend}
-                isFirstOfMonth={isFirstOfMonth}
-              />
-            );
-          })}
-        </div>
-      ))}
+      <div className="grid grid-cols-7 border-l border-border">
+        {cells.map((cell, i) =>
+          cell ?
+            <DayCell
+              key={i}
+              date={cell.date}
+              locations={cell.locations}
+              isToday={cell.date.getTime() === today.getTime()}
+            />
+          : <div key={i} className="border-b border-r border-border min-h-[56px] bg-[#f5f5f5]" />,
+        )}
+      </div>
     </div>
   );
 }
@@ -945,19 +782,18 @@ interface StatsPanelProps {
 
 function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
   const { t, locale } = useLocale();
-  const sliced = useMemo(() => sliceResult(result, viewStart, viewEnd), [result, viewStart, viewEnd]);
-  const stats = useMemo(() => computeStats(sliced), [sliced]);
-  const totalDays = daysBetween(viewStart, viewEnd) + 1;
-  const coveredDays = sliced.dailyLocations.filter((d) => d.length > 0).length;
+  const days = useMemo(() => sliceDays(result, viewStart, viewEnd), [result, viewStart, viewEnd]);
+  const stats = useMemo(() => computeStats(days), [days]);
+  const coveredDays = days.filter((d) => d.length > 0).length;
 
   return (
     <div>
-      <div className="border-border mb-1.5">
+      <div className="mb-1.5">
         <span className="text-[13px] font-semibold text-[#555]">{t.statsLabel}</span>
       </div>
       <div className="flex gap-4 pt-1 mb-3">
         {[
-          { val: totalDays, label: t.statsTotalDays, red: true },
+          { val: days.length, label: t.statsTotalDays, red: true },
           { val: coveredDays, label: t.statsRecordedDays, red: false },
           { val: stats.length, label: t.statsLocations, red: false },
         ].map(({ val, label, red }) => (
@@ -969,32 +805,29 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
           </div>
         ))}
       </div>
-      <div className="space-y-0">
+      <div>
         {stats.map((s) => {
           const color = getLocationColor(s.location);
-          const pct = totalDays > 0 ? Math.round((s.days / totalDays) * 100) : 0;
+          const flag = getFlagEmoji(s.location);
+          const pct = Math.round((s.days / days.length) * 100);
           return (
             <div key={s.location} className="py-[5px] border-b border-[#f0f0f0]">
               <div className="flex items-center gap-1.5 mb-1">
-                {(() => {
-                  const flag = getFlagEmoji(s.location);
-                  return flag ?
-                      <span className="text-[18px] leading-none flex-shrink-0">{flag}</span>
-                    : <span
-                        className="inline-block flex-shrink-0"
-                        style={{
-                          width: '1.2em',
-                          height: '0.9em',
-                          borderRadius: '2px',
-                          fontSize: '18px',
-                          backgroundColor: color.border,
-                          verticalAlign: 'middle',
-                        }}
-                      />;
-                })()}
-                <span className="flex-1 text-[13px] text-[#222] truncate">
-                  {getDisplayName(s.location, locale as CountryLocale)}
-                </span>
+                {flag ?
+                  <span className="text-[18px] leading-none flex-shrink-0">{flag}</span>
+                : <span
+                    className="inline-block flex-shrink-0"
+                    style={{
+                      width: '1.2em',
+                      height: '0.9em',
+                      borderRadius: '2px',
+                      fontSize: '18px',
+                      backgroundColor: color.border,
+                      verticalAlign: 'middle',
+                    }}
+                  />
+                }
+                <span className="flex-1 text-[13px] text-[#222] truncate">{getDisplayName(s.location, locale)}</span>
                 <span className="text-[12px] text-[#888] w-8 text-right">{pct}%</span>
                 <span className="text-[12px] font-semibold text-[#222] w-10 text-right">
                   {s.days}
@@ -1016,20 +849,12 @@ function StatsPanel({ result, viewStart, viewEnd }: StatsPanelProps) {
 // Main Home component
 // ---------------------------------------------------------------------------
 export default function Home() {
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
 
-  // Track whether user has manually edited the textarea.
-  // If not, auto-update the sample data when the locale changes.
-  const [userEdited, setUserEdited] = useState(false);
-  const [dataText, setDataText] = useState(() => t.defaultSampleData);
+  // null = user has not edited yet → show the current locale's sample data (follows locale changes)
+  const [editedText, setEditedText] = useState<string | null>(null);
+  const dataText = editedText ?? t.defaultSampleData;
 
-  // When locale changes and user hasn't edited, swap in the new locale's sample data.
-  useEffect(() => {
-    if (!userEdited) {
-      setDataText(t.defaultSampleData);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
   const [isDetailed, setIsDetailed] = useState(true);
   const [weekStartsMonday, setWeekStartsMonday] = useState(true);
   const [parseResult, setParseResult] = useState<TravelParseResult | null>(null);
@@ -1038,7 +863,6 @@ export default function Home() {
   const [showAbout, setShowAbout] = useState(false);
   const [showCalendarPopup, setShowCalendarPopup] = useState(false);
   const [showMonacoEditor, setShowMonacoEditor] = useState(false);
-  const [monacoEditorText, setMonacoEditorText] = useState('');
 
   // Range mode state
   const [rangeMode, setRangeMode] = useState<RangeMode>('start-end');
@@ -1051,25 +875,20 @@ export default function Home() {
   useEffect(() => {
     const isNewData = prevDataTextRef.current !== dataText;
     prevDataTextRef.current = dataText;
-    try {
-      const result = parseTravelData(dataText, isDetailed);
-      if (result.errors.length > 0) {
-        setParseError(result.errors);
-        setParseResult(null);
-        return;
-      }
-      setParseResult(result);
-      setParseError(null);
-      if (isNewData) {
-        toast.success(t.parseSuccess(result.dailyLocations.length));
-        setCustomStartStr(toInputDate(result.startDate));
-        setCustomEndStr(toInputDate(result.endDate));
-        setRangeMode('start-end');
-        setDurationDays(daysBetween(result.startDate, result.endDate) + 1);
-      }
-    } catch (e: unknown) {
-      setParseError([e instanceof Error ? e.message : String(e)]);
+    const result = parseTravelData(dataText, isDetailed);
+    if (result.errors.length > 0) {
+      setParseError(result.errors);
       setParseResult(null);
+      return;
+    }
+    setParseResult(result);
+    setParseError(null);
+    if (isNewData) {
+      toast.success(t.parseSuccess(result.dailyLocations.length));
+      setCustomStartStr(formatDateDisplay(result.startDate));
+      setCustomEndStr(formatDateDisplay(result.endDate));
+      setRangeMode('start-end');
+      setDurationDays(daysBetween(result.startDate, result.endDate) + 1);
     }
   }, [dataText, isDetailed]);
 
@@ -1133,29 +952,23 @@ export default function Home() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Format help popup */}
       {showHelp && <FormatHelpPopup onClose={() => setShowHelp(false)} />}
 
-      {/* About popup */}
       {showAbout && <AboutPopup onClose={() => setShowAbout(false)} />}
 
-      {/* Monaco Editor popup */}
       {showMonacoEditor && (
         <MonacoEditorPopup
-          initialValue={monacoEditorText}
+          initialValue={dataText}
           onApply={(val) => {
-            setDataText(val);
-            setUserEdited(true);
+            setEditedText(val);
             setShowMonacoEditor(false);
           }}
           onClose={() => setShowMonacoEditor(false)}
         />
       )}
 
-      {/* Error dialog */}
       {parseError && <ErrorDialog errors={parseError} onClose={() => setParseError(null)} />}
 
-      {/* Mobile calendar popup */}
       {showCalendarPopup && parseResult && (
         <CalendarPopup
           result={parseResult}
@@ -1167,7 +980,7 @@ export default function Home() {
         />
       )}
 
-      {/* ── Left Sidebar ── full width on mobile, fixed 296px on desktop */}
+      {/* ── Left Sidebar ── full width on mobile, fixed 360px on desktop */}
       <aside className="w-full md:w-[360px] flex-shrink-0 md:border-r border-border flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-3 py-2 border-b border-[#c00000] bg-[#EB0000] flex items-center justify-between gap-2">
@@ -1186,10 +999,7 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <label className="text-[13px] font-semibold text-[#555]">{t.dataInputLabel}</label>
               <button
-                onClick={() => {
-                  setMonacoEditorText(dataText);
-                  setShowMonacoEditor(true);
-                }}
+                onClick={() => setShowMonacoEditor(true)}
                 className="text-[12px] text-[#555] hover:text-[#EB0000] font-medium flex items-center gap-1"
               >
                 <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -1200,59 +1010,27 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Mode radio */}
-          <div className="px-3 py-2 border-b border-border">
-            <span className="block text-[13px] font-semibold text-[#555] mb-1.5">{t.displayModeLabel}</span>
-            <div className="grid grid-cols-2">
-              <label className="flex items-center gap-1.5 text-[13px] text-[#555] cursor-pointer">
-                <input
-                  type="radio"
-                  name="displayMode"
-                  checked={isDetailed}
-                  onChange={() => setIsDetailed(true)}
-                  className="accent-[#EB0000]"
-                />
-                {t.modeDetailed}
-              </label>
-              <label className="flex items-center gap-1.5 text-[13px] text-[#555] cursor-pointer">
-                <input
-                  type="radio"
-                  name="displayMode"
-                  checked={!isDetailed}
-                  onChange={() => setIsDetailed(false)}
-                  className="accent-[#EB0000]"
-                />
-                {t.modeOverview}
-              </label>
-            </div>
-          </div>
+          <RadioPair
+            label={t.displayModeLabel}
+            name="displayMode"
+            value={isDetailed}
+            options={[
+              { value: true, label: t.modeDetailed },
+              { value: false, label: t.modeOverview },
+            ]}
+            onChange={setIsDetailed}
+          />
 
-          {/* Week start radio */}
-          <div className="px-3 py-2 border-b border-border">
-            <span className="block text-[13px] font-semibold text-[#555] mb-1.5">{t.weekStartLabel}</span>
-            <div className="grid grid-cols-2">
-              <label className="flex items-center gap-1.5 text-[13px] text-[#555] cursor-pointer">
-                <input
-                  type="radio"
-                  name="weekStart"
-                  checked={!weekStartsMonday}
-                  onChange={() => setWeekStartsMonday(false)}
-                  className="accent-[#EB0000]"
-                />
-                {t.weekStartSun}
-              </label>
-              <label className="flex items-center gap-1.5 text-[13px] text-[#555] cursor-pointer">
-                <input
-                  type="radio"
-                  name="weekStart"
-                  checked={weekStartsMonday}
-                  onChange={() => setWeekStartsMonday(true)}
-                  className="accent-[#EB0000]"
-                />
-                {t.weekStartMon}
-              </label>
-            </div>
-          </div>
+          <RadioPair
+            label={t.weekStartLabel}
+            name="weekStart"
+            value={weekStartsMonday}
+            options={[
+              { value: false, label: t.weekStartSun },
+              { value: true, label: t.weekStartMon },
+            ]}
+            onChange={setWeekStartsMonday}
+          />
 
           {/* Mobile: show calendar button */}
           {parseResult && (
@@ -1293,49 +1071,30 @@ export default function Home() {
               </div>
 
               <div className="space-y-1.5">
-                {rangeMode === 'start-end' && (
-                  <>
-                    <DateStepper
-                      label={t.startDateLabel}
-                      value={customStartStr}
-                      min={toInputDate(parseResult.startDate)}
-                      max={toInputDate(parseResult.endDate)}
-                      onChange={setCustomStartStr}
-                    />
-                    <DateStepper
-                      label={t.endDateLabel}
-                      value={customEndStr}
-                      min={customStartStr || toInputDate(parseResult.startDate)}
-                      max={toInputDate(parseResult.endDate)}
-                      onChange={setCustomEndStr}
-                    />
-                  </>
+                {rangeMode !== 'end-duration' && (
+                  <DateStepper
+                    label={t.startDateLabel}
+                    value={customStartStr}
+                    min={parseResult.startDate}
+                    max={parseResult.endDate}
+                    onChange={setCustomStartStr}
+                  />
                 )}
-
-                {rangeMode === 'start-duration' && (
-                  <>
-                    <DateStepper
-                      label={t.startDateLabel}
-                      value={customStartStr}
-                      min={toInputDate(parseResult.startDate)}
-                      max={toInputDate(parseResult.endDate)}
-                      onChange={setCustomStartStr}
-                    />
-                    <DurationStepper label={t.durationLabel} value={durationDays} onChange={setDurationDays} />
-                  </>
+                {rangeMode !== 'start-duration' && (
+                  <DateStepper
+                    label={t.endDateLabel}
+                    value={customEndStr}
+                    min={
+                      rangeMode === 'start-end' ?
+                        (fromInputDate(customStartStr) ?? parseResult.startDate)
+                      : parseResult.startDate
+                    }
+                    max={parseResult.endDate}
+                    onChange={setCustomEndStr}
+                  />
                 )}
-
-                {rangeMode === 'end-duration' && (
-                  <>
-                    <DateStepper
-                      label={t.endDateLabel}
-                      value={customEndStr}
-                      min={toInputDate(parseResult.startDate)}
-                      max={toInputDate(parseResult.endDate)}
-                      onChange={setCustomEndStr}
-                    />
-                    <DurationStepper label={t.durationLabel} value={durationDays} onChange={setDurationDays} />
-                  </>
+                {rangeMode !== 'start-end' && (
+                  <DurationStepper label={t.durationLabel} value={durationDays} onChange={setDurationDays} />
                 )}
 
                 {rangeError && <div className="text-[12px] text-[#EB0000] whitespace-pre-line">{rangeError}</div>}
@@ -1362,43 +1121,22 @@ export default function Home() {
         {/* Sidebar footer */}
         <div className="flex-shrink-0 border-t border-border px-3 py-2 bg-white">
           <div className="flex items-center justify-between gap-2">
-            <span
-              className="text-[11px] text-[#666] leading-tight"
-              style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
-            >
-              {t.builtWith}{' '}
-              <a
-                href="https://manus.im"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#555] hover:text-[#EB0000] transition-colors font-medium"
-              >
-                Manus
-              </a>
-              {t.builtWithSep}
-              <a
-                href="https://claude.ai/code"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#555] hover:text-[#EB0000] transition-colors font-medium"
-              >
-                Claude Code
-              </a>
-              {t.builtWithSuffix}
+            <span className="text-[11px] text-[#666] leading-tight">
+              <BuiltWith linkClassName="text-[#555] hover:text-[#EB0000] transition-colors font-medium" />
             </span>
             <div className="flex items-center gap-1 flex-shrink-0">
-              <button
-                onClick={() => setShowAbout(true)}
-                className="text-[11px] text-[#555] hover:text-[#EB0000] px-2 py-1 border border-border hover:border-[#EB0000] bg-white transition-colors"
-              >
-                {t.aboutBtn}
-              </button>
-              <button
-                onClick={() => setShowHelp(true)}
-                className="text-[11px] text-[#555] hover:text-[#EB0000] px-2 py-1 border border-border hover:border-[#EB0000] bg-white transition-colors"
-              >
-                {t.helpBtn}
-              </button>
+              {[
+                { label: t.aboutBtn, onClick: () => setShowAbout(true) },
+                { label: t.helpBtn, onClick: () => setShowHelp(true) },
+              ].map(({ label, onClick }) => (
+                <button
+                  key={label}
+                  onClick={onClick}
+                  className="text-[11px] text-[#555] hover:text-[#EB0000] px-2 py-1 border border-border hover:border-[#EB0000] bg-white transition-colors"
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
         </div>

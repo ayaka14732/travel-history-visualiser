@@ -1,37 +1,22 @@
-import { Toaster } from '@/components/ui/sonner';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import NotFound from '@/pages/NotFound';
-import { Route, Router, Switch } from 'wouter';
+import { Toaster } from 'sonner';
 import ErrorBoundary from './components/ErrorBoundary';
-import { ThemeProvider } from './contexts/ThemeContext';
 import { LocaleProvider } from './contexts/LocaleContext';
 import Home from './pages/Home';
 
-function AppRoutes() {
-  return (
-    <Switch>
-      <Route path={'/'} component={Home} />
-      <Route path={'/404'} component={NotFound} />
-      <Route component={NotFound} />
-    </Switch>
-  );
-}
+const toasterStyle = {
+  fontFamily: 'inherit',
+  '--normal-bg': 'var(--popover)',
+  '--normal-text': 'var(--popover-foreground)',
+  '--normal-border': 'var(--border)',
+} as React.CSSProperties;
 
-function App() {
+export default function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light">
-        <LocaleProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-              <AppRoutes />
-            </Router>
-          </TooltipProvider>
-        </LocaleProvider>
-      </ThemeProvider>
+      <LocaleProvider>
+        <Toaster theme="light" style={toasterStyle} />
+        <Home />
+      </LocaleProvider>
     </ErrorBoundary>
   );
 }
-
-export default App;

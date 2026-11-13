@@ -3,8 +3,10 @@
  * Each location gets a consistent color derived from its name hash.
  */
 
-// Curated palette of muted, distinguishable colors (bg, text)
-const PALETTE: Array<{ bg: string; text: string; border: string }> = [
+type LocationColor = { bg: string; text: string; border: string };
+
+// Curated palette of muted, distinguishable colors
+const PALETTE: LocationColor[] = [
   { bg: '#DBEAFE', text: '#1E40AF', border: '#93C5FD' }, // blue
   { bg: '#D1FAE5', text: '#065F46', border: '#6EE7B7' }, // green
   { bg: '#FEF3C7', text: '#92400E', border: '#FCD34D' }, // amber
@@ -23,26 +25,10 @@ const PALETTE: Array<{ bg: string; text: string; border: string }> = [
   { bg: '#FFF1F2', text: '#881337', border: '#FDA4AF' }, // rose
 ];
 
-/** Simple string hash → palette index. */
-function hashString(s: string): number {
+export function getLocationColor(location: string): LocationColor {
   let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  for (let i = 0; i < location.length; i++) {
+    h = (Math.imul(31, h) + location.charCodeAt(i)) | 0;
   }
-  return Math.abs(h);
-}
-
-const cache = new Map<string, { bg: string; text: string; border: string }>();
-
-export function getLocationColor(location: string): { bg: string; text: string; border: string } {
-  if (cache.has(location)) return cache.get(location)!;
-  const idx = hashString(location) % PALETTE.length;
-  const color = PALETTE[idx];
-  cache.set(location, color);
-  return color;
-}
-
-/** Clear cache (for testing). */
-export function clearColorCache(): void {
-  cache.clear();
+  return PALETTE[Math.abs(h) % PALETTE.length];
 }

@@ -13,7 +13,6 @@ const daDK: Translation = {
   editorDialogApply: 'Anvend',
   editorDialogCancel: 'Annuller',
 
-  formatHelpBtn: 'Formathjælp ?',
   helpBtn: 'Hjælp',
   aboutBtn: 'Om',
   aboutTitle: 'Om',
@@ -62,7 +61,6 @@ const daDK: Translation = {
   parseSuccess: (days: number) => `Analyse lykkedes: ${days} dage`,
 
   // ── Errors ────────────────────────────────────────────────────────────────
-  errorsLabel: 'Fejl',
   errorDialogTitle: 'Analysefejl',
   errorDialogClose: 'Luk',
 
@@ -74,7 +72,6 @@ const daDK: Translation = {
   emptyTitle: 'Indsæt rejsedata for at visualisere',
   emptyDesc:
     'Tre formater understøttes: flerlinjegrupper (stort sted + små steder), enkeltlinje med lille sted og enkeltlinje kun med stort sted. Eksempeldata er forudindlæst og opdateres automatisk, når du redigerer.',
-  emptyHelpLink: 'Se formatguide →',
 
   // ── Weekdays (Sun–Sat) ────────────────────────────────────────────────────
   weekdays: ['Søn', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør'],

@@ -58,7 +58,7 @@ pnpm dev          # Dev server at http://localhost:3000
 ## Tech Stack
 
 - **React 19** + TypeScript, **Vite 7**
-- **Tailwind CSS 4**, **Radix UI**, **shadcn/ui**
+- **Tailwind CSS 4**
 - **Monaco Editor** (data entry)
 - **Vitest** (test cases for the parser)
 

@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { parseTravelData, tryParseDate, formatDateDisplay, daysBetween, addDays } from './travelParser';
+import { parseTravelData, tryParseDate, formatDateDisplay, daysBetween, addDays, computeStats } from './travelParser';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -381,7 +381,7 @@ describe('Edge cases', () => {
     );
     const result = parseTravelData(input, true);
     expect(result.errors).toHaveLength(0);
-    expect(result.groups).toHaveLength(2);
+    expect(result.dailyLocations).toEqual([['SG'], ['SG'], ['SG'], ['GB'], ['GB'], ['GB']]);
   });
 
   it('rows with fewer than 6 tokens are padded correctly', () => {
@@ -406,7 +406,7 @@ describe('Edge cases', () => {
 // ---------------------------------------------------------------------------
 
 describe('computeStats deduplication', () => {
-  it('20240224 丹麥 in two minor entries counts as 1 day', async () => {
+  it('20240224 丹麥 in two minor entries counts as 1 day', () => {
     const input = data(
       row('20240221', '20240226', '申根區域', '希臘', '20240221', '20240221'),
       row('', '', '', '丹麥', '20240221', '20240224'),
@@ -414,8 +414,7 @@ describe('computeStats deduplication', () => {
       row('', '', '', '丹麥', '20240224', '20240226'),
     );
     const result = parseTravelData(input, true);
-    const { computeStats } = await import('./travelParser');
-    const stats = computeStats(result);
+    const stats = computeStats(result.dailyLocations);
     const denmark = stats.find((s) => s.location === 'DK');
     // 丹麥: 21, 22, 23, 24, 25, 26 = 6 days
     expect(denmark?.days).toBe(6);

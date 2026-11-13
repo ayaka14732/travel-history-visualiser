@@ -3,15 +3,13 @@
  */
 
 @import "tailwindcss";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --radius-sm: 0px;
   --radius-md: 0px;
   --radius-lg: 0px;
   --radius-xl: 0px;
+  --font-mono: "IBM Plex Mono", "Courier New", var(--font-cjk-sans), monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -69,7 +67,6 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    box-sizing: border-box;
   }
   body {
     @apply bg-background text-foreground;
@@ -77,21 +74,6 @@
     font-size: 13px;
     line-height: 1.4;
     -webkit-font-smoothing: antialiased;
-  }
-  :lang(zh-TW),
-  :lang(en-GB),
-  :lang(fr-CH),
-  :lang(da-DK) {
-    font-family: var(--font-sans), sans-serif;
-  }
-  /* Exclude Monaco Editor from :lang font overrides */
-  :lang(zh-TW) .monaco-editor,
-  :lang(en-GB) .monaco-editor,
-  :lang(fr-CH) .monaco-editor,
-  :lang(da-DK) .monaco-editor,
-  .monaco-editor,
-  .monaco-editor * {
-    font-family: unset;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -102,19 +84,9 @@
   input[type="checkbox"]:not(:disabled) {
     @apply cursor-pointer;
   }
-  .font-mono {
-    font-family: "IBM Plex Mono", "Courier New", var(--font-cjk-sans), monospace;
-  }
 }
 
 @layer components {
-  .container {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
   .flex {
     min-height: 0;
     min-width: 0;

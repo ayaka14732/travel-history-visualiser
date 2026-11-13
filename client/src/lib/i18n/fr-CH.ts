@@ -13,7 +13,6 @@ const frCH: Translation = {
   editorDialogApply: 'Appliquer',
   editorDialogCancel: 'Annuler',
 
-  formatHelpBtn: 'Guide de format ?',
   helpBtn: 'Aide',
   aboutBtn: 'À propos',
   aboutTitle: 'À propos',
@@ -62,7 +61,6 @@ const frCH: Translation = {
   parseSuccess: (days: number) => `Analyse réussie : ${days} jours`,
 
   // ── Errors ────────────────────────────────────────────────────────────────
-  errorsLabel: 'Erreurs',
   errorDialogTitle: "Erreur d'analyse",
   errorDialogClose: 'Fermer',
 
@@ -74,7 +72,6 @@ const frCH: Translation = {
   emptyTitle: 'Collez vos données pour les visualiser',
   emptyDesc:
     "Trois formats sont pris en charge : groupes multi-lignes (grand lieu + petits lieux), ligne unique avec petit lieu, et ligne unique grand lieu uniquement. Des données d'exemple sont préchargées et se mettent à jour automatiquement lors de la saisie.",
-  emptyHelpLink: 'Voir le guide de format →',
 
   // ── Weekdays (Sun–Sat) ────────────────────────────────────────────────────
   weekdays: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],

@@ -13,7 +13,6 @@ const enGB: Translation = {
   editorDialogApply: 'Apply',
   editorDialogCancel: 'Cancel',
 
-  formatHelpBtn: 'Format Help ?',
   helpBtn: 'Help',
   aboutBtn: 'About',
   aboutTitle: 'About',
@@ -62,7 +61,6 @@ const enGB: Translation = {
   parseSuccess: (days: number) => `Parsed successfully: ${days} days`,
 
   // ── Warnings ──────────────────────────────────────────────────────────────
-  errorsLabel: 'Errors',
   errorDialogTitle: 'Parse Error',
   errorDialogClose: 'Close',
 
@@ -74,7 +72,6 @@ const enGB: Translation = {
   emptyTitle: 'Paste your travel records to visualise',
   emptyDesc:
     'Three formats are supported: multi-line groups (major location + minor locations), single-line with minor location, and single-line major location only. Sample data is pre-loaded and updates automatically as you edit.',
-  emptyHelpLink: 'View format guide \u2192',
 
   // ── Weekdays (Sun\u2013Sat) ────────────────────────────────────────────────────
   weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],

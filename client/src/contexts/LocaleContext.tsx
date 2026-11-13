@@ -4,7 +4,7 @@
  */
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-import { LOCALES, LOCALE_ORDER, type Locale, type Translation } from '@/lib/i18n';
+import { LOCALES, type Locale, type Translation } from '@/lib/i18n';
 
 const STORAGE_KEY = 'travel-history-locale';
 
@@ -21,7 +21,6 @@ interface LocaleContextValue {
   locale: Locale;
   t: Translation;
   setLocale: (l: Locale) => void;
-  localeOrder: Locale[];
 }
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -39,14 +38,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = l;
   }, []);
 
-  const value: LocaleContextValue = {
-    locale,
-    t: LOCALES[locale],
-    setLocale,
-    localeOrder: LOCALE_ORDER,
-  };
-
-  return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
+  return <LocaleContext.Provider value={{ locale, t: LOCALES[locale], setLocale }}>{children}</LocaleContext.Provider>;
 }
 
 export function useLocale(): LocaleContextValue {

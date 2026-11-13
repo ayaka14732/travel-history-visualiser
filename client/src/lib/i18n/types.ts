@@ -13,7 +13,6 @@ export interface Translation {
   // ── Sidebar sections ──────────────────────────────────────────────────────
   languageSectionLabel: string; // "語言" / "Language"
   dataInputLabel: string;
-  formatHelpBtn: string;
   helpBtn: string;
   aboutBtn: string;
   aboutTitle: string;
@@ -64,7 +63,6 @@ export interface Translation {
   parseSuccess: (days: number) => string;
 
   // ── Errors ──────────────────────────────────────────────────────────────
-  errorsLabel: string;
   errorDialogTitle: string;
   errorDialogClose: string;
 
@@ -75,7 +73,6 @@ export interface Translation {
   // ── Calendar empty state ──────────────────────────────────────────────────
   emptyTitle: string;
   emptyDesc: string;
-  emptyHelpLink: string;
 
   // ── Calendar weekdays (Sun–Sat) ───────────────────────────────────────────
   weekdays: [string, string, string, string, string, string, string];

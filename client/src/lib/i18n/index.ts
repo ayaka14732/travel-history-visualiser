@@ -1,5 +1,5 @@
 /**
- * i18n registry and React context
+ * i18n registry (display order in the language selector follows key order)
  *
  * To add a new language:
  *   1. Create client/src/lib/i18n/<locale>.ts implementing Translation
@@ -20,7 +20,5 @@ export const LOCALES: Record<Locale, Translation> = {
   'fr-CH': frCH,
   'da-DK': daDK,
 };
-
-export const LOCALE_ORDER: Locale[] = ['zh-TW', 'en-GB', 'fr-CH', 'da-DK'];
 
 export type { Locale, Translation };

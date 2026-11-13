@@ -13,7 +13,6 @@ const zhTW: Translation = {
   editorDialogApply: '確認',
   editorDialogCancel: '取消',
 
-  formatHelpBtn: '格式說明 ?',
   helpBtn: '說明',
   aboutBtn: '關於',
   aboutTitle: '關於此工具',
@@ -62,7 +61,6 @@ const zhTW: Translation = {
   parseSuccess: (days: number) => `解析成功：${days} 天記錄`,
 
   // ── Errors ────────────────────────────────────────────────────────────────
-  errorsLabel: '錯誤',
   errorDialogTitle: '解析錯誤',
   errorDialogClose: '關閉',
 
@@ -73,7 +71,6 @@ const zhTW: Translation = {
   // ── Calendar empty state ──────────────────────────────────────────────────
   emptyTitle: '貼上旅行記錄即可自動顯示',
   emptyDesc: '支援三種格式：多行群組（大地點 + 小地點）、單行雙地點、單行單地點。已預載範例資料，修改後自動更新。',
-  emptyHelpLink: '查看格式說明 →',
 
   // ── Weekdays (Sun–Sat) ────────────────────────────────────────────────────
   weekdays: ['日', '一', '二', '三', '四', '五', '六'],

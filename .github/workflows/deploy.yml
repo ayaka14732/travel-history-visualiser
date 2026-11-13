@@ -29,7 +29,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm vite build
+      - run: pnpm build
         env:
           GITHUB_PAGES: 'true'
 
